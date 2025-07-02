@@ -1,0 +1,34 @@
+{
+  "name": "konnco-studio-company-profile",
+  "version": "1.0.0",
+  "description": "Konnco Studio Company Profile APIs",
+  "keywords": [
+    "company",
+    "tech"
+  ],
+  "license": "ISC",
+  "author": "Muhammad Fathurraihan Saputra",
+  "type": "module",
+  "main": "index.js",
+  "scripts": {
+    "test": "jest"
+  },
+  "jest": {
+    "transform": {
+      "^.+\\.[t|j]sx?$": "babel-jest"
+    }
+  },
+  "dependencies": {
+    "@prisma/client": "^6.11.0",
+    "dotenv": "^17.0.0",
+    "express": "^5.1.0",
+    "jest": "^30.0.3",
+    "joi": "^17.13.3"
+  },
+  "devDependencies": {
+    "@babel/preset-env": "^7.27.2",
+    "@jest/globals": "^30.0.3",
+    "babel-jest": "^30.0.2",
+    "prisma": "^6.11.0"
+  }
+}

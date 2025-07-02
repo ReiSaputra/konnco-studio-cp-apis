@@ -1,0 +1,32 @@
+node_modules
+
+# Keep environment variables out of version control
+.env
+
+/src/generated/prisma
+
+/src/generated/prisma
+
+# Node modules
+/node_modules/
+
+# Prisma generated files
+/src/generated/
+/prisma/dev.db
+prisma/migrations/
+
+# Environment variables
+.env
+
+# Test output / coverage (kalau pakai Jest/Mocha)
+coverage/
+*.log
+
+# Editor settings
+.vscode/
+*.swp
+*.swo
+
+# OS-specific files
+.DS_Store
+Thumbs.db
