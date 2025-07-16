@@ -235,7 +235,7 @@
                             "type": "integer",
                             "example": 1
                           },
-                          "name": {
+                          "title": {
                             "type": "string",
                             "example": "Product A"
                           },
@@ -255,19 +255,19 @@
                     "data": [
                       {
                         "id": 1,
-                        "name": "Product A",
+                        "title": "Product A",
                         "description": "Description A",
                         "mainPhoto": "/photos/products/1.jpg"
                       },
                       {
                         "id": 2,
-                        "name": "Product B",
+                        "title": "Product B",
                         "description": "Description B",
                         "mainPhoto": "/photos/products/2.jpg"
                       },
                       {
                         "id": 3,
-                        "name": "Product C",
+                        "title": "Product C",
                         "description": "Description C",
                         "mainPhoto": "/photos/products/3.jpg"
                       }
@@ -322,7 +322,7 @@
                     "data": {
                       "type": "object",
                       "properties": {
-                        "name": {
+                        "title": {
                           "type": "string",
                           "example": "Product A"
                         },
