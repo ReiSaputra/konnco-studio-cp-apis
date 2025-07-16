@@ -4,11 +4,11 @@ import { createBlogService, getBlogService, getBlogDetailService } from "../serv
 
 const createBlogController = async (req, res, next) => {
   try {
-    const { title, content } = req.body;
+    const { title, description, authorId } = req.body;
 
     validate(blogValidation, { title, content });
 
-    const data = await createBlogService(reqBody);
+    const data = await createBlogService(title, description, authorId);
 
     return res.status(200).json({
       message: "Success",

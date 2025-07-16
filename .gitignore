@@ -5,8 +5,6 @@ node_modules
 
 /src/generated/prisma
 
-/src/generated/prisma
-
 # Node modules
 /node_modules/
 

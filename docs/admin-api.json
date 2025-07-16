@@ -1,0 +1,702 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "Konnco Studio Company Profile Admin APIs",
+    "version": "1.0",
+    "description": "Konnco Studio Company Profile for Admin APIs Docs.",
+    "license": {
+      "name": "MIT",
+      "url": "https://opensource.org/license/mit"
+    },
+    "contact": {
+      "name": "Konnco Studio",
+      "email": "support@konnco.com"
+    }
+  },
+  "tags": [
+    {
+      "name": "Auth",
+      "description": "Auth APIs"
+    },
+    {
+      "name": "Blog",
+      "description": "Blog APIs"
+    },
+    {
+      "name": "Career",
+      "description": "Career APIs"
+    },
+    {
+      "name": "Dashboard",
+      "description": "Dashboard APIs"
+    },
+    {
+      "name": "Product",
+      "description": "Product APIs"
+    }
+  ],
+  "servers": [{ "url": "https://konnco.com/v1/api" }],
+  "paths": {
+    "/auth/admins/login": {
+      "post": {
+        "tags": ["Auth"],
+        "summary": "Login Admin Konnco Studio",
+        "requestBody": {
+          "description": "Login Admin Konnco Studio",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "email": {
+                    "type": "string",
+                    "format": "email",
+                    "example": "xL5d5@example.com"
+                  },
+                  "password": {
+                    "type": "string",
+                    "example": "password"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "token": {
+                      "type": "string",
+                      "example": "eyJhbGciOiJIUzI1N..."
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "Invalid email or password"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "Internal Server Error"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/admins/dashboard/overview": {
+      "get": {
+        "tags": ["Dashboard"],
+        "parameters": [
+          {
+            "name": "Authorization",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "example": "Bearer eyJhbGciOiJIUzI1N..."
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "totalBlogsPerWeek": {
+                          "type": "integer",
+                          "example": 10
+                        },
+                        "totalCareerApplicationsPerWeek": {
+                          "type": "integer",
+                          "example": 5
+                        },
+                        "blogLogs": {
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "id": {
+                                "type": "integer",
+                                "example": 1
+                              },
+                              "title": {
+                                "type": "string",
+                                "example": "Blog A"
+                              },
+                              "authorId": {
+                                "type": "string",
+                                "example": "Author A"
+                              },
+                              "type": {
+                                "type": "string",
+                                "example": "Type A"
+                              },
+                              "slug": {
+                                "type": "string",
+                                "example": "blog-a"
+                              }
+                            }
+                          },
+                          "example": [
+                            {
+                              "id": 1,
+                              "title": "Blog A",
+                              "authorId": "Author A",
+                              "type": "Type A",
+                              "slug": "blog-a"
+                            },
+                            {
+                              "id": 2,
+                              "title": "Blog B",
+                              "authorId": "Author B",
+                              "type": "Type B",
+                              "slug": "blog-b"
+                            }
+                          ]
+                        },
+                        "careerApplicationsLogs": {
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "id": {
+                                "type": "integer",
+                                "example": 1
+                              },
+                              "name": {
+                                "type": "string",
+                                "example": "John Doe"
+                              },
+                              "positionForHiring": {
+                                "type": "string",
+                                "example": "Position A"
+                              },
+                              "document": {
+                                "type": "string",
+                                "example": "docs/file.pdf"
+                              }
+                            }
+                          },
+                          "example": [
+                            {
+                              "id": 1,
+                              "name": "John Doe",
+                              "positionForHiring": "Position A",
+                              "document": "docs/file.pdf"
+                            },
+                            {
+                              "id": 2,
+                              "name": "John Doe",
+                              "positionForHiring": "Position B",
+                              "document": "docs/file2.pdf"
+                            }
+                          ]
+                        },
+                        "teams": {
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "name": {
+                                "type": "string",
+                                "example": "Team A"
+                              }
+                            }
+                          },
+                          "example": [
+                            {
+                              "name": "Team A"
+                            },
+                            {
+                              "name": "Team B"
+                            }
+                          ]
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "Unauthorized"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "Internal Server Error"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/admins/blogs": {
+      "get": {
+        "tags": ["Blog"],
+        "summary": "Get All Blogs",
+        "parameters": [
+          {
+            "name": "Authorization",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "example": "Bearer eyJhbGciOiJIUzI1N..."
+            }
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "example": 1
+            }
+          },
+          {
+            "name": "type",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "example": "Type A"
+            }
+          },
+          {
+            "name": "search",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "example": "Blog A"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "title": {
+                            "type": "string",
+                            "example": "Blog A"
+                          },
+                          "content": {
+                            "type": "string",
+                            "example": "Content A"
+                          },
+                          "type": {
+                            "type": "string",
+                            "example": "Type A"
+                          },
+                          "slug": {
+                            "type": "string",
+                            "example": "blog-a"
+                          },
+                          "createdAt": {
+                            "type": "string",
+                            "example": "2022-01-01T00:00:00.000Z"
+                          }
+                        }
+                      },
+                      "example": [
+                        {
+                          "title": "Blog A",
+                          "content": "Content A",
+                          "type": "Type A",
+                          "slug": "blog-a",
+                          "createdAt": "2022-01-01T00:00:00.000Z"
+                        },
+                        {
+                          "title": "Blog B",
+                          "content": "Content B",
+                          "type": "Type B",
+                          "slug": "blog-b",
+                          "createdAt": "2022-01-02T00:00:00.000Z"
+                        }
+                      ]
+                    },
+                    "pagination": {
+                      "type": "object",
+                      "properties": {
+                        "page": {
+                          "type": "integer",
+                          "example": 1
+                        },
+                        "limit": {
+                          "type": "integer",
+                          "example": 10
+                        },
+                        "total": {
+                          "type": "integer",
+                          "example": 100
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "Unauthorized"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "Internal Server Error"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": ["Blog"],
+        "summary": "Create Blog",
+        "parameters": [
+          {
+            "name": "Authorization",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "example": "Bearer eyJhbGciOiJIUzI1N..."
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "title": {
+                    "type": "string",
+                    "example": "Blog A"
+                  },
+                  "content": {
+                    "type": "string",
+                    "example": "Content A"
+                  },
+                  "photo": {
+                    "type": "string",
+                    "example": "/photos/1.jpg"
+                  },
+                  "category": {
+                    "type": "string",
+                    "example": "Category A"
+                  },
+                  "authorId": {
+                    "type": "integer",
+                    "example": 1
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "Blog created successfully"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "Invalid request body"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "Unauthorized"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "Internal Server Error"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/admins/blogs/{blogSlug}": {
+      "get": {
+        "tags": ["Blog"],
+        "summary": "Get Blog Detail",
+        "parameters": [
+          {
+            "name": "Authorization",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "example": "Bearer eyJhbGciOiJIUzI1N..."
+            }
+          },
+          {
+            "name": "blogSlug",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "example": "blog-a"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "title": {
+                          "type": "string",
+                          "example": "Title A"
+                        },
+                        "content": {
+                          "type": "string",
+                          "example": "Content A"
+                        },
+                        "authorId": {
+                          "type": "string",
+                          "example": "Author A"
+                        },
+                        "photo": {
+                          "type": "string",
+                          "example": "/photos/blogs/1.jpg"
+                        },
+                        "type": {
+                          "type": "string",
+                          "example": "Type A"
+                        },
+                        "createdAt": {
+                          "type": "string",
+                          "example": "2022-01-01T00:00:00.000Z"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "Unauthorized"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "Internal Server Error"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "patch": {
+        "tags": ["Blog"],
+        "summary": "Update Blog (Postponed)",
+        "parameters": [
+          {
+            "name": "Authorization",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "example": "Bearer eyJhbGciOiJIUzI1N..."
+            }
+          },
+          {
+            "name": "blogSlug",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "example": "blog-a"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": ["Blog"],
+        "summary": "Delete Blog (Postponed)"
+      }
+    }
+  }
+}
