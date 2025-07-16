@@ -118,6 +118,7 @@
     "/admins/dashboard/overview": {
       "get": {
         "tags": ["Dashboard"],
+        "summary": "Get Dashboard Overview",
         "parameters": [
           {
             "name": "Authorization",
@@ -459,7 +460,7 @@
         "requestBody": {
           "required": true,
           "content": {
-            "application/json": {
+            "multipart/form-data": {
               "schema": {
                 "type": "object",
                 "properties": {
@@ -473,7 +474,8 @@
                   },
                   "photo": {
                     "type": "string",
-                    "example": "/photos/1.jpg"
+                    "example": "/photos/1.jpg",
+                    "format": "binary"
                   },
                   "category": {
                     "type": "string",
@@ -682,7 +684,7 @@
         "requestBody": {
           "required": true,
           "content": {
-            "application/json": {
+            "multipart/form-data": {
               "schema": {
                 "type": "object",
                 "properties": {
@@ -696,7 +698,8 @@
                   },
                   "photo": {
                     "type": "string",
-                    "example": "/photos/1.jpg"
+                    "example": "/photos/1.jpg",
+                    "format": "binary"
                   },
                   "category": {
                     "type": "string",
@@ -913,8 +916,8 @@
               }
             }
           },
-          "204": {
-            "description": "No Content",
+          "401": {
+            "description": "Unauthorized",
             "content": {
               "application/json": {
                 "schema": {
@@ -922,7 +925,7 @@
                   "properties": {
                     "message": {
                       "type": "string",
-                      "example": "No Content"
+                      "example": "Unauthorized"
                     }
                   }
                 }
@@ -964,7 +967,7 @@
         "requestBody": {
           "required": true,
           "content": {
-            "application/json": {
+            "multipart/form-data": {
               "schema": {
                 "type": "object",
                 "properties": {
@@ -986,15 +989,18 @@
                   },
                   "mainPhoto": {
                     "type": "string",
-                    "example": "/photos/products/1.jpg"
+                    "example": "/photos/products/1.jpg",
+                    "format": "binary"
                   },
                   "secondPhoto": {
                     "type": "string",
-                    "example": "/photos/products/2.jpg"
+                    "example": "/photos/products/2.jpg",
+                    "format": "binary"
                   },
                   "thirdPhoto": {
                     "type": "string",
-                    "example": "/photos/products/3.jpg"
+                    "example": "/photos/products/3.jpg",
+                    "format": "binary"
                   }
                 }
               }
@@ -1073,15 +1079,284 @@
       "get": {
         "tags": ["Products"],
         "summary": "Get Product Detail (Postponed)",
-        "responses": {}
+        "parameters": [
+          {
+            "name": "productId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "example": 1
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "name": {
+                          "type": "string",
+                          "example": "Product A"
+                        },
+                        "description": {
+                          "type": "string",
+                          "example": "Description A"
+                        },
+                        "mainFeature": {
+                          "type": "string",
+                          "example": "Main Feature A"
+                        },
+                        "advantage": {
+                          "type": "string",
+                          "example": "Advantage A"
+                        },
+                        "mainPhoto": {
+                          "type": "string",
+                          "example": "/photos/products/1.jpg"
+                        },
+                        "secondPhoto": {
+                          "type": "string",
+                          "example": "/photos/products/2.jpg"
+                        },
+                        "thirdPhoto": {
+                          "type": "string",
+                          "example": "/photos/products/3.jpg"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "Unauthorized"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "501": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "Internal Server Error"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
       },
       "put": {
         "tags": ["Products"],
-        "summary": "Update Product (Postponed)"
+        "summary": "Update Product (Postponed)",
+        "parameters": [
+          {
+            "name": "Authorization",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "example": "Bearer eyJhbGciOiJIUzI1N..."
+            }
+          },
+          {
+            "name": "productId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "example": 1
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string",
+                    "example": "Product A"
+                  },
+                  "description": {
+                    "type": "string",
+                    "example": "Description A"
+                  },
+                  "mainFeature": {
+                    "type": "string",
+                    "example": "Main Feature A"
+                  },
+                  "advantage": {
+                    "type": "string",
+                    "example": "Advantage A"
+                  },
+                  "mainPhoto": {
+                    "type": "string",
+                    "format": "binary"
+                  },
+                  "secondPhoto": {
+                    "type": "string",
+                    "format": "binary"
+                  },
+                  "thirdPhoto": {
+                    "type": "string",
+                    "format": "binary"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "Successfully updated product"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "Invalid email format. Max Character, etc"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "Unauthorized"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "Internal Server Error"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
       },
       "delete": {
         "tags": ["Products"],
-        "summary": "Delete Product (Postponed)"
+        "summary": "Delete Product (Postponed)",
+        "parameters": [
+          {
+            "name": "Authorization",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "example": "Bearer eyJhbGciOiJIUzI1N..."
+            }
+          },
+          {
+            "name": "productId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "example": 1
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "Successfully deleted product"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "Internal Server Error"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
       }
     }
   }
