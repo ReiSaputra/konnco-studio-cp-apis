@@ -118,22 +118,6 @@
               }
             }
           },
-          "204": {
-            "description": "No Content",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "message": {
-                      "type": "string",
-                      "example": "No Content"
-                    }
-                  }
-                }
-              }
-            }
-          },
           "500": {
             "description": "Internal Server Error",
             "content": {
@@ -293,22 +277,6 @@
               }
             }
           },
-          "204": {
-            "description": "No Content",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "message": {
-                      "type": "string",
-                      "example": "No Content"
-                    }
-                  }
-                }
-              }
-            }
-          },
           "500": {
             "description": "Internal Server Error",
             "content": {
@@ -435,22 +403,6 @@
                           }
                         }
                       }
-                    }
-                  }
-                }
-              }
-            }
-          },
-          "204": {
-            "description": "No Content",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "message": {
-                      "type": "string",
-                      "example": "No Career Available"
                     }
                   }
                 }
