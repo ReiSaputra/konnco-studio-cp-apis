@@ -888,7 +888,7 @@
                             "type": "integer",
                             "example": 1
                           },
-                          "name": {
+                          "title": {
                             "type": "string",
                             "example": "Product A"
                           },
@@ -901,12 +901,12 @@
                       "example": [
                         {
                           "id": 1,
-                          "name": "Product A",
+                          "title": "Product A",
                           "description": "Description A"
                         },
                         {
                           "id": 2,
-                          "name": "Product B",
+                          "title": "Product B",
                           "description": "Description B"
                         }
                       ]
@@ -971,7 +971,7 @@
               "schema": {
                 "type": "object",
                 "properties": {
-                  "name": {
+                  "title": {
                     "type": "string",
                     "example": "Product A"
                   },
@@ -1078,8 +1078,17 @@
     "/admins/products/{productId}": {
       "get": {
         "tags": ["Products"],
-        "summary": "Get Product Detail (Postponed)",
+        "summary": "Get Product Detail",
         "parameters": [
+          {
+            "name": "Authorization",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "example": "Bearer eyJhbGciOiJIUzI1N..."
+            }
+          },
           {
             "name": "productId",
             "in": "path",
@@ -1101,7 +1110,7 @@
                     "data": {
                       "type": "object",
                       "properties": {
-                        "name": {
+                        "title": {
                           "type": "string",
                           "example": "Product A"
                         },
@@ -1172,7 +1181,7 @@
       },
       "put": {
         "tags": ["Products"],
-        "summary": "Update Product (Postponed)",
+        "summary": "Update Product",
         "parameters": [
           {
             "name": "Authorization",
@@ -1200,7 +1209,7 @@
               "schema": {
                 "type": "object",
                 "properties": {
-                  "name": {
+                  "title": {
                     "type": "string",
                     "example": "Product A"
                   },
@@ -1302,7 +1311,7 @@
       },
       "delete": {
         "tags": ["Products"],
-        "summary": "Delete Product (Postponed)",
+        "summary": "Delete Product",
         "parameters": [
           {
             "name": "Authorization",
@@ -1354,6 +1363,158 @@
                   }
                 }
               }
+            }
+          }
+        }
+      }
+    },
+    "/admins/careers": {
+      "get": {
+        "tags": ["Careers"],
+        "summary": "Get All Careers",
+        "parameters": [
+          {
+            "name": "Authorization",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "example": "Bearer eyJhbGciOiJIUzI1N..."
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "careers": {
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "id": {
+                                "type": "integer",
+                                "example": 1
+                              },
+                              "title": {
+                                "type": "string",
+                                "example": "Job A"
+                              },
+                              "description": {
+                                "type": "string",
+                                "example": "Description A"
+                              },
+                              "type": {
+                                "type": "string",
+                                "example": "Type A"
+                              },
+                              "tags": {
+                                "type": "array",
+                                "items": {
+                                  "type": "string",
+                                  "example": "Tag A"
+                                },
+                                "example": ["Tag A", "Tag B", "Tag C"]
+                              }
+                            }
+                          },
+                          "example": [
+                            {
+                              "id": 1,
+                              "title": "Job A",
+                              "description": "Description A",
+                              "type": "Type A",
+                              "tags": ["Tag A", "Tag B", "Tag C"]
+                            },
+                            {
+                              "id": 2,
+                              "title": "Job B",
+                              "description": "Description B",
+                              "type": "Type B",
+                              "tags": ["Tag A", "Tag B", "Tag C"]
+                            }
+                          ]
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "Unauthorized"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "Internal Server Error"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": ["Careers"],
+        "summary": "Create Career",
+        "parameters": [
+          {
+            "name": "Authorization",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "example": ""
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "title": {}
+                }
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {}
             }
           }
         }
