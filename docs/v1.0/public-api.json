@@ -16,26 +16,26 @@
   "servers": [{ "url": "https://konnco.com/v1/api" }],
   "tags": [
     {
-      "name": "Blog",
-      "description": "Blog APIs"
+      "name": "Blogs",
+      "description": "Blogs APIs"
     },
     {
-      "name": "Career",
-      "description": "Career APIs"
+      "name": "Careers",
+      "description": "Careers APIs"
     },
     {
-      "name": "Contact",
-      "description": "Contact APIs"
+      "name": "Contacts",
+      "description": "Contacts APIs"
     },
     {
-      "name": "Product",
-      "description": "Product APIs"
+      "name": "Products",
+      "description": "Products APIs"
     }
   ],
   "paths": {
     "/blogs": {
       "get": {
-        "tags": ["Blog"],
+        "tags": ["Blogs"],
         "summary": "Get All Blogs",
         "responses": {
           "200": {
@@ -155,7 +155,7 @@
     },
     "/blogs/{blogSlug}": {
       "get": {
-        "tags": ["Blog"],
+        "tags": ["Blogs"],
         "summary": "Get Blog Detail",
         "parameters": [
           {
@@ -232,7 +232,7 @@
     },
     "/products": {
       "get": {
-        "tags": ["Product"],
+        "tags": ["Products"],
         "summary": "Get All Products",
         "responses": {
           "200": {
@@ -330,7 +330,7 @@
     },
     "/products/{productId}": {
       "get": {
-        "tags": ["Product"],
+        "tags": ["Products"],
         "summary": "Get Product Detail",
         "parameters": [
           {
@@ -394,7 +394,7 @@
     },
     "/careers": {
       "get": {
-        "tags": ["Career"],
+        "tags": ["Careers"],
         "summary": "Get All Careers",
         "responses": {
           "200": {
@@ -479,7 +479,7 @@
     "/careers/{careerId}": {
       "get": {
         "summary": "Get Career Detail",
-        "tags": ["Career"],
+        "tags": ["Careers"],
         "parameters": [
           {
             "name": "careerId",
@@ -562,7 +562,7 @@
     },
     "/careers/{careerId}/apply": {
       "post": {
-        "tags": ["Career"],
+        "tags": ["Careers"],
         "summary": "Create/Apply Career",
         "parameters": [
           {
@@ -707,7 +707,7 @@
     },
     "/careers/{careerId}/applications/{applyId}/thank-you": {
       "get": {
-        "tags": ["Career"],
+        "tags": ["Careers"],
         "summary": "Get Thank you message",
         "parameters": [
           {
@@ -757,7 +757,7 @@
     "/contacts": {
       "post": {
         "summary": "Create Contact",
-        "tags": ["Contact"],
+        "tags": ["Contacts"],
         "requestBody": {
           "required": true,
           "content": {

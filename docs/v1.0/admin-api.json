@@ -19,20 +19,20 @@
       "description": "Auth APIs"
     },
     {
-      "name": "Blog",
-      "description": "Blog APIs"
+      "name": "Blogs",
+      "description": "Blogs APIs"
     },
     {
-      "name": "Career",
-      "description": "Career APIs"
+      "name": "Careers",
+      "description": "Careers APIs"
     },
     {
       "name": "Dashboard",
       "description": "Dashboard APIs"
     },
     {
-      "name": "Product",
-      "description": "Product APIs"
+      "name": "Products",
+      "description": "Products APIs"
     }
   ],
   "servers": [{ "url": "https://konnco.com/v1/api" }],
@@ -294,7 +294,7 @@
     },
     "/admins/blogs": {
       "get": {
-        "tags": ["Blog"],
+        "tags": ["Blogs"],
         "summary": "Get All Blogs",
         "parameters": [
           {
@@ -443,7 +443,7 @@
         }
       },
       "post": {
-        "tags": ["Blog"],
+        "tags": ["Blogs"],
         "summary": "Create Blog",
         "parameters": [
           {
@@ -558,7 +558,7 @@
     },
     "/admins/blogs/{blogSlug}": {
       "get": {
-        "tags": ["Blog"],
+        "tags": ["Blogs"],
         "summary": "Get Blog Detail",
         "parameters": [
           {
@@ -657,7 +657,7 @@
         }
       },
       "put": {
-        "tags": ["Blog"],
+        "tags": ["Blogs"],
         "summary": "Update Blog",
         "parameters": [
           {
@@ -713,6 +713,7 @@
         },
         "responses": {
           "200": {
+            "description": "Success",
             "content": {
               "application/json": {
                 "schema": {
@@ -778,7 +779,7 @@
         }
       },
       "delete": {
-        "tags": ["Blog"],
+        "tags": ["Blogs"],
         "summary": "Delete Blog",
         "parameters": [
           {
@@ -802,6 +803,7 @@
         ],
         "responses": {
           "200": {
+            "description": "Success",
             "content": {
               "application/json": {
                 "schema": {
@@ -849,6 +851,237 @@
             }
           }
         }
+      }
+    },
+    "/admins/products": {
+      "get": {
+        "tags": ["Products"],
+        "summary": "Get All Products",
+        "parameters": [
+          {
+            "name": "Authorization",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "example": "Bearer eyJhbGciOiJIUzI1N..."
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "id": {
+                            "type": "integer",
+                            "example": 1
+                          },
+                          "name": {
+                            "type": "string",
+                            "example": "Product A"
+                          },
+                          "description": {
+                            "type": "string",
+                            "example": "Description A"
+                          }
+                        }
+                      },
+                      "example": [
+                        {
+                          "id": 1,
+                          "name": "Product A",
+                          "description": "Description A"
+                        },
+                        {
+                          "id": 2,
+                          "name": "Product B",
+                          "description": "Description B"
+                        }
+                      ]
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "204": {
+            "description": "No Content",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "No Content"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "Internal Server Error"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": ["Products"],
+        "summary": "Create Product",
+        "parameters": [
+          {
+            "name": "Authorization",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "example": "Bearer eyJhbGciOiJIUzI1N..."
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string",
+                    "example": "Product A"
+                  },
+                  "description": {
+                    "type": "string",
+                    "example": "Description A"
+                  },
+                  "mainFeature": {
+                    "type": "string",
+                    "example": "Main Feature A"
+                  },
+                  "advantage": {
+                    "type": "string",
+                    "example": "Advantage A"
+                  },
+                  "mainPhoto": {
+                    "type": "string",
+                    "example": "/photos/products/1.jpg"
+                  },
+                  "secondPhoto": {
+                    "type": "string",
+                    "example": "/photos/products/2.jpg"
+                  },
+                  "thirdPhoto": {
+                    "type": "string",
+                    "example": "/photos/products/3.jpg"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "Product created successfully"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "Invalid request body"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "Unauthorized"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "Internal Server Error"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/admins/products/{productId}": {
+      "get": {
+        "tags": ["Products"],
+        "summary": "Get Product Detail (Postponed)",
+        "responses": {}
+      },
+      "put": {
+        "tags": ["Products"],
+        "summary": "Update Product (Postponed)"
+      },
+      "delete": {
+        "tags": ["Products"],
+        "summary": "Delete Product (Postponed)"
       }
     }
   }
