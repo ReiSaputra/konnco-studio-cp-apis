@@ -534,7 +534,7 @@
               "schema": {
                 "type": "object",
                 "properties": {
-                  "name": {
+                  "applicantName": {
                     "type": "string",
                     "example": "Nidzhom Akmal"
                   },
@@ -550,11 +550,11 @@
                   "academic": {
                     "type": "object",
                     "properties": {
-                      "level": {
+                      "educationLevel": {
                         "type": "string",
                         "example": "SMA/SMK"
                       },
-                      "institute": {
+                      "instituteName": {
                         "type": "string",
                         "example": "Institute A"
                       }
@@ -570,7 +570,7 @@
                   "industry": {
                     "type": "object",
                     "properties": {
-                      "company": {
+                      "companyName": {
                         "type": "string",
                         "example": "Company A"
                       },
