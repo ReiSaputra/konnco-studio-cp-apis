@@ -1,4 +1,4 @@
-import { describe, expect, it } from "@jest/globals";
+import { beforeAll, describe, expect, it } from "@jest/globals";
 import supertest from "supertest";
 import { prisma } from "../../src/database.js";
 import app from "../../src/app.js";
@@ -47,6 +47,66 @@ describe("when users create inquiry or message contact", () => {
     console.info(response.body);
     expect(response.body).toEqual({
       message: expect.any(String),
+      test: true,
+    });
+  });
+});
+
+describe("when users create inquiry or message contact", () => {
+  beforeAll(async () => {
+    await prisma.inquiry.deleteMany();
+  });
+
+  it("should be able to create and get the response 'thank you' from inquiry page successfully", async () => {
+    const responseOne = await supertest(app).post("/api/v1/inquiries").send({
+      senderName: "Ageng Wiryanto",
+      email: "xL5d5@example.com",
+      subject: "Subject A",
+      message: "Lorem ipsum dolor sit amet consectetur adipisicing elit. Quisquam, quae.",
+    });
+
+    expect(responseOne.status).toBe(200);
+    expect(responseOne.body).toEqual({
+      message: "Successfully created inquiry",
+      data: {
+        id: expect.any(String),
+      },
+    });
+
+    const inquiryId = responseOne.body.data.id;
+
+    const responseTwo = await supertest(app).get(`/api/v1/inquiries/${inquiryId}/thank-you`);
+
+    expect(responseTwo.status).toBe(200);
+    expect(responseTwo.body).toEqual({
+      message: "Successfully get response inquiry",
+      data: {
+        senderName: "Ageng Wiryanto",
+      },
+    });
+  });
+
+  it("should be able to create and but did not get the response 'thank you' from inquiry page successfully", async () => {
+    const responseOne = await supertest(app).post("/api/v1/inquiries").send({
+      senderName: "Ageng Wiryanto",
+      email: "xL5d5@example.com",
+      subject: "Subject A",
+      message: "Lorem ipsum dolor sit amet consectetur adipisicing elit. Quisquam, quae.",
+    });
+
+    expect(responseOne.status).toBe(200);
+    expect(responseOne.body).toEqual({
+      message: "Successfully created inquiry",
+      data: {
+        id: expect.any(String),
+      },
+    });
+
+    const responseTwo = await supertest(app).get(`/api/v1/inquiries/there-is-no-id/thank-you`);
+
+    expect(responseTwo.status).toBe(400);
+    expect(responseTwo.body).toEqual({
+      message: "Inquiry not found",
       test: true,
     });
   });
