@@ -35,7 +35,7 @@
       "description": "Products APIs"
     }
   ],
-  "servers": [{ "url": "https://konnco.com/v1/api" }],
+  "servers": [{ "url": "https://konnco.com/api/v1" }],
   "paths": {
     "/auth/admins/login": {
       "post": {

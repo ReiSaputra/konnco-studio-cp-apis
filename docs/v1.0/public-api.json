@@ -13,7 +13,7 @@
       "email": "support@konnco.com"
     }
   },
-  "servers": [{ "url": "https://konnco.com/v1/api" }],
+  "servers": [{ "url": "https://konnco.com/api/v1" }],
   "tags": [
     {
       "name": "Blogs",
