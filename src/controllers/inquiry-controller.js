@@ -5,6 +5,11 @@ import { createInquiryService } from "../services/inquiry-service.js";
 const createInquiryController = async (req, res, next) => {
   try {
     const { senderName, email, subject, message } = req.body;
+    
+    if (!senderName) throw new Error("Sender name is required");
+    if (!email) throw new Error("Email is required");
+    if (!subject) throw new Error("Subject is required");
+    if (!message) throw new Error("Message is required");
 
     validate(inquirySchema, { senderName, email, subject, message });
 

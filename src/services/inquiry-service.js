@@ -12,6 +12,7 @@ const createInquiryService = async (name, email, subject, message) => {
       id: true,
     },
   });
+  
   return createData;
 };
 
