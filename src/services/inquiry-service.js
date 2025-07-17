@@ -12,8 +12,21 @@ const createInquiryService = async (name, email, subject, message) => {
       id: true,
     },
   });
-  
+
   return createData;
 };
 
-export { createInquiryService };
+const getResponseInquiryService = async (inquiryId) => {
+  const findData = await prisma.inquiry.findUnique({
+    where: {
+      id: inquiryId,
+    },
+    select: {
+      senderName: true,
+    },
+  });
+
+  return findData;
+};
+
+export { createInquiryService, getResponseInquiryService };

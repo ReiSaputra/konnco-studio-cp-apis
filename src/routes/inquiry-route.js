@@ -1,13 +1,10 @@
 import express from "express";
 
-import { createInquiryController } from "../controllers/inquiry-controller.js";
+import { createInquiryController, getResponseInquiryController } from "../controllers/inquiry-controller.js";
 
 const inquiryRoute = express.Router();
 
 inquiryRoute.post("/inquiries", createInquiryController);
-/**
- * Create for next commit
- */
-// inquiryRoute.get("/inquiries/:inquiryId/thank-you", );
+inquiryRoute.get("/inquiries/:inquiryId/thank-you", getResponseInquiryController);
 
 export { inquiryRoute };
