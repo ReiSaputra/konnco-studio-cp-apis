@@ -12,5 +12,11 @@
       "name": "Konnco Studio",
       "email": "support@konnco.com"
     }
-  }
+  },
+  "servers": [
+    {
+      "url": "https://konnco.com/api/v1"
+    }
+  ],
+  "paths": {}
 }
