@@ -1,4 +1,4 @@
-import { ValidationError } from "../class/validation-error";
+import { ValidationError } from "../class/validation-error.js";
 
 const validate = (schema, data) => {
   const { error } = schema.validate(data, { abortEarly: false });

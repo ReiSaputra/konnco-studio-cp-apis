@@ -1,0 +1,16 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "Konnco Studio Company Profile Super Admin APIs",
+    "version": "1.0",
+    "description": "Konnco Studio Company Profile for Super Admin APIs Docs.",
+    "license": {
+      "name": "MIT",
+      "url": "https://opensource.org/license/mit"
+    },
+    "contact": {
+      "name": "Konnco Studio",
+      "email": "support@konnco.com"
+    }
+  }
+}

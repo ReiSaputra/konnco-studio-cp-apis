@@ -1,0 +1,843 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "Konnco Studio Company Profile Public APIs",
+    "version": "1.0",
+    "description": "Konnco Studio Company Profile for Public APIs Docs.",
+    "license": {
+      "name": "MIT",
+      "url": "https://opensource.org/license/mit"
+    },
+    "contact": {
+      "name": "Konnco Studio",
+      "email": "support@konnco.com"
+    }
+  },
+  "servers": [{ "url": "https://konnco.com/v1/api" }],
+  "tags": [
+    {
+      "name": "Blog",
+      "description": "Blog APIs"
+    },
+    {
+      "name": "Career",
+      "description": "Career APIs"
+    },
+    {
+      "name": "Contact",
+      "description": "Contact APIs"
+    },
+    {
+      "name": "Product",
+      "description": "Product APIs"
+    }
+  ],
+  "paths": {
+    "/blogs": {
+      "get": {
+        "tags": ["Blog"],
+        "summary": "Get All Blogs",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "title": {
+                            "type": "string",
+                            "example": "Title A"
+                          },
+                          "content": {
+                            "type": "string",
+                            "example": "Description A"
+                          },
+                          "author": {
+                            "type": "string",
+                            "example": "John Doe"
+                          },
+                          "photo": {
+                            "type": "string",
+                            "example": "/photos/blogs/1.jpg"
+                          },
+                          "slug": {
+                            "type": "string",
+                            "example": "title-a"
+                          },
+                          "category": {
+                            "type": "string",
+                            "example": "category A"
+                          },
+                          "createdAt": {
+                            "type": "string",
+                            "example": "2023-08-01T10:00:00Z",
+                            "format": "date-time"
+                          }
+                        }
+                      }
+                    }
+                  },
+                  "example": {
+                    "data": [
+                      {
+                        "title": "Title A",
+                        "content": "Description A",
+                        "author": "John Doe",
+                        "slug": "title-a",
+                        "photo": "/photos/blogs/1.jpg",
+                        "category": "Category A",
+                        "createdAt": "2023-08-01T10:00:00Z"
+                      },
+                      {
+                        "title": "Title B",
+                        "content": "Description B",
+                        "author": "Jane Doe",
+                        "slug": "title-b",
+                        "photo": "/photos/blogs/2.jpg",
+                        "category": "Category B",
+                        "createdAt": "2023-08-02T11:00:00Z"
+                      },
+                      {
+                        "title": "Title C",
+                        "content": "Description C",
+                        "author": "Kevin Doe",
+                        "slug": "title-c",
+                        "photo": "/photos/blogs/1.jpg",
+                        "category": "Category C",
+                        "createdAt": "2023-08-03T12:00:00Z"
+                      }
+                    ]
+                  }
+                }
+              }
+            }
+          },
+          "204": {
+            "description": "No Content",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "No Content"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "Internal Server Error"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/blogs/{blogSlug}": {
+      "get": {
+        "tags": ["Blog"],
+        "summary": "Get Blog Detail",
+        "parameters": [
+          {
+            "name": "blogSlug",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "example": "title-a"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "title": {
+                          "type": "string",
+                          "example": "Title A"
+                        },
+                        "content": {
+                          "type": "string",
+                          "example": "Description A"
+                        },
+                        "author": {
+                          "type": "string",
+                          "example": "John Doe"
+                        },
+                        "photo": {
+                          "type": "string",
+                          "example": "/photos/blogs/1.jpg"
+                        },
+                        "category": {
+                          "type": "string",
+                          "example": "Category A"
+                        },
+                        "createdAt": {
+                          "type": "string",
+                          "format": "date-time",
+                          "example": "2023-08-01T10:00:00Z"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "Internal Server Error"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/products": {
+      "get": {
+        "tags": ["Product"],
+        "summary": "Get All Products",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "id": {
+                            "type": "integer",
+                            "example": 1
+                          },
+                          "name": {
+                            "type": "string",
+                            "example": "Product A"
+                          },
+                          "description": {
+                            "type": "string",
+                            "example": "Description A"
+                          },
+                          "mainPhoto": {
+                            "type": "string",
+                            "example": "/photos/products/1.jpg"
+                          }
+                        }
+                      }
+                    }
+                  },
+                  "example": {
+                    "data": [
+                      {
+                        "id": 1,
+                        "name": "Product A",
+                        "description": "Description A",
+                        "mainPhoto": "/photos/products/1.jpg"
+                      },
+                      {
+                        "id": 2,
+                        "name": "Product B",
+                        "description": "Description B",
+                        "mainPhoto": "/photos/products/2.jpg"
+                      },
+                      {
+                        "id": 3,
+                        "name": "Product C",
+                        "description": "Description C",
+                        "mainPhoto": "/photos/products/3.jpg"
+                      }
+                    ]
+                  }
+                }
+              }
+            }
+          },
+          "204": {
+            "description": "No Content",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "No Content"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "Internal Server Error"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/products/{productId}": {
+      "get": {
+        "tags": ["Product"],
+        "summary": "Get Product Detail",
+        "parameters": [
+          {
+            "name": "productId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "example": 1
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "name": {
+                          "type": "string",
+                          "example": "Product A"
+                        },
+                        "description": {
+                          "type": "string",
+                          "example": "Description A"
+                        },
+                        "mainFeature": {
+                          "type": "string",
+                          "example": "Feature A"
+                        },
+                        "advantage": {
+                          "type": "string",
+                          "example": "Advantage A"
+                        },
+                        "mainPhoto": {
+                          "type": "string",
+                          "example": "/photos/products/1.jpg"
+                        },
+                        "secondPhoto": {
+                          "type": "string",
+                          "example": "/photos/products/2.jpg"
+                        },
+                        "thirdPhoto": {
+                          "type": "string",
+                          "example": "/photos/products/3.jpg"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/careers": {
+      "get": {
+        "tags": ["Career"],
+        "summary": "Get All Careers",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "id": {
+                            "type": "integer",
+                            "example": 1
+                          },
+                          "title": {
+                            "type": "string",
+                            "example": "Career A"
+                          },
+                          "description": {
+                            "type": "string",
+                            "example": "Description A"
+                          },
+                          "type": {
+                            "type": "string",
+                            "example": "Type A"
+                          },
+                          "tags": {
+                            "type": "array",
+                            "items": {
+                              "type": "string",
+                              "example": "Tag A"
+                            },
+                            "example": ["Tag A", "Tag B", "Tag C"]
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "204": {
+            "description": "No Content",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "No Career Available"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "Internal Server Error"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/careers/{careerId}": {
+      "get": {
+        "summary": "Get Career Detail",
+        "tags": ["Career"],
+        "parameters": [
+          {
+            "name": "careerId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "example": 1
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "title": {
+                          "type": "string",
+                          "example": "Career A"
+                        },
+                        "salary": {
+                          "type": "string",
+                          "example": "Rp3.800.000 - Rp4.000.000 per month"
+                        },
+                        "description": {
+                          "type": "string",
+                          "example": "Description A"
+                        },
+                        "requirements": {
+                          "type": "array",
+                          "items": {
+                            "type": "string",
+                            "example": "Requirement A"
+                          },
+                          "example": ["Requirement A", "Requirement B", "Requirement C"]
+                        },
+                        "linkedInInfo": {
+                          "type": "string",
+                          "example": "https://www.linkedin.com/in/"
+                        },
+                        "jobStreetInfo": {
+                          "type": "string",
+                          "example": "https://jobstreet.co.id/"
+                        },
+                        "glintsInfo": {
+                          "type": "string",
+                          "example": "https://glints.com/"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "Internal Server Error"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/careers/{careerId}/apply": {
+      "post": {
+        "tags": ["Career"],
+        "summary": "Create/Apply Career",
+        "parameters": [
+          {
+            "name": "careerId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "example": 1
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string",
+                    "example": "Nidzhom Akmal"
+                  },
+                  "email": {
+                    "type": "string",
+                    "format": "email",
+                    "example": "akm.ndzm@gmail.com"
+                  },
+                  "phoneNumber": {
+                    "type": "string",
+                    "example": "87740557890"
+                  },
+                  "academic": {
+                    "type": "object",
+                    "properties": {
+                      "level": {
+                        "type": "string",
+                        "example": "SMA/SMK"
+                      },
+                      "institute": {
+                        "type": "string",
+                        "example": "Institute A"
+                      }
+                    }
+                  },
+                  "message": {
+                    "type": "string"
+                  },
+                  "file": {
+                    "type": "string",
+                    "format": "binary"
+                  },
+                  "industry": {
+                    "type": "object",
+                    "properties": {
+                      "company": {
+                        "type": "string",
+                        "example": "Company A"
+                      },
+                      "position": {
+                        "type": "string",
+                        "example": "Position A"
+                      },
+                      "lengthOfService": {
+                        "type": "string",
+                        "example": "2 Years"
+                      }
+                    }
+                  },
+                  "skill": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    },
+                    "example": ["Skill A", "Skill B", "Skill C"]
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "Successfully applied for job"
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "applyId": {
+                          "type": "string",
+                          "example": "70f9c440-3376-4402-88e5-71d705c75ef8"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "Invalid request"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "Internal Server Error"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/careers/{careerId}/applications/{applyId}/thank-you": {
+      "get": {
+        "tags": ["Career"],
+        "summary": "Get Thank you message",
+        "parameters": [
+          {
+            "name": "careerId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "example": 1
+            }
+          },
+          {
+            "name": "applyId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "example": "70f9c440-3376-4402-88e5-71d705c75ef8"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "message": {
+                          "type": "string",
+                          "example": "Successfully retrieved thank you message"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/contacts": {
+      "post": {
+        "summary": "Create Contact",
+        "tags": ["Contact"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string",
+                    "example": "Muh. Rizky"
+                  },
+                  "email": {
+                    "type": "string",
+                    "format": "email",
+                    "example": "xL5d5@example.com"
+                  },
+                  "subject": {
+                    "type": "string",
+                    "example": "Subject A"
+                  },
+                  "message": {
+                    "type": "string",
+                    "example": "Hello there"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "Thank you for your messsage"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "Invalid email format. Max Character, etc"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "Internal Server Error"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

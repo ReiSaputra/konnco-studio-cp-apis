@@ -14,6 +14,16 @@
     "test": "jest"
   },
   "jest": {
+    "verbose": true,
+    "collectCoverage": true,
+    "collectCoverageFrom": [
+      "src/**/*.{js,jsx,ts,tsx}",
+      "!src/generated/**",
+      "!**/node_modules/**",
+      "!**/prisma/**",
+      "!**/prisma/generated/**"
+    ],
+    "coverageDirectory": "./coverage",
     "transform": {
       "^.+\\.[t|j]sx?$": "babel-jest"
     }

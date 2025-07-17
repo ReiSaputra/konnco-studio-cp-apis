@@ -28,6 +28,8 @@ model Admin {
   updatedAt DateTime @updatedAt @map("updated_at")
 
   @@map("admins")
+
+  @@map("admins")
 }
 
 model Blog {
