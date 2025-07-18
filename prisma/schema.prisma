@@ -19,7 +19,7 @@ model Admin {
   name        String @db.VarChar(255)
   password    String @db.VarChar(255)
   email       String @unique @db.VarChar(255)
-  phoneNumber String @unique @db.VarChar(255) @map("phone_number")
+  phoneNumber String @unique @map("phone_number") @db.VarChar(255)
 
   blogs   Blog[]
   careers Career[]
@@ -76,7 +76,7 @@ model Application {
   instituteName   String        @map("institute_name") @db.VarChar(255)
   companyName     String        @map("company_name") @db.VarChar(255)
   position        String        @db.VarChar(255)
-  lengthOfService String        @map("length_of_service") @db.VarChar(255)
+  lengthOfService Int           @map("length_of_service") @db.TinyInt
   skills          String        @db.Text
   letter          String        @db.Text
 
