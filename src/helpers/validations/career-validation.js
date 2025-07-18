@@ -20,8 +20,12 @@ const careerApplicationSchema = joi.object({
     })
     .optional(),
   message: joi.string().max(3000).required(),
-  file: joi.string().required(),
+  fileName: joi
+    .string()
+    // .pattern(/\.pdf$/i)
+    .required(),
   skills: joi.array().items(joi.string()).min(1).required(),
+  careerId: joi.number().required(),
 });
 
 export { careerSchema, careerApplicationSchema };

@@ -1,5 +1,6 @@
 import { inquirySchema } from "../helpers/validations/inquiry-validation.js";
 import { validate } from "../helpers/validations/validate.js";
+
 import { createInquiryService } from "../services/inquiry-service.js";
 import { getResponseInquiryService } from "../services/inquiry-service.js";
 

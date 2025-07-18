@@ -1,9 +1,10 @@
 class FileUploadError extends Error {
-  constructor(message) {
+  constructor(message, statusCode) {
     super(message);
+
     this.name = "FileUploadError";
+    this.statusCode = statusCode;
   }
-  statusCode = 400;
 }
 
 export { FileUploadError };

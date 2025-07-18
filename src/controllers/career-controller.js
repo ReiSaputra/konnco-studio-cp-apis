@@ -1,6 +1,8 @@
 import { careerApplicationSchema } from "../helpers/validations/career-validation.js";
 import { validate } from "../helpers/validations/validate.js";
 
+import { createApplicationService } from "../services/career-service.js";
+
 const createCareerApplicationController = async (req, res, next) => {
   try {
     const { applicantName, email, phoneNumber, educationLevel, instituteName, skills, companyName, position, lengthOfService, message } = req.body;
@@ -34,9 +36,12 @@ const createCareerApplicationController = async (req, res, next) => {
       industry = undefined;
     }
 
-    validate(careerApplicationSchema, { applicantName, email, phoneNumber, academic, industry, file, message });
+    const fileName = file.filename;
+    const skillEach = skills.split(",").map((skill) => skill.trim());
 
-    // const data = await createApplicationService(applicantName, email, phoneNumber, academic, message);
+    validate(careerApplicationSchema, { applicantName, email, phoneNumber, academic, industry, fileName, message, skillEach, careerId });
+
+    const data = await createApplicationService(applicantName, email, phoneNumber, academic, industry, fileName, message, skillEach, careerId);
 
     return res.status(200).json({
       message: "Successfully created career application",
