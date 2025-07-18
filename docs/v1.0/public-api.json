@@ -13,29 +13,29 @@
       "email": "support@konnco.com"
     }
   },
-  "servers": [{ "url": "https://konnco.com/v1/api" }],
+  "servers": [{ "url": "https://konnco.com/api/v1" }],
   "tags": [
     {
-      "name": "Blog",
-      "description": "Blog APIs"
+      "name": "Blogs",
+      "description": "Blogs APIs"
     },
     {
-      "name": "Career",
-      "description": "Career APIs"
+      "name": "Careers",
+      "description": "Careers APIs"
     },
     {
-      "name": "Contact",
-      "description": "Contact APIs"
+      "name": "Inquiries",
+      "description": "Inquiries APIs"
     },
     {
-      "name": "Product",
-      "description": "Product APIs"
+      "name": "Products",
+      "description": "Products APIs"
     }
   ],
   "paths": {
     "/blogs": {
       "get": {
-        "tags": ["Blog"],
+        "tags": ["Blogs"],
         "summary": "Get All Blogs",
         "responses": {
           "200": {
@@ -118,22 +118,6 @@
               }
             }
           },
-          "204": {
-            "description": "No Content",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "message": {
-                      "type": "string",
-                      "example": "No Content"
-                    }
-                  }
-                }
-              }
-            }
-          },
           "500": {
             "description": "Internal Server Error",
             "content": {
@@ -155,7 +139,7 @@
     },
     "/blogs/{blogSlug}": {
       "get": {
-        "tags": ["Blog"],
+        "tags": ["Blogs"],
         "summary": "Get Blog Detail",
         "parameters": [
           {
@@ -232,7 +216,7 @@
     },
     "/products": {
       "get": {
-        "tags": ["Product"],
+        "tags": ["Products"],
         "summary": "Get All Products",
         "responses": {
           "200": {
@@ -251,7 +235,7 @@
                             "type": "integer",
                             "example": 1
                           },
-                          "name": {
+                          "title": {
                             "type": "string",
                             "example": "Product A"
                           },
@@ -271,39 +255,23 @@
                     "data": [
                       {
                         "id": 1,
-                        "name": "Product A",
+                        "title": "Product A",
                         "description": "Description A",
                         "mainPhoto": "/photos/products/1.jpg"
                       },
                       {
                         "id": 2,
-                        "name": "Product B",
+                        "title": "Product B",
                         "description": "Description B",
                         "mainPhoto": "/photos/products/2.jpg"
                       },
                       {
                         "id": 3,
-                        "name": "Product C",
+                        "title": "Product C",
                         "description": "Description C",
                         "mainPhoto": "/photos/products/3.jpg"
                       }
                     ]
-                  }
-                }
-              }
-            }
-          },
-          "204": {
-            "description": "No Content",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "message": {
-                      "type": "string",
-                      "example": "No Content"
-                    }
                   }
                 }
               }
@@ -330,7 +298,7 @@
     },
     "/products/{productId}": {
       "get": {
-        "tags": ["Product"],
+        "tags": ["Products"],
         "summary": "Get Product Detail",
         "parameters": [
           {
@@ -354,7 +322,7 @@
                     "data": {
                       "type": "object",
                       "properties": {
-                        "name": {
+                        "title": {
                           "type": "string",
                           "example": "Product A"
                         },
@@ -394,7 +362,7 @@
     },
     "/careers": {
       "get": {
-        "tags": ["Career"],
+        "tags": ["Careers"],
         "summary": "Get All Careers",
         "responses": {
           "200": {
@@ -441,22 +409,6 @@
               }
             }
           },
-          "204": {
-            "description": "No Content",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "message": {
-                      "type": "string",
-                      "example": "No Career Available"
-                    }
-                  }
-                }
-              }
-            }
-          },
           "500": {
             "description": "Internal Server Error",
             "content": {
@@ -479,7 +431,7 @@
     "/careers/{careerId}": {
       "get": {
         "summary": "Get Career Detail",
-        "tags": ["Career"],
+        "tags": ["Careers"],
         "parameters": [
           {
             "name": "careerId",
@@ -562,7 +514,7 @@
     },
     "/careers/{careerId}/apply": {
       "post": {
-        "tags": ["Career"],
+        "tags": ["Careers"],
         "summary": "Create/Apply Career",
         "parameters": [
           {
@@ -582,7 +534,7 @@
               "schema": {
                 "type": "object",
                 "properties": {
-                  "name": {
+                  "applicantName": {
                     "type": "string",
                     "example": "Nidzhom Akmal"
                   },
@@ -598,11 +550,11 @@
                   "academic": {
                     "type": "object",
                     "properties": {
-                      "level": {
+                      "educationLevel": {
                         "type": "string",
                         "example": "SMA/SMK"
                       },
-                      "institute": {
+                      "instituteName": {
                         "type": "string",
                         "example": "Institute A"
                       }
@@ -618,7 +570,7 @@
                   "industry": {
                     "type": "object",
                     "properties": {
-                      "company": {
+                      "companyName": {
                         "type": "string",
                         "example": "Company A"
                       },
@@ -707,7 +659,7 @@
     },
     "/careers/{careerId}/applications/{applyId}/thank-you": {
       "get": {
-        "tags": ["Career"],
+        "tags": ["Careers"],
         "summary": "Get Thank you message",
         "parameters": [
           {
@@ -754,10 +706,10 @@
         }
       }
     },
-    "/contacts": {
+    "/inquiries": {
       "post": {
-        "summary": "Create Contact",
-        "tags": ["Contact"],
+        "summary": "Create Inquiry",
+        "tags": ["Inquiries"],
         "requestBody": {
           "required": true,
           "content": {
@@ -765,7 +717,7 @@
               "schema": {
                 "type": "object",
                 "properties": {
-                  "name": {
+                  "senderName": {
                     "type": "string",
                     "example": "Muh. Rizky"
                   },
@@ -798,6 +750,15 @@
                     "message": {
                       "type": "string",
                       "example": "Thank you for your messsage"
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "id": {
+                          "type": "string",
+                          "example": "70f9c440-3376-4402-88e5-71d705c75ef8"
+                        }
+                      }
                     }
                   }
                 }
@@ -814,6 +775,82 @@
                     "message": {
                       "type": "string",
                       "example": "Invalid email format. Max Character, etc"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "Internal Server Error"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/inquiries/{inquiryId}/thank-you": {
+      "get": {
+        "tags": ["Inquiries"],
+        "summary": "Get Thank you message",
+        "parameters": [
+          {
+            "name": "inquiryId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "example": "70f9c440-3376-4402-88e5-71d705c75ef8"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "Successfully retrieved thank you message"
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "senderName": {
+                          "type": "string",
+                          "example": "Alfan"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "Invalid Inquiry Id"
                     }
                   }
                 }
