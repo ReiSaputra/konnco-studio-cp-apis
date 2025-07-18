@@ -24,8 +24,8 @@
       "description": "Careers APIs"
     },
     {
-      "name": "Contacts",
-      "description": "Contacts APIs"
+      "name": "Inquiries",
+      "description": "Inquiries APIs"
     },
     {
       "name": "Products",
@@ -706,10 +706,10 @@
         }
       }
     },
-    "/contacts": {
+    "/inquiries": {
       "post": {
-        "summary": "Create Contact",
-        "tags": ["Contacts"],
+        "summary": "Create Inquiry",
+        "tags": ["Inquiries"],
         "requestBody": {
           "required": true,
           "content": {
@@ -717,7 +717,7 @@
               "schema": {
                 "type": "object",
                 "properties": {
-                  "name": {
+                  "senderName": {
                     "type": "string",
                     "example": "Muh. Rizky"
                   },
@@ -750,6 +750,15 @@
                     "message": {
                       "type": "string",
                       "example": "Thank you for your messsage"
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "id": {
+                          "type": "string",
+                          "example": "70f9c440-3376-4402-88e5-71d705c75ef8"
+                        }
+                      }
                     }
                   }
                 }
@@ -782,6 +791,50 @@
                     "message": {
                       "type": "string",
                       "example": "Internal Server Error"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/inquiries/{inquiryId}/thank-you": {
+      "get": {
+        "tags": ["Inquiries"],
+        "summary": "Get Thank you message",
+        "parameters": [
+          {
+            "name": "inquiryId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "example": "70f9c440-3376-4402-88e5-71d705c75ef8"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "Successfully retrieved thank you message"
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "senderName": {
+                          "type": "string",
+                          "example": "Alfan"
+                        }
+                      }
                     }
                   }
                 }
