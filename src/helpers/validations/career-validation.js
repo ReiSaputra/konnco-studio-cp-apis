@@ -1,22 +1,27 @@
 import joi from "joi";
 
-const careerSchema = joi.object({
-  applicantName: joi.string().required(),
-  email: joi.string().required(),
-  phoneNumber: joi.string().required(),
+const careerSchema = joi.object({});
+
+const careerApplicationSchema = joi.object({
+  applicantName: joi.string().max(255).required(),
+  email: joi.string().max(255).required(),
+  phoneNumber: joi.string().max(255).required(),
   academic: joi
     .object({
-      educationLevel: joi.string().required(),
-      instituteName: joi.string().required(),
+      educationLevel: joi.string().valid("SD", "SMP", "SMA", "SMK", "D3", "D4", "S1", "S2", "S3").required(),
+      instituteName: joi.string().max(255).required(),
     })
     .required(),
   industry: joi
     .object({
       companyName: joi.string().max(255).optional(),
       position: joi.string().max(255).optional(),
-      lengthOfService: joi.number().max(255).optional(),
+      lengthOfService: joi.number().max(100).optional().positive(),
     })
     .optional(),
-  message: joi.string().required(),
+  message: joi.string().max(3000).required(),
   file: joi.string().required(),
+  skills: joi.array().items(joi.string()).min(1).required(),
 });
+
+export { careerSchema, careerApplicationSchema };
