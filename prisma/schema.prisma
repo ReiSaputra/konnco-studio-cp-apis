@@ -74,9 +74,9 @@ model Application {
   phoneNumber     String        @db.VarChar(255)
   educationType   EducationType @map("education_type")
   instituteName   String        @map("institute_name") @db.VarChar(255)
-  companyName     String        @map("company_name") @db.VarChar(255)
-  position        String        @db.VarChar(255)
-  lengthOfService Int           @map("length_of_service") @db.TinyInt
+  companyName     String?       @map("company_name") @db.VarChar(255)
+  position        String?       @db.VarChar(255)
+  lengthOfService Int?          @map("length_of_service") @db.TinyInt
   skills          String        @db.Text
   letter          String        @db.Text
 
