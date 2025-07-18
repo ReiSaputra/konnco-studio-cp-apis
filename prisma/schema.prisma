@@ -78,6 +78,7 @@ model Application {
   position        String?       @db.VarChar(255)
   lengthOfService Int?          @map("length_of_service") @db.TinyInt
   skills          String        @db.Text
+  file            String        @db.VarChar(255) @map("file")
   letter          String        @db.Text
 
   careerId Int    @map("career_id")
