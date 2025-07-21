@@ -1,3 +1,4 @@
+import { PropertyError } from "../helpers/class/property-error.js";
 import { inquirySchema } from "../helpers/validations/inquiry-validation.js";
 import { validate } from "../helpers/validations/validate.js";
 
@@ -8,10 +9,10 @@ const createInquiryController = async (req, res, next) => {
   try {
     const { senderName, email, subject, message } = req.body;
 
-    if (!senderName) throw new Error("Sender name is required");
-    if (!email) throw new Error("Email is required");
-    if (!subject) throw new Error("Subject is required");
-    if (!message) throw new Error("Message is required");
+    if (!senderName) throw new PropertyError("Sender name is required");
+    if (!email) throw new PropertyError("Email is required");
+    if (!subject) throw new PropertyError("Subject is required");
+    if (!message) throw new PropertyError("Message is required");
 
     validate(inquirySchema, { senderName, email, subject, message });
 

@@ -43,11 +43,11 @@ describe("when users create inquiry or message contact", () => {
   it("should not be able to create inquiry or message contact - not found properties", async () => {
     const response = await supertest(app).post("/api/v1/inquiries").send({});
 
-    expect(response.status).toBe(400);
     console.info(response.body);
+
+    expect(response.status).toBe(400);
     expect(response.body).toEqual({
       message: expect.any(String),
-      test: true,
     });
   });
 });
@@ -106,8 +106,7 @@ describe("when users create inquiry or message contact", () => {
 
     expect(responseTwo.status).toBe(400);
     expect(responseTwo.body).toEqual({
-      message: "Inquiry not found",
-      test: true,
+      message: "Error: Inquiry not found",
     });
   });
 });
