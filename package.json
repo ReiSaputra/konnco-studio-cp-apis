@@ -11,6 +11,8 @@
   "type": "module",
   "main": "index.js",
   "scripts": {
+    "dev": "nodemon app.js",
+    "start": "node app.js",
     "test": "jest"
   },
   "jest": {
@@ -30,15 +32,18 @@
   },
   "dependencies": {
     "@prisma/client": "^6.11.0",
+    "cors": "^2.8.5",
     "dotenv": "^17.0.0",
     "express": "^5.1.0",
     "jest": "^30.0.4",
-    "joi": "^17.13.3"
+    "joi": "^17.13.3",
+    "multer": "^2.0.2"
   },
   "devDependencies": {
     "@babel/preset-env": "^7.27.2",
     "@jest/globals": "^30.0.3",
     "babel-jest": "^30.0.2",
+    "nodemon": "^3.1.10",
     "prisma": "^6.11.0",
     "supertest": "^7.1.3"
   }

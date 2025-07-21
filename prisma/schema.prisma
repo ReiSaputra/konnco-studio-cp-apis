@@ -35,6 +35,8 @@ model Blog {
   title       String @db.VarChar(255)
   description String @db.Text
   slug        String @db.VarChar(255)
+  descriptionThumbnail String @db.VarChar(255)
+  photo       String 
 
   authorId String @map("author_id") @db.VarChar(255)
   author   Admin  @relation(fields: [authorId], references: [id])
