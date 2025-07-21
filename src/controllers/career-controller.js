@@ -11,6 +11,7 @@ const createCareerApplicationController = async (req, res, next) => {
     const file = req.file;
     const { careerId } = req.params;
 
+    
     if (!applicantName) throw new PropertyError("Applicant's Name is required");
     if (!email) throw new PropertyError("Email is required");
     if (!phoneNumber) throw new PropertyError("Phone Number is required");
@@ -20,7 +21,7 @@ const createCareerApplicationController = async (req, res, next) => {
     if (!message) throw new PropertyError("Message is required");
     if (!file) throw new FileUploadError("Either File is required or File Mime Type is not PDF");
     if (!careerId) throw new PropertyError("Career id is required");
-
+    
     const academic = {
       educationLevel: educationLevel,
       instituteName: instituteName,
@@ -38,9 +39,11 @@ const createCareerApplicationController = async (req, res, next) => {
       industry = undefined;
     }
 
+    const skillsConvert = Array.isArray(skills) ? req.body.skills : [skills];
+
     const fileName = file.filename;
 
-    validate(careerApplicationSchema, { applicantName, email, phoneNumber, academic, industry, fileName, message, skills, careerId });
+    validate(careerApplicationSchema, { applicantName, email, phoneNumber, academic, industry, fileName, message, skillsConvert, careerId });
 
     if (companyName === undefined) {
       companyName = null;
@@ -52,7 +55,7 @@ const createCareerApplicationController = async (req, res, next) => {
       lengthOfService = null;
     }
 
-    const data = await createApplicationService(applicantName, email, phoneNumber, academic, companyName, position, lengthOfService, fileName, message, skills, careerId);
+    const data = await createApplicationService(applicantName, email, phoneNumber, academic, companyName, position, lengthOfService, fileName, message, skillsConvert, careerId);
 
     return res.status(200).json({
       message: "Successfully created career application",

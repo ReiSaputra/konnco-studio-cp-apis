@@ -22,9 +22,9 @@ const careerApplicationSchema = joi.object({
   message: joi.string().max(3000).required(),
   fileName: joi
     .string()
-    // .pattern(/\.pdf$/i)
+    .pattern(/\.pdf$/i)
     .required(),
-  skills: joi.array().items(joi.string()).min(1).required(),
+  skillsConvert: joi.array().items(joi.string()).min(1).required(),
   careerId: joi.number().required(),
 });
 
