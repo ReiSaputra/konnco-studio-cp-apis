@@ -125,7 +125,7 @@ model Application {
   instituteName   String        @map("institute_name") @db.VarChar(255)
   companyName     String?       @map("company_name") @db.VarChar(255)
   position        String?       @db.VarChar(255)
-  lengthOfService Int?          @map("length_of_service") @db.TinyInt
+  lengthOfService String?       @map("length_of_service") @db.VarChar(255)
   skills          String        @db.Text
   file            String        @map("file") @db.VarChar(255)
   letter          String        @db.Text
