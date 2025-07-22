@@ -2,7 +2,7 @@ import express from "express";
 import multer from "multer";
 import fs from "fs";
 
-import { createCareerApplicationController } from "../controllers/career-controller.js";
+import { createCareerApplicationController, getResponseApplicationController } from "../controllers/career-controller.js";
 
 import { FileUploadError } from "../helpers/class/file-upload-error.js";
 
@@ -36,10 +36,7 @@ const upload = multer({
   },
 });
 
-// careerRoute.get("/sda", upload.single("file"), (req, res, next) => {
-//   const files = req.file.filename
-// });
-
+careerRoute.get("/careers/:careerId/applications/:applicationId/thank-you", getResponseApplicationController);
 careerRoute.post("/careers/:careerId/applications", upload.single("cv"), createCareerApplicationController);
 
 export { careerRoute };

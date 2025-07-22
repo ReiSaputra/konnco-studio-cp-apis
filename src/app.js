@@ -15,7 +15,9 @@ app.use("/api/v1", inquiryRoute);
 app.use("/api/v1", careerRoute);
 
 app.use((req, res, next) => {
-  res.status(404).json("Resource not found");
+  res.status(404).json({
+    message: "Resource not found",
+  });
 });
 
 app.use(errorMiddleware);

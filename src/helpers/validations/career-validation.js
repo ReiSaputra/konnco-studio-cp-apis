@@ -16,7 +16,7 @@ const careerApplicationSchema = joi.object({
     .object({
       companyName: joi.string().max(255).optional(),
       position: joi.string().max(255).optional(),
-      lengthOfService: joi.string().max(255).optional(),
+      lengthOfService: joi.string().valid("BELOW_1_YEAR", "ABOVE_1_YEAR").max(255).optional(),
     })
     .optional(),
   message: joi.string().max(3000).required(),
@@ -25,7 +25,9 @@ const careerApplicationSchema = joi.object({
     .pattern(/\.pdf$/i)
     .required(),
   skillsConvert: joi.array().items(joi.string()).min(1).required(),
-  careerId: joi.number().required(),
 });
 
-export { careerSchema, careerApplicationSchema };
+const careerIdSchema = joi.number().required();
+const applicationIdSchema = joi.string().required();
+
+export { careerSchema, careerApplicationSchema, careerIdSchema, applicationIdSchema };

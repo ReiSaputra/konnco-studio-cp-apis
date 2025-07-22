@@ -3,19 +3,7 @@ import { prisma } from "../database.js";
 const createApplicationService = async (applicantName, email, phoneNumber, academic, companyName, position, lengthOfService, fileName, message, skills, careerId) => {
   const { educationLevel, instituteName } = academic;
 
-  // console.info("coba industry");
-  // console.info(industry);
-
-  // console.info("coba academic");
-  // console.info(academic);
-
-  // console.info("coba skills");
-  // console.info(skills);
-
   const skillEach = skills.map((skill) => skill.trim()).join(", ");
-
-  // console.info("coba skillEach");
-  // console.info(skillEach);
 
   const findCareer = await prisma.career.findUnique({
     where: {
@@ -23,13 +11,7 @@ const createApplicationService = async (applicantName, email, phoneNumber, acade
     },
   });
 
-  // console.info("coba findCareer");
-  // console.info(findCareer);
-
   if (!findCareer) throw new Error("Career not found");
-
-  // console.info("coba findCareer");
-  // console.info(findCareer);
 
   const createData = await prisma.application.create({
     data: {
@@ -56,4 +38,20 @@ const createApplicationService = async (applicantName, email, phoneNumber, acade
   return createData;
 };
 
-export { createApplicationService };
+const getResponseApplicationService = async (careerId, applicationId) => {
+  const findCareer = await prisma.application.findUnique({
+    where: {
+      id: applicationId,
+      careerId: Number(careerId),
+    },
+    select: {
+      applicantName: true,
+    },
+  });
+
+  if (!findCareer) throw new Error("Application not found");
+
+  return findCareer;
+};
+
+export { createApplicationService, getResponseApplicationService };

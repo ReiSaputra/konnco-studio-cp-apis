@@ -1,9 +1,9 @@
 import { FileUploadError } from "../helpers/class/file-upload-error.js";
 import { PropertyError } from "../helpers/class/property-error.js";
-import { careerApplicationSchema } from "../helpers/validations/career-validation.js";
+import { applicationIdSchema, careerApplicationSchema, careerIdSchema } from "../helpers/validations/career-validation.js";
 import { validate } from "../helpers/validations/validate.js";
 
-import { createApplicationService } from "../services/career-service.js";
+import { createApplicationService, getResponseApplicationService } from "../services/career-service.js";
 
 const createCareerApplicationController = async (req, res, next) => {
   try {
@@ -11,7 +11,6 @@ const createCareerApplicationController = async (req, res, next) => {
     const file = req.file;
     const { careerId } = req.params;
 
-    
     if (!applicantName) throw new PropertyError("Applicant's Name is required");
     if (!email) throw new PropertyError("Email is required");
     if (!phoneNumber) throw new PropertyError("Phone Number is required");
@@ -20,8 +19,7 @@ const createCareerApplicationController = async (req, res, next) => {
     if (!skills) throw new PropertyError("Skills is required");
     if (!message) throw new PropertyError("Message is required");
     if (!file) throw new FileUploadError("Either File is required or File Mime Type is not PDF");
-    if (!careerId) throw new PropertyError("Career id is required");
-    
+
     const academic = {
       educationLevel: educationLevel,
       instituteName: instituteName,
@@ -43,7 +41,8 @@ const createCareerApplicationController = async (req, res, next) => {
 
     const fileName = file.filename;
 
-    validate(careerApplicationSchema, { applicantName, email, phoneNumber, academic, industry, fileName, message, skillsConvert, careerId });
+    validate(careerApplicationSchema, { applicantName, email, phoneNumber, academic, industry, fileName, message, skillsConvert });
+    validate(careerIdSchema, careerId);
 
     if (companyName === undefined) {
       companyName = null;
@@ -68,4 +67,27 @@ const createCareerApplicationController = async (req, res, next) => {
   }
 };
 
-export { createCareerApplicationController };
+const getResponseApplicationController = async (req, res, next) => {
+  try {
+    const { careerId, applicationId } = req.params;
+
+    if (!careerId) throw new PropertyError("Career id is required");
+    if (!applicationId) throw new PropertyError("Application id is required");
+
+    validate(careerIdSchema, careerId);
+    validate(applicationIdSchema, applicationId);
+
+    const data = await getResponseApplicationService(careerId, applicationId);
+
+    return res.status(200).json({
+      message: "Successfully get response application",
+      data: {
+        applicantName: data.applicantName,
+      },
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export { createCareerApplicationController, getResponseApplicationController };

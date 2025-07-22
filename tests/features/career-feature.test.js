@@ -61,6 +61,8 @@ describe("when users create wants to apply for a job application", () => {
       .field("skills", "Angular")
       .attach("cv", filePath);
 
+    console.info(response.body);
+
     expect(response.status).toBe(200);
     expect(response.body).toEqual({
       message: "Successfully created career application",

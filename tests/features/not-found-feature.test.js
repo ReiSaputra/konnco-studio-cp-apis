@@ -7,7 +7,9 @@ describe("when users access invalid routes on /api/v1/*", () => {
     const response = await supertest(app).get("/api/v1/there-is-no-route");
 
     expect(response.status).toBe(404);
-    expect(response.body).toEqual("Resource not found");
+    expect(response.body).toEqual({
+      message: "Resource not found",
+    });
   });
 
   it("should return 404 - POST", async () => {
@@ -19,7 +21,9 @@ describe("when users access invalid routes on /api/v1/*", () => {
     });
 
     expect(response.status).toBe(404);
-    expect(response.body).toEqual("Resource not found");
+    expect(response.body).toEqual({
+      message: "Resource not found",
+    });
   });
 
   it("should return 404 - PUT", async () => {
@@ -31,7 +35,9 @@ describe("when users access invalid routes on /api/v1/*", () => {
     });
 
     expect(response.status).toBe(404);
-    expect(response.body).toEqual("Resource not found");
+    expect(response.body).toEqual({
+      message: "Resource not found",
+    });
   });
 
   it("should return 404 - PATCH", async () => {
@@ -43,14 +49,18 @@ describe("when users access invalid routes on /api/v1/*", () => {
     });
 
     expect(response.status).toBe(404);
-    expect(response.body).toEqual("Resource not found");
+    expect(response.body).toEqual({
+      message: "Resource not found",
+    });
   });
 
   it("should return 404 - DELETE", async () => {
     const response = await supertest(app).delete("/api/v1/there-is-no-route");
 
     expect(response.status).toBe(404);
-    expect(response.body).toEqual("Resource not found");
+    expect(response.body).toEqual({
+      message: "Resource not found",
+    });
   });
 });
 
@@ -59,7 +69,9 @@ describe("when users access invalid routes on /*", () => {
     const response = await supertest(app).get("/there-is-no-route");
 
     expect(response.status).toBe(404);
-    expect(response.body).toEqual("Resource not found");
+    expect(response.body).toEqual({
+      message: "Resource not found",
+    });
   });
 
   it("should return 404 - POST", async () => {
@@ -71,7 +83,9 @@ describe("when users access invalid routes on /*", () => {
     });
 
     expect(response.status).toBe(404);
-    expect(response.body).toEqual("Resource not found");
+    expect(response.body).toEqual({
+      message: "Resource not found",
+    });
   });
 
   it("should return 404 - PUT", async () => {
@@ -83,7 +97,9 @@ describe("when users access invalid routes on /*", () => {
     });
 
     expect(response.status).toBe(404);
-    expect(response.body).toEqual("Resource not found");
+    expect(response.body).toEqual({
+      message: "Resource not found",
+    });
   });
 
   it("should return 404 - PATCH", async () => {
@@ -95,13 +111,17 @@ describe("when users access invalid routes on /*", () => {
     });
 
     expect(response.status).toBe(404);
-    expect(response.body).toEqual("Resource not found");
+    expect(response.body).toEqual({
+      message: "Resource not found",
+    });
   });
 
   it("should return 404 - DELETE", async () => {
     const response = await supertest(app).delete("/there-is-no-route");
 
     expect(response.status).toBe(404);
-    expect(response.body).toEqual("Resource not found");
+    expect(response.body).toEqual({
+      message: "Resource not found",
+    });
   });
 });
