@@ -117,18 +117,18 @@ model Career {
 }
 
 model Application {
-  id              String        @id @default(uuid()) @db.VarChar(255)
-  applicantName   String        @map("applicant_name") @db.VarChar(255)
-  email           String        @db.VarChar(255)
-  phoneNumber     String        @map("phone_number") @db.VarChar(255)
-  educationType   EducationType @map("education_type")
-  instituteName   String        @map("institute_name") @db.VarChar(255)
-  companyName     String?       @map("company_name") @db.VarChar(255)
-  position        String?       @db.VarChar(255)
-  lengthOfService String?       @map("length_of_service") @db.VarChar(255)
-  skills          String        @db.Text
-  file            String        @map("file") @db.VarChar(255)
-  letter          String        @db.Text
+  id              String               @id @default(uuid()) @db.VarChar(255)
+  applicantName   String               @map("applicant_name") @db.VarChar(255)
+  email           String               @db.VarChar(255)
+  phoneNumber     String               @map("phone_number") @db.VarChar(255)
+  educationType   EducationType        @map("education_type")
+  instituteName   String               @map("institute_name") @db.VarChar(255)
+  companyName     String?              @map("company_name") @db.VarChar(255)
+  position        String?              @db.VarChar(255)
+  lengthOfService LengthOfServiceType? @map("length_of_service")
+  skills          String               @db.Text
+  file            String               @map("file") @db.VarChar(255)
+  letter          String               @db.Text
 
   careerId Int    @map("career_id")
   career   Career @relation(fields: [careerId], references: [id])
@@ -136,6 +136,11 @@ model Application {
   createdAt DateTime @default(now()) @map("created_at")
 
   @@map("applications")
+}
+
+enum LengthOfServiceType {
+  BELOW_1_YEAR
+  ABOVE_1_YEAR
 }
 
 enum CareerType {
