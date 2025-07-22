@@ -512,7 +512,7 @@
         }
       }
     },
-    "/careers/{careerId}/apply": {
+    "/careers/{careerId}/applications": {
       "post": {
         "tags": ["Careers"],
         "summary": "Create/Apply Career",
@@ -547,44 +547,34 @@
                     "type": "string",
                     "example": "87740557890"
                   },
-                  "academic": {
-                    "type": "object",
-                    "properties": {
-                      "educationLevel": {
-                        "type": "string",
-                        "example": "SMA/SMK"
-                      },
-                      "instituteName": {
-                        "type": "string",
-                        "example": "Institute A"
-                      }
-                    }
+                  "educationLevel": {
+                    "type": "string",
+                    "example": "SMA"
+                  },
+                  "instituteName": {
+                    "type": "string",
+                    "example": "Institute A"
+                  },
+                  "companyName": {
+                    "type": "string",
+                    "example": "Company A"
+                  },
+                  "position": {
+                    "type": "string",
+                    "example": "Position A"
+                  },
+                  "lengthOfService": {
+                    "type": "string",
+                    "example": "2 Years"
                   },
                   "message": {
                     "type": "string"
                   },
-                  "file": {
+                  "cv": {
                     "type": "string",
                     "format": "binary"
                   },
-                  "industry": {
-                    "type": "object",
-                    "properties": {
-                      "companyName": {
-                        "type": "string",
-                        "example": "Company A"
-                      },
-                      "position": {
-                        "type": "string",
-                        "example": "Position A"
-                      },
-                      "lengthOfService": {
-                        "type": "string",
-                        "example": "2 Years"
-                      }
-                    }
-                  },
-                  "skill": {
+                  "skills": {
                     "type": "array",
                     "items": {
                       "type": "string"

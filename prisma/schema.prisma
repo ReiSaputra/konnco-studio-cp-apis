@@ -20,9 +20,12 @@ model Admin {
   password    String @db.VarChar(255)
   email       String @unique @db.VarChar(255)
   phoneNumber String @unique @map("phone_number") @db.VarChar(255)
+  role        Role
+  token       String @unique @db.VarChar(255)
 
-  blogs   Blog[]
-  careers Career[]
+  blogs       Blog[]
+  careers     Career[]
+  permissions AdminPermission?
 
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
@@ -30,11 +33,49 @@ model Admin {
   @@map("admins")
 }
 
+model AdminPermission {
+  id Int @id @default(autoincrement())
+
+  adminId String @unique @map("admin_id") @db.VarChar(255)
+  admin   Admin  @relation(fields: [adminId], references: [id])
+
+  canCreateBlog Boolean @default(false)
+  canViewBlog   Boolean @default(false)
+  canUpdateBlog Boolean @default(false)
+  canDeleteBlog Boolean @default(false)
+
+  canCreateCareer Boolean @default(false)
+  canViewCareer   Boolean @default(false)
+  canUpdateCareer Boolean @default(false)
+  canDeleteCareer Boolean @default(false)
+
+  canCreateProduct Boolean @default(false)
+  canViewProduct   Boolean @default(false)
+  canUpdateProduct Boolean @default(false)
+  canDeleteProduct Boolean @default(false)
+
+  canCreateAdmin Boolean @default(false)
+  canViewAdmin   Boolean @default(false)
+  canUpdateAdmin Boolean @default(false)
+  canDeleteAdmin Boolean @default(false)
+
+  @@map("admin_permissions")
+}
+
+enum Role {
+  ADMIN
+  SUPER_ADMIN
+}
+
 model Blog {
-  id          String @id @default(uuid()) @db.VarChar(255)
-  title       String @db.VarChar(255)
-  description String @db.Text
-  slug        String @db.VarChar(255)
+  id      String   @id @default(uuid()) @db.VarChar(255)
+  title   String   @db.VarChar(255)
+  content String   @db.Text
+  slug    String   @unique @db.VarChar(255)
+  type    BlogType
+  photo   String   @db.VarChar(255)
+
+  isVisible Boolean @default(false) @map("is_visible")
 
   authorId String @map("author_id") @db.VarChar(255)
   author   Admin  @relation(fields: [authorId], references: [id])
@@ -43,6 +84,14 @@ model Blog {
   updatedAt DateTime @updatedAt @map("updated_at")
 
   @@map("blogs")
+}
+
+enum BlogType {
+  TECH
+  BUSINESS
+  NEWS
+  TUTORIAL
+  OTHER
 }
 
 model Career {
@@ -71,14 +120,14 @@ model Application {
   id              String        @id @default(uuid()) @db.VarChar(255)
   applicantName   String        @map("applicant_name") @db.VarChar(255)
   email           String        @db.VarChar(255)
-  phoneNumber     String        @db.VarChar(255)
+  phoneNumber     String        @map("phone_number") @db.VarChar(255)
   educationType   EducationType @map("education_type")
   instituteName   String        @map("institute_name") @db.VarChar(255)
   companyName     String?       @map("company_name") @db.VarChar(255)
   position        String?       @db.VarChar(255)
-  lengthOfService Int?          @map("length_of_service") @db.TinyInt
+  lengthOfService String?       @map("length_of_service") @db.VarChar(255)
   skills          String        @db.Text
-  file            String        @db.VarChar(255) @map("file")
+  file            String        @map("file") @db.VarChar(255)
   letter          String        @db.Text
 
   careerId Int    @map("career_id")
