@@ -31,9 +31,9 @@ const createCareerApplicationController = async (req, res, next) => {
 
     if (companyName || position || lengthOfService) {
       industry = {
-        companyName: companyName || undefined,
-        position: position || undefined,
-        lengthOfService: lengthOfService || undefined,
+        companyName: companyName,
+        position: position,
+        lengthOfService: lengthOfService,
       };
     } else {
       industry = undefined;

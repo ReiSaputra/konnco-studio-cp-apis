@@ -16,7 +16,7 @@ const careerApplicationSchema = joi.object({
     .object({
       companyName: joi.string().max(255).optional(),
       position: joi.string().max(255).optional(),
-      lengthOfService: joi.number().max(100).optional().positive(),
+      lengthOfService: joi.string().max(255).optional(),
     })
     .optional(),
   message: joi.string().max(3000).required(),

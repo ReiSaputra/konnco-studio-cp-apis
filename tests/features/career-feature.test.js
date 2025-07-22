@@ -10,15 +10,14 @@ describe("when users create wants to apply for a job application", () => {
   beforeAll(async () => {
     await prisma.application.deleteMany();
     await prisma.career.deleteMany();
+    await prisma.adminPermission.deleteMany();
     await prisma.admin.deleteMany();
   });
 
   it("should be able to create a job application successfully", async () => {
-    let careerId;
-
     const filePath = path.resolve(__dirname, "../samples/files/[2] PRD - Konnco Studio Company Profile.pdf");
 
-    careerId = await prisma.career.create({
+    const careerId = await prisma.career.create({
       data: {
         title: "Software Developer (React)",
         description: "Description A",
@@ -33,6 +32,10 @@ describe("when users create wants to apply for a job application", () => {
             email: "adminA@konnco.com",
             password: "dontknowityet",
             phoneNumber: "087843202523",
+            role: "ADMIN",
+            permissions: {
+              create: {},
+            },
           },
         },
         salary: "Rp. 1.000.000",
@@ -51,7 +54,7 @@ describe("when users create wants to apply for a job application", () => {
       .field("instituteName", "SMAN 1 Cianjur")
       .field("companyName", "PT. Konnco")
       .field("position", "Software Developer")
-      .field("lengthOfService", 2)
+      .field("lengthOfService", "BELOW_1_YEAR")
       .field("message", "Lorem ipsum dolor sit amet consectetur adipisicing elit. Quisquam, quae.")
       .field("skills", "React")
       .field("skills", "Vue")
@@ -87,7 +90,7 @@ describe("when users create wants to apply for a job application", () => {
       .field("instituteName", "SMAN 1 Cianjur")
       .field("companyName", "PT. Konnco")
       .field("position", "Software Developer")
-      .field("lengthOfService", 2)
+      .field("lengthOfService", "ABOVE_1_YEAR")
       .field("message", "Lorem ipsum dolor sit amet consectetur adipisicing elit. Quisquam, quae.")
       .field("skills", "HTML")
       .field("skills", "CSS")
@@ -102,7 +105,7 @@ describe("when users create wants to apply for a job application", () => {
     });
   });
 
-  it("should not be able to create a job application - invalid data (no params)", async () => {
+  it("should not be able to create a job application - invalid data (invalid params)", async () => {
     const filePath = path.resolve(__dirname, "../samples/files/LAPORAN PRAKTIKUM - DASAR PEMROGRAMAN DART - 2205076 M FATHURRAIHAN S.pdf");
     const response = await supertest(app)
       .post(`/api/v1/careers/no-career-id/applications`)
@@ -198,5 +201,138 @@ describe("when users create wants to apply for a job application", () => {
 
     expect(response.status).toBe(400);
     expect(response.body.message).toContain("Either File");
+  });
+
+  it("should be able to create a job application - send 1 skill", async () => {
+    const findCareer = await prisma.career.findMany({
+      where: {
+        title: "Software Developer (React)",
+      },
+      select: {
+        id: true,
+      },
+    });
+
+    const filePath = path.resolve(__dirname, "../samples/files/LAPORAN PRAKTIKUM - DASAR PEMROGRAMAN DART - 2205076 M FATHURRAIHAN S.pdf");
+    const response = await supertest(app)
+      .post(`/api/v1/careers/${findCareer[0].id}/applications`)
+      .field("applicantName", "Fathurraihan Saputra")
+      .field("email", "nemesis@konnco.com")
+      .field("phoneNumber", "087843202123")
+      .field("educationLevel", "SMA")
+      .field("instituteName", "SMAN 1 Cianjur")
+      .field("companyName", "PT. ASYX")
+      .field("position", "Software Developer")
+      .field("lengthOfService", "ABOVE_1_YEAR")
+      .field("message", "Lorem ipsum dolor sit amet consectetur adipisicing elit. Quisquam, quae.")
+      .field("skills", "HTML")
+      .attach("cv", filePath);
+
+    expect(response.status).toBe(200);
+    expect(response.body).toEqual({
+      message: "Successfully created career application",
+      data: {
+        id: expect.any(String),
+      },
+    });
+  });
+
+  it("should be able to create a job application - all fields without companyName", async () => {
+    const findCareer = await prisma.career.findMany({
+      where: {
+        title: "Software Developer (React)",
+      },
+      select: {
+        id: true,
+      },
+    });
+
+    const filePath = path.resolve(__dirname, "../samples/files/LAPORAN PRAKTIKUM - DASAR PEMROGRAMAN DART - 2205076 M FATHURRAIHAN S.pdf");
+    const response = await supertest(app)
+      .post(`/api/v1/careers/${findCareer[0].id}/applications`)
+      .field("applicantName", "Fathurraihan Saputra")
+      .field("email", "nemesis@konnco.com")
+      .field("phoneNumber", "087843202123")
+      .field("educationLevel", "SMA")
+      .field("instituteName", "SMAN 1 Cianjur")
+      .field("position", "Software Developer")
+      .field("lengthOfService", "ABOVE_1_YEAR")
+      .field("message", "Lorem ipsum dolor sit amet consectetur adipisicing elit. Quisquam, quae.")
+      .field("skills", "HTML")
+      .attach("cv", filePath);
+
+    expect(response.status).toBe(200);
+    expect(response.body).toEqual({
+      message: "Successfully created career application",
+      data: {
+        id: expect.any(String),
+      },
+    });
+  });
+
+  it("should be able to create a job application - all fields without position", async () => {
+    const findCareer = await prisma.career.findMany({
+      where: {
+        title: "Software Developer (React)",
+      },
+      select: {
+        id: true,
+      },
+    });
+
+    const filePath = path.resolve(__dirname, "../samples/files/LAPORAN PRAKTIKUM - DASAR PEMROGRAMAN DART - 2205076 M FATHURRAIHAN S.pdf");
+    const response = await supertest(app)
+      .post(`/api/v1/careers/${findCareer[0].id}/applications`)
+      .field("applicantName", "Fathurraihan Saputra")
+      .field("email", "nemesis@konnco.com")
+      .field("phoneNumber", "087843202123")
+      .field("educationLevel", "SMA")
+      .field("instituteName", "SMAN 1 Cianjur")
+      .field("companyName", "PT. ASYX")
+      .field("lengthOfService", "ABOVE_1_YEAR")
+      .field("message", "Lorem ipsum dolor sit amet consectetur adipisicing elit. Quisquam, quae.")
+      .field("skills", "HTML")
+      .attach("cv", filePath);
+
+    expect(response.status).toBe(200);
+    expect(response.body).toEqual({
+      message: "Successfully created career application",
+      data: {
+        id: expect.any(String),
+      },
+    });
+  });
+
+  it("should be able to create a job application - all fields without lengthOfService", async () => {
+    const findCareer = await prisma.career.findMany({
+      where: {
+        title: "Software Developer (React)",
+      },
+      select: {
+        id: true,
+      },
+    });
+
+    const filePath = path.resolve(__dirname, "../samples/files/LAPORAN PRAKTIKUM - DASAR PEMROGRAMAN DART - 2205076 M FATHURRAIHAN S.pdf");
+    const response = await supertest(app)
+      .post(`/api/v1/careers/${findCareer[0].id}/applications`)
+      .field("applicantName", "Fathurraihan Saputra")
+      .field("email", "nemesis@konnco.com")
+      .field("phoneNumber", "087843202123")
+      .field("educationLevel", "SMA")
+      .field("instituteName", "SMAN 1 Cianjur")
+      .field("companyName", "PT. ASYX")
+      .field("position", "Software Developer")
+      .field("message", "Lorem ipsum dolor sit amet consectetur adipisicing elit. Quisquam, quae.")
+      .field("skills", "HTML")
+      .attach("cv", filePath);
+
+    expect(response.status).toBe(200);
+    expect(response.body).toEqual({
+      message: "Successfully created career application",
+      data: {
+        id: expect.any(String),
+      },
+    });
   });
 });
