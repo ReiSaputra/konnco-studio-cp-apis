@@ -80,7 +80,7 @@ const getResponseApplicationController = async (req, res, next) => {
     const data = await getResponseApplicationService(careerId, applicationId);
 
     return res.status(200).json({
-      message: "Successfully get response application",
+      message: "Successfully get response thanks application",
       data: {
         applicantName: data.applicantName,
       },

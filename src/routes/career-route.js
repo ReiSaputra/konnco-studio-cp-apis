@@ -36,7 +36,7 @@ const upload = multer({
   },
 });
 
-careerRoute.get("/careers/:careerId/applications/:applicationId/thank-you", getResponseApplicationController);
 careerRoute.post("/careers/:careerId/applications", upload.single("cv"), createCareerApplicationController);
+careerRoute.get("/careers/:careerId/applications/:applicationId/thank-you", getResponseApplicationController);
 
 export { careerRoute };
