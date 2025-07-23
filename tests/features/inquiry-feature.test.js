@@ -8,6 +8,10 @@ describe("when users create inquiry or message contact", () => {
     await prisma.inquiry.deleteMany();
   });
 
+  afterAll(async () => {
+    await prisma.inquiry.deleteMany();
+  });
+
   it("should be able to create inquiry successfully", async () => {
     const response = await supertest(app).post("/api/v1/inquiries").send({
       senderName: "Surya Firmansyah",
@@ -35,17 +39,54 @@ describe("when users create inquiry or message contact", () => {
     });
 
     expect(response.status).toBe(400);
-    expect(response.body).toEqual({
-      message: expect.any(String),
-    });
+    expect(response.body.message).toContain("ValidationError:");
   });
 
-  it("should not be able to create inquiry or message contact - not found properties", async () => {
+  it("should not be able to create inquiry or message contact - not found all properties", async () => {
     const response = await supertest(app).post("/api/v1/inquiries").send({});
 
     expect(response.status).toBe(400);
     expect(response.body).toEqual({
-      message: expect.any(String),
+      message: "PropertyError: Sender name is required",
+    });
+  });
+
+  it("should not be able to create inquiry or message contact - not found email property", async () => {
+    const response = await supertest(app).post("/api/v1/inquiries").send({
+      senderName: "Surya Firmansyah",
+      subject: "Subject A",
+      message: "Lorem ipsum dolor sit amet consectetur adipisicing elit. Quisquam, quae.",
+    });
+
+    expect(response.status).toBe(400);
+    expect(response.body).toEqual({
+      message: "PropertyError: Email is required",
+    });
+  });
+
+  it("should not be able to create inquiry or message contact - not found subject property", async () => {
+    const response = await supertest(app).post("/api/v1/inquiries").send({
+      senderName: "Surya Firmansyah",
+      email: "suryafirmansyah@gmail.com",
+      message: "Lorem ipsum dolor sit amet consectetur adipisicing elit. Quisquam, quae.",
+    });
+
+    expect(response.status).toBe(400);
+    expect(response.body).toEqual({
+      message: "PropertyError: Subject is required",
+    });
+  });
+
+  it("should not be able to create inquiry or message contact - not found message property", async () => {
+    const response = await supertest(app).post("/api/v1/inquiries").send({
+      senderName: "Surya Firmansyah",
+      email: "xL5d5@example.com",
+      subject: "Subject A",
+    });
+
+    expect(response.status).toBe(400);
+    expect(response.body).toEqual({
+      message: "PropertyError: Message is required",
     });
   });
 });
