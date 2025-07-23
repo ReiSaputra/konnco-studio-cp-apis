@@ -1,4 +1,4 @@
-import { blogValidation } from "../helpers/validations/blog-validation.js";
+import { blogSchema } from "../helpers/validations/blog-validation.js";
 import { validate } from "../helpers/validations/validate.js";
 import { createBlogService, getBlogService, getBlogDetailService } from "../services/blog-service.js";
 
@@ -6,7 +6,7 @@ const createBlogController = async (req, res, next) => {
   try {
     const { title, description, authorId } = req.body;
 
-    validate(blogValidation, { title, content });
+    validate(blogSchema, { title, content });
 
     const data = await createBlogService(title, description, authorId);
 
