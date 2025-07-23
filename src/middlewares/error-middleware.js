@@ -3,6 +3,7 @@ import { ValidationError } from "../helpers/class/validation-error.js";
 import { FileUploadError } from "../helpers/class/file-upload-error.js";
 import { PropertyError } from "../helpers/class/property-error.js";
 import { PrismaClientInitializationError } from "../generated/prisma/runtime/library.js";
+import { AuthError } from "../helpers/class/auth-error.js";
 
 const errorMiddleware = (err, req, res, next) => {
   if (err instanceof ValidationError) {
@@ -13,6 +14,8 @@ const errorMiddleware = (err, req, res, next) => {
     return res.status(err.statusCode || 400).json({ message: `FileUploadError: ${err.message}` });
   } else if (err instanceof multer.MulterError) {
     return res.status(400).json({ message: `MulterError: ${err.message}` });
+  } else if (err instanceof AuthError) {
+    return res.status(err.statusCode || 400).json({ message: `AuthError: ${err.message}` });
   } else if (err instanceof PrismaClientInitializationError) {
     return res.status(500).json({ message: `PrismaClientInitializationError: ${err.message}` });
   } else if (err instanceof Error) {
