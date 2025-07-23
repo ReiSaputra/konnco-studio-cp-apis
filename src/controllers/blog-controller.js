@@ -30,7 +30,7 @@ const getBlogController = async (req, res, next) => {
     const data = await getBlogService();
 
     return res.status(200).json({
-      message: "Success get blogs",
+      message: "Successfully get blogs",
       data,
     });
   } catch (error) {
@@ -47,7 +47,7 @@ const getBlogDetailController = async (req, res, next) => {
     const data = await getBlogDetailService(blogSlug);
 
     return res.status(200).json({
-      message: "Success get blog detail",
+      message: "Successfully get blog detail",
       data: data,
     });
   } catch (error) {

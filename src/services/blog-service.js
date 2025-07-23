@@ -39,6 +39,8 @@ const getBlogDetailService = async (blogSlug) => {
     },
   });
 
+  if (!findData) throw new Error("Blog not found");
+
   return findData;
 };
 
