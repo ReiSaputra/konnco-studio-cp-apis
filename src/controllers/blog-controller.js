@@ -1,40 +1,36 @@
-import { blogSchema } from "../helpers/validations/blog-validation.js";
+import { blogSlugSchema } from "../helpers/validations/blog-validation.js";
 import { validate } from "../helpers/validations/validate.js";
-import {
-  createBlogService,
-  getBlogService,
-  getBlogDetailService,
-} from "../services/blog-service.js";
+import { getBlogService, getBlogDetailService } from "../services/blog-service.js";
 
-const createBlogController = async (req, res, next) => {
-  try {
-    const { title, description, authorId } = req.body;
+// const createBlogController = async (req, res, next) => {
+//   try {
+//     const { title, description, authorId } = req.body;
 
-    validate(blogSchema, { title, description });
+//     validate(blogSchema, { title, description });
 
-    if (!req.file){
-      return res.status(400).json({ message: "photo file is required"});
-    }
+//     if (!req.file) {
+//       return res.status(400).json({ message: "photo file is required" });
+//     }
 
-    const imagePath = req.file ? `/uploads/${req.file.filename}` : null;
+//     const imagePath = req.file ? `/uploads/${req.file.filename}` : null;
 
-    const data = await createBlogService(title, description, authorId, imagePath);
+//     const data = await createBlogService(title, description, authorId, imagePath);
 
-    return res.status(200).json({
-      message: "Success",
-      data,
-    });
-  } catch (error) {
-    next(error);
-  }
-};
+//     return res.status(200).json({
+//       message: "Success",
+//       data,
+//     });
+//   } catch (error) {
+//     next(error);
+//   }
+// };
 
 const getBlogController = async (req, res, next) => {
   try {
     const data = await getBlogService();
 
     return res.status(200).json({
-      message: "Success",
+      message: "Success get blogs",
       data,
     });
   } catch (error) {
@@ -44,25 +40,19 @@ const getBlogController = async (req, res, next) => {
 
 const getBlogDetailController = async (req, res, next) => {
   try {
-    const blogId = req.params.blogId;
+    const { blogSlug } = req.params;
 
-    const data = await getBlogDetailService(blogId);
+    validate(blogSlugSchema, blogSlug);
 
-    if (!data) {
-      return res.status(404).json({ message: "Blog not found" });
-    }
+    const data = await getBlogDetailService(blogSlug);
 
     return res.status(200).json({
-      message: "Success",
-      data,
+      message: "Success get blog detail",
+      data: data,
     });
   } catch (error) {
     next(error);
   }
 };
 
-export {
-  createBlogController,
-  getBlogController,
-  getBlogDetailController,
-};
+export { getBlogController, getBlogDetailController };

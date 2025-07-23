@@ -1,53 +1,45 @@
 import { prisma } from "../database.js";
 
-const createBlogService = async (title, description, authorId, photoPath) => {
-  const descriptionThumbnail =
-    description.length >= 100 ? description.substring(0, 97) + "..." : description;
-
-  const slug = title.split(" ").join("-").toLowerCase();
-
-  const createData = await prisma.blog.create({
-    data: {
-      title,
-      description,
-      descriptionThumbnail,
-      slug,
-      authorId,
-      photo: photoPath,
+const getBlogService = async () => {
+  const findDatas = await prisma.blog.findMany({
+    where: {
+      isVisible: true,
     },
     select: {
-      id: true,
       title: true,
-    },
-  });
-
-  return createData;
-};
-
-const getBlogService = async () => {
-  const blogs = await prisma.blog.findMany({
-    include: {
-      author: {
-        select: {
-          name: true,
-        },
-      },
-    },
-    orderBy: { createdAt: "desc" },
-  });
-  return blogs;
-};
-
-const getBlogDetailService = async (blogId) => {
-  const blog = await prisma.blog.findUnique({
-    where: { id: blogId },
-    include: {
+      content: true,
+      photo: true,
+      type: true,
       author: {
         select: { name: true },
       },
+      slug: true,
+      createdAt: true,
+    },
+    orderBy: {
+      createdAt: "desc",
     },
   });
-  return blog;
+
+  return findDatas;
 };
 
-export { createBlogService, getBlogService, getBlogDetailService };
+const getBlogDetailService = async (blogSlug) => {
+  const findData = await prisma.blog.findUnique({
+    where: { slug: blogSlug },
+    select: {
+      title: true,
+      content: true,
+      photo: true,
+      type: true,
+      author: {
+        select: { name: true },
+      },
+      createdAt: true,
+    },
+  });
+
+  return findData;
+};
+
+export { getBlogService, getBlogDetailService };

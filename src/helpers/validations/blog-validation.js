@@ -1,5 +1,7 @@
 import joi from "joi";
 
+const blogSlugSchema = joi.string().required();
+
 const blogSchema = joi
   .object({
     title: joi.string().required(),
@@ -7,4 +9,4 @@ const blogSchema = joi
   })
   .required();
 
-export { blogSchema };
+export { blogSchema, blogSlugSchema };
