@@ -1,4 +1,5 @@
 import express from "express";
+import cors from "cors";
 
 // import { blogRoute } from "./routes/blog-route.js";
 import { inquiryRoute } from "./routes/inquiry-route.js";
@@ -6,6 +7,11 @@ import { errorMiddleware } from "./middlewares/error-middleware.js";
 import { careerRoute } from "./routes/career-route.js";
 
 const app = express();
+
+app.use(cors({
+  origin: "http://localhost:5173",
+  credentials: true,
+}));
 
 app.use(express.json());
 app.use(express.static("public"));

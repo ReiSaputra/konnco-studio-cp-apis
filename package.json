@@ -11,7 +11,8 @@
   "type": "module",
   "main": "index.js",
   "scripts": {
-    "test": "jest"
+    "test": "jest",
+    "dev": "nodemon src/app.js"
   },
   "jest": {
     "verbose": true,
@@ -30,6 +31,7 @@
   },
   "dependencies": {
     "@prisma/client": "^6.11.0",
+    "cors": "^2.8.5",
     "dotenv": "^17.0.0",
     "express": "^5.1.0",
     "joi": "^17.13.3",
