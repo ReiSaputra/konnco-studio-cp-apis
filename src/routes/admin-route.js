@@ -5,7 +5,8 @@ import { authMiddleware } from "../middlewares/auth-middleware.js";
 const adminRoute = express.Router();
 
 // Auth
-adminRoute.post("/admins/auth/login", loginAdminController);
+// adminRoute.post("/admins/auth/login", loginAdminController);
+adminRoute.post("/auth/admins/login", loginAdminController);
 
 // Dashboard
 adminRoute.get("/admins/dashboard/overview", authMiddleware, dashboardAdminController);
@@ -20,3 +21,4 @@ adminRoute.get("/admins/blogs", authMiddleware, dashboardAdminController);
 // Inquiries
 
 export { adminRoute };
+
