@@ -39,20 +39,35 @@ model AdminPermission {
   adminId String @unique @map("admin_id") @db.VarChar(255)
   admin   Admin  @relation(fields: [adminId], references: [id])
 
+  canShowBlog Boolean @default(false)
+
   canCreateBlog Boolean @default(false)
   canViewBlog   Boolean @default(false)
   canUpdateBlog Boolean @default(false)
   canDeleteBlog Boolean @default(false)
+
+  canShowCareer Boolean @default(false)
 
   canCreateCareer Boolean @default(false)
   canViewCareer   Boolean @default(false)
   canUpdateCareer Boolean @default(false)
   canDeleteCareer Boolean @default(false)
 
+  canShowApplication Boolean @default(false)
+
+  canCreateApplication Boolean @default(false)
+  canViewApplication   Boolean @default(false)
+  canUpdateApplication Boolean @default(false)
+  canDeleteApplication Boolean @default(false)
+
+  canShowProduct Boolean @default(false)
+
   canCreateProduct Boolean @default(false)
   canViewProduct   Boolean @default(false)
   canUpdateProduct Boolean @default(false)
   canDeleteProduct Boolean @default(false)
+
+  canShowAdmin Boolean @default(false)
 
   canCreateAdmin Boolean @default(false)
   canViewAdmin   Boolean @default(false)

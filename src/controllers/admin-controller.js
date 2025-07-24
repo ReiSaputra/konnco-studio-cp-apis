@@ -1,7 +1,7 @@
 import { PropertyError } from "../helpers/class/property-error.js";
 import { authSchema } from "../helpers/validations/admin-validation.js";
 import { validate } from "../helpers/validations/validate.js";
-import { loginAdminService } from "../services/admin-service.js";
+import { loginAdminService, dashboardAdminService } from "../services/admin-service.js";
 
 const loginAdminController = async (req, res, next) => {
   try {
@@ -25,4 +25,25 @@ const loginAdminController = async (req, res, next) => {
   }
 };
 
-export { loginAdminController };
+const dashboardAdminController = async (req, res, next) => {
+  const { id, name, role, permissions } = req.user;
+
+  try {
+    const data = await dashboardAdminService(id, role, permissions);
+
+    return res.status(200).json({
+      message: "Successfully get dashboard data",
+      data: data,
+      user: {
+        id,
+        name,
+        role,
+        permissions,
+      },
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export { loginAdminController, dashboardAdminController };
