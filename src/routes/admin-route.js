@@ -5,12 +5,13 @@ import { authMiddleware } from "../middlewares/auth-middleware.js";
 const adminRoute = express.Router();
 
 // Auth
-adminRoute.post("/auth/admins/login", loginAdminController);
+adminRoute.post("/admins/auth/login", loginAdminController);
 
 // Dashboard
 adminRoute.get("/admins/dashboard/overview", authMiddleware, dashboardAdminController);
 
 // Blogs
+adminRoute.get("/admins/blogs", authMiddleware, dashboardAdminController);
 
 // Careers
 

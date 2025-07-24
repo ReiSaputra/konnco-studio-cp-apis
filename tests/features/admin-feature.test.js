@@ -48,7 +48,7 @@ describe("when admin wants to login", () => {
   });
 
   it("should be able to returning token", async () => {
-    const response = await supertest(app).post("/api/v1/auth/admins/login").send({
+    const response = await supertest(app).post("/api/v1/admins/auth/login").send({
       email: "xL5d5@konnco.com",
       password: "dontknowityet",
     });
@@ -63,7 +63,7 @@ describe("when admin wants to login", () => {
   });
 
   it("should not be able to returning token - invalid email", async () => {
-    const response = await supertest(app).post("/api/v1/auth/admins/login").send({
+    const response = await supertest(app).post("/api/v1/admins/auth/login").send({
       email: "xL5d@konnco.com",
       password: "dontknowityet",
     });
@@ -75,7 +75,7 @@ describe("when admin wants to login", () => {
   });
 
   it("should not be able to returning token - invalid password", async () => {
-    const response = await supertest(app).post("/api/v1/auth/admins/login").send({
+    const response = await supertest(app).post("/api/v1/admins/auth/login").send({
       email: "xL5d5@konnco.com",
       password: "dontknowityet2",
     });
@@ -87,7 +87,7 @@ describe("when admin wants to login", () => {
   });
 
   it("should not be able to returning token - invalid not using custom email", async () => {
-    const response = await supertest(app).post("/api/v1/auth/admins/login").send({
+    const response = await supertest(app).post("/api/v1/admins/auth/login").send({
       email: "xL5d@gmail.com",
       password: "dontknowityet",
     });
@@ -99,7 +99,7 @@ describe("when admin wants to login", () => {
   });
 
   it("should not be able to returning token - invalid email and password", async () => {
-    const response = await supertest(app).post("/api/v1/auth/admins/login").send({
+    const response = await supertest(app).post("/api/v1/admins/auth/login").send({
       email: "xL5d@konnco.com",
       password: "dontknowityet2",
     });
@@ -111,7 +111,7 @@ describe("when admin wants to login", () => {
   });
 
   it("should not be able to returning token - no password properties", async () => {
-    const response = await supertest(app).post("/api/v1/auth/admins/login").send({
+    const response = await supertest(app).post("/api/v1/admins/auth/login").send({
       email: "xL5d5@konnco.com",
     });
 
@@ -122,7 +122,7 @@ describe("when admin wants to login", () => {
   });
 
   it("should not be able to returning token - no email properties", async () => {
-    const response = await supertest(app).post("/api/v1/auth/admins/login").send({
+    const response = await supertest(app).post("/api/v1/admins/auth/login").send({
       password: "dontknowityet",
     });
 
@@ -248,7 +248,7 @@ describe("when admin want to get data in dashboard", () => {
   });
 
   it("should be able to get data in dashboard", async () => {
-    const responseLogin = await supertest(app).post("/api/v1/auth/admins/login").send({
+    const responseLogin = await supertest(app).post("/api/v1/admins/auth/login").send({
       email: "xL5d5@konnco.com",
       password: "dontknowityet",
     });
@@ -263,7 +263,7 @@ describe("when admin want to get data in dashboard", () => {
   });
 
   it("should not be able to get data in dashboard - no authorization provided", async () => {
-    const responseLogin = await supertest(app).post("/api/v1/auth/admins/login").send({
+    const responseLogin = await supertest(app).post("/api/v1/admins/auth/login").send({
       email: "xL5d5@konnco.com",
       password: "dontknowityet",
     });
@@ -277,7 +277,7 @@ describe("when admin want to get data in dashboard", () => {
   });
 
   it("should not be able to get data in dashboard - no token after split", async () => {
-    const responseLogin = await supertest(app).post("/api/v1/auth/admins/login").send({
+    const responseLogin = await supertest(app).post("/api/v1/admins/auth/login").send({
       email: "xL5d5@konnco.com",
       password: "dontknowityet",
     });
@@ -291,7 +291,7 @@ describe("when admin want to get data in dashboard", () => {
   });
 
   it("should not be able to get data in dashboard - wrong token", async () => {
-    const responseLogin = await supertest(app).post("/api/v1/auth/admins/login").send({
+    const responseLogin = await supertest(app).post("/api/v1/admins/auth/login").send({
       email: "xL5d5@konnco.com",
       password: "dontknowityet",
     });
