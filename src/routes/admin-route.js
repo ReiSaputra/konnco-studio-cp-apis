@@ -1,5 +1,5 @@
 import express from "express";
-import { loginAdminController, dashboardAdminController } from "../controllers/admin-controller.js";
+import { loginAdminController, dashboardAdminController, getAdminBlogsController, getAdminBlogDetailController } from "../controllers/admin-controller.js";
 import { authMiddleware } from "../middlewares/auth-middleware.js";
 
 const adminRoute = express.Router();
@@ -11,9 +11,11 @@ adminRoute.post("/admins/auth/login", loginAdminController);
 adminRoute.get("/admins/dashboard/overview", authMiddleware, dashboardAdminController);
 
 // Blogs
-adminRoute.get("/admins/blogs", authMiddleware, dashboardAdminController);
+adminRoute.get("/admins/blogs", authMiddleware, getAdminBlogsController);
+adminRoute.get("/admins/blogs/:blogSlug", authMiddleware, getAdminBlogDetailController);
 
 // Careers
+
 
 // Products
 
