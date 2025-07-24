@@ -49,6 +49,11 @@ model AdminPermission {
   canUpdateCareer Boolean @default(false)
   canDeleteCareer Boolean @default(false)
 
+  canCreateApplication Boolean @default(false)
+  canViewApplication   Boolean @default(false)
+  canUpdateApplication Boolean @default(false)
+  canDeleteApplication Boolean @default(false)
+
   canCreateProduct Boolean @default(false)
   canViewProduct   Boolean @default(false)
   canUpdateProduct Boolean @default(false)
