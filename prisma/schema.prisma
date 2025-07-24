@@ -39,40 +39,40 @@ model AdminPermission {
   adminId String @unique @map("admin_id") @db.VarChar(255)
   admin   Admin  @relation(fields: [adminId], references: [id])
 
-  canShowBlog Boolean @default(false)
+  canShowBlog Boolean @default(false) @map("can_show_blog")
 
-  canCreateBlog Boolean @default(false)
-  canViewBlog   Boolean @default(false)
-  canUpdateBlog Boolean @default(false)
-  canDeleteBlog Boolean @default(false)
+  canCreateBlog Boolean @default(false) @map("can_create_blog")
+  canViewBlog   Boolean @default(false) @map("can_view_blog")
+  canUpdateBlog Boolean @default(false) @map("can_update_blog")
+  canDeleteBlog Boolean @default(false) @map("can_delete_blog")
 
-  canShowCareer Boolean @default(false)
+  canShowCareer Boolean @default(false) @map("can_show_career")
 
-  canCreateCareer Boolean @default(false)
-  canViewCareer   Boolean @default(false)
-  canUpdateCareer Boolean @default(false)
-  canDeleteCareer Boolean @default(false)
+  canCreateCareer Boolean @default(false) @map("can_create_career")
+  canViewCareer   Boolean @default(false) @map("can_view_career")
+  canUpdateCareer Boolean @default(false) @map("can_update_career")
+  canDeleteCareer Boolean @default(false) @map("can_delete_career")
 
-  canShowApplication Boolean @default(false)
+  canShowApplication Boolean @default(false) @map("can_show_application")
 
-  canCreateApplication Boolean @default(false)
-  canViewApplication   Boolean @default(false)
-  canUpdateApplication Boolean @default(false)
-  canDeleteApplication Boolean @default(false)
+  canCreateApplication Boolean @default(false) @map("can_create_application")
+  canViewApplication   Boolean @default(false) @map("can_view_application")
+  canUpdateApplication Boolean @default(false) @map("can_update_application")
+  canDeleteApplication Boolean @default(false) @map("can_delete_application")
 
-  canShowProduct Boolean @default(false)
+  canShowProduct Boolean @default(false) @map("can_show_product")
 
-  canCreateProduct Boolean @default(false)
-  canViewProduct   Boolean @default(false)
-  canUpdateProduct Boolean @default(false)
-  canDeleteProduct Boolean @default(false)
+  canCreateProduct Boolean @default(false) @map("can_create_product")
+  canViewProduct   Boolean @default(false) @map("can_view_product")
+  canUpdateProduct Boolean @default(false) @map("can_update_product")
+  canDeleteProduct Boolean @default(false) @map("can_delete_product")
 
-  canShowAdmin Boolean @default(false)
+  canShowAdmin Boolean @default(false) @map("can_show_admin")
 
-  canCreateAdmin Boolean @default(false)
-  canViewAdmin   Boolean @default(false)
-  canUpdateAdmin Boolean @default(false)
-  canDeleteAdmin Boolean @default(false)
+  canCreateAdmin Boolean @default(false) @map("can_create_admin")
+  canViewAdmin   Boolean @default(false) @map("can_view_admin")
+  canUpdateAdmin Boolean @default(false) @map("can_update_admin")
+  canDeleteAdmin Boolean @default(false) @map("can_delete_admin")
 
   @@map("admin_permissions")
 }
@@ -193,4 +193,20 @@ model Inquiry {
   createdAt DateTime @default(now()) @map("created_at")
 
   @@map("inquiries")
+}
+
+model Product {
+  id          Int     @id @default(autoincrement())
+  title       String  @db.VarChar(255)
+  description String  @db.Text
+  mainFeature String  @map("main_feature") @db.Text
+  advantage   String  @db.Text
+  mainPhoto   String  @db.VarChar(255)
+  secondPhoto String? @db.VarChar(255)
+  thirdPhoto  String? @db.VarChar(255)
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("products")
 }
