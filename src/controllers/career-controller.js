@@ -71,9 +71,6 @@ const getResponseApplicationController = async (req, res, next) => {
   try {
     const { careerId, applicationId } = req.params;
 
-    if (!careerId) throw new PropertyError("Career id is required");
-    if (!applicationId) throw new PropertyError("Application id is required");
-
     validate(careerIdSchema, careerId);
     validate(applicationIdSchema, applicationId);
 

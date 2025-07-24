@@ -41,11 +41,21 @@ const loginAdminService = async (email, password) => {
 };
 
 const dashboardAdminService = async (id, role, permissions) => {
+  let countBlogData = null;
+  let countApplicationData = null;
+
   let findBlogDatas = null;
   let findAdminDatas = null;
   let findApplicationDatas = null;
 
   if (role === "ADMIN") {
+    countBlogData = await prisma.blog.count({
+      where: {
+        authorId: id,
+      },
+    });
+
+    countApplicationData = await prisma.application.count();
     if (permissions.canShowBlog) {
       findBlogDatas = await prisma.blog.findMany({
         where: {
@@ -106,6 +116,8 @@ const dashboardAdminService = async (id, role, permissions) => {
     findBlogData: findBlogDatas,
     findAdminData: findAdminDatas,
     findApplicationData: findApplicationDatas,
+    countBlogData: countBlogData,
+    countApplicationData: countApplicationData,
   };
 };
 

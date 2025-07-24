@@ -1,6 +1,7 @@
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from "@jest/globals";
 import supertest from "supertest";
 import path from "path";
+import fs from "fs";
 
 import { prisma } from "../../src/database.js";
 
@@ -182,6 +183,160 @@ describe("when users create wants to apply for a job application", () => {
 
     expect(response.status).toBe(400);
     expect(response.body.message).toContain("Applicant's Name is required");
+  });
+
+  it("should be able to create a job application - (no field 'email')", async () => {
+    const findCareer = await prisma.career.findUnique({
+      where: {
+        id: careerId.id,
+      },
+      select: {
+        id: true,
+      },
+    });
+
+    const filePath = path.resolve(__dirname, "../samples/files/LAPORAN PRAKTIKUM - DASAR PEMROGRAMAN DART - 2205076 M FATHURRAIHAN S.pdf");
+    const response = await supertest(app)
+      .post(`/api/v1/careers/${findCareer.id}/applications`)
+      .field("applicantName", "Fathurraihan Saputra")
+      .field("phoneNumber", "087843202123")
+      .field("educationLevel", "SMA")
+      .field("instituteName", "SMAN 1 Cianjur")
+      .field("message", "Lorem ipsum dolor sit amet consectetur adipisicing elit. Quisquam, quae.")
+      .field("skills", "HTML")
+      .field("skills", "CSS")
+      .attach("cv", filePath);
+
+    expect(response.status).toBe(400);
+    expect(response.body.message).toContain("Email is required");
+  });
+
+  it("should be able to create a job application - (no field 'phone number')", async () => {
+    const findCareer = await prisma.career.findUnique({
+      where: {
+        id: careerId.id,
+      },
+      select: {
+        id: true,
+      },
+    });
+
+    const filePath = path.resolve(__dirname, "../samples/files/LAPORAN PRAKTIKUM - DASAR PEMROGRAMAN DART - 2205076 M FATHURRAIHAN S.pdf");
+    const response = await supertest(app)
+      .post(`/api/v1/careers/${findCareer.id}/applications`)
+      .field("applicantName", "Fathurraihan Saputra")
+      .field("email", "nemesis@gmail.com")
+      .field("educationLevel", "SMA")
+      .field("instituteName", "SMAN 1 Cianjur")
+      .field("message", "Lorem ipsum dolor sit amet consectetur adipisicing elit. Quisquam, quae.")
+      .field("skills", "HTML")
+      .field("skills", "CSS")
+      .attach("cv", filePath);
+
+    expect(response.status).toBe(400);
+    expect(response.body.message).toContain("Phone Number is required");
+  });
+
+  it("should be able to create a job application - (no field 'education level')", async () => {
+    const findCareer = await prisma.career.findUnique({
+      where: {
+        id: careerId.id,
+      },
+      select: {
+        id: true,
+      },
+    });
+
+    const filePath = path.resolve(__dirname, "../samples/files/LAPORAN PRAKTIKUM - DASAR PEMROGRAMAN DART - 2205076 M FATHURRAIHAN S.pdf");
+    const response = await supertest(app)
+      .post(`/api/v1/careers/${findCareer.id}/applications`)
+      .field("applicantName", "Fathurraihan Saputra")
+      .field("email", "nemesis@gmail.com")
+      .field("phoneNumber", "087843202123")
+      .field("instituteName", "SMAN 1 Cianjur")
+      .field("message", "Lorem ipsum dolor sit amet consectetur adipisicing elit. Quisquam, quae.")
+      .field("skills", "HTML")
+      .field("skills", "CSS")
+      .attach("cv", filePath);
+
+    expect(response.status).toBe(400);
+    expect(response.body.message).toContain("Education Level is required");
+  });
+
+  it("should be able to create a job application - (no field 'instituteName')", async () => {
+    const findCareer = await prisma.career.findUnique({
+      where: {
+        id: careerId.id,
+      },
+      select: {
+        id: true,
+      },
+    });
+
+    const filePath = path.resolve(__dirname, "../samples/files/LAPORAN PRAKTIKUM - DASAR PEMROGRAMAN DART - 2205076 M FATHURRAIHAN S.pdf");
+    const response = await supertest(app)
+      .post(`/api/v1/careers/${findCareer.id}/applications`)
+      .field("applicantName", "Fathurraihan Saputra")
+      .field("email", "nemesis@gmail.com")
+      .field("phoneNumber", "087843202123")
+      .field("educationLevel", "SMA")
+      .field("message", "Lorem ipsum dolor sit amet consectetur adipisicing elit. Quisquam, quae.")
+      .field("skills", "HTML")
+      .field("skills", "CSS")
+      .attach("cv", filePath);
+
+    expect(response.status).toBe(400);
+    expect(response.body.message).toContain("Institute Name is required");
+  });
+
+  it("should be able to create a job application - (no field 'skills')", async () => {
+    const findCareer = await prisma.career.findUnique({
+      where: {
+        id: careerId.id,
+      },
+      select: {
+        id: true,
+      },
+    });
+
+    const filePath = path.resolve(__dirname, "../samples/files/LAPORAN PRAKTIKUM - DASAR PEMROGRAMAN DART - 2205076 M FATHURRAIHAN S.pdf");
+    const response = await supertest(app)
+      .post(`/api/v1/careers/${findCareer.id}/applications`)
+      .field("applicantName", "Fathurraihan Saputra")
+      .field("email", "nemesis@gmail.com")
+      .field("phoneNumber", "087843202123")
+      .field("educationLevel", "SMA")
+      .field("instituteName", "SMAN 1 Cianjur")
+      .field("message", "Lorem ipsum dolor sit amet consectetur adipisicing elit. Quisquam, quae.")
+      .attach("cv", filePath);
+
+    expect(response.status).toBe(400);
+    expect(response.body.message).toContain("Skills is required");
+  });
+
+  it("should be able to create a job application - (no field 'message')", async () => {
+    const findCareer = await prisma.career.findUnique({
+      where: {
+        id: careerId.id,
+      },
+      select: {
+        id: true,
+      },
+    });
+
+    const filePath = path.resolve(__dirname, "../samples/files/LAPORAN PRAKTIKUM - DASAR PEMROGRAMAN DART - 2205076 M FATHURRAIHAN S.pdf");
+    const response = await supertest(app)
+      .post(`/api/v1/careers/${findCareer.id}/applications`)
+      .field("applicantName", "Fathurraihan Saputra")
+      .field("email", "nemesis@gmail.com")
+      .field("phoneNumber", "087843202123")
+      .field("educationLevel", "SMA")
+      .field("instituteName", "SMAN 1 Cianjur")
+      .field("skills", "HTML")
+      .attach("cv", filePath);
+
+    expect(response.status).toBe(400);
+    expect(response.body.message).toContain("Message is required");
   });
 
   it("should not be able to create a job application - invalid data (undefined files)", async () => {
@@ -511,8 +666,14 @@ describe("when users create wants to apply for a job application", () => {
 });
 
 afterAll(async () => {
-      await prisma.application.deleteMany();
-      await prisma.career.deleteMany();
-      await prisma.adminPermission.deleteMany();
-      await prisma.admin.deleteMany();
-})
+  await prisma.application.deleteMany();
+  await prisma.career.deleteMany();
+  await prisma.adminPermission.deleteMany();
+  await prisma.admin.deleteMany();
+
+const folderPath = "assets/files/cv"
+
+  if (fs.existsSync(folderPath)) {
+    fs.rmSync(folderPath, { recursive: true, force: true });
+  }
+});

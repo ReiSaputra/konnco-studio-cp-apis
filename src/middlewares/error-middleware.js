@@ -8,7 +8,7 @@ import { TokenError } from "../helpers/class/token-error.js";
 
 const errorMiddleware = (err, req, res, next) => {
   if (err instanceof ValidationError) {
-    return res.status(err.statusCode || 400).json({ message: `ValidationError: ${err.message}` });
+    return res.status(err.statusCode).json({ message: `ValidationError: ${err.message}` });
   } else if (err instanceof PropertyError) {
     return res.status(err.statusCode || 400).json({ message: `PropertyError: ${err.message}` });
   } else if (err instanceof FileUploadError) {

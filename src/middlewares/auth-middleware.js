@@ -17,6 +17,7 @@ const authMiddleware = async (req, res, next) => {
     const findUser = await prisma.admin.findUnique({
       where: {
         id: decryptedPayload.id,
+        token: token,
       },
       select: {
         id: true,
