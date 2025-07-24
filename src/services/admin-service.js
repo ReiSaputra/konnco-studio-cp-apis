@@ -1,4 +1,7 @@
 import bcrypt from "bcrypt";
+import CryptoJS from "crypto-js";
+import "dotenv/config";
+
 import { prisma } from "../database.js";
 import { AuthError } from "../helpers/class/auth-error.js";
 
@@ -27,14 +30,83 @@ const loginAdminService = async (email, password) => {
     time: Date.now(),
   };
 
-  const tokenEncode = Buffer.from(JSON.stringify(payload)).toString("base64");
+  const tokenEncrypt = CryptoJS.AES.encrypt(JSON.stringify(payload), process.env.SECRET_KEY).toString();
 
   await prisma.admin.update({
     where: { id: findData.id },
-    data: { token: tokenEncode },
+    data: { token: tokenEncrypt },
   });
 
-  return { token: tokenEncode };
+  return { token: tokenEncrypt };
 };
 
-export { loginAdminService };
+const dashboardAdminService = async (id, role, permissions) => {
+  let findBlogDatas = null;
+  let findAdminDatas = null;
+  let findApplicationDatas = null;
+
+  if (role === "ADMIN") {
+    if (permissions.canShowBlog) {
+      findBlogDatas = await prisma.blog.findMany({
+        where: {
+          authorId: id,
+        },
+        select: {
+          title: true,
+          slug: true,
+          type: true,
+          author: {
+            select: {
+              name: true,
+            },
+          },
+        },
+        take: 5,
+        orderBy: {
+          createdAt: "desc",
+        },
+      });
+    }
+
+    if (permissions.canShowAdmin) {
+      findAdminDatas = await prisma.admin.findMany({
+        select: {
+          id: true,
+          name: true,
+          email: true,
+          role: true,
+        },
+        take: 4,
+        orderBy: {
+          name: "asc",
+        },
+      });
+    }
+
+    if (permissions.canShowApplication) {
+      findApplicationDatas = await prisma.application.findMany({
+        select: {
+          id: true,
+          applicantName: true,
+          career: {
+            select: {
+              title: true,
+            },
+          },
+        },
+        take: 5,
+        orderBy: {
+          createdAt: "desc",
+        },
+      });
+    }
+  }
+
+  return {
+    findBlogData: findBlogDatas,
+    findAdminData: findAdminDatas,
+    findApplicationData: findApplicationDatas,
+  };
+};
+
+export { loginAdminService, dashboardAdminService };
