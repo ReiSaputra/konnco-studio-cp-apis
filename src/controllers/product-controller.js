@@ -1,4 +1,6 @@
-import { getProductService } from "../services/product-service.js";
+import { productIdSchema } from "../helpers/validations/product-validation.js";
+import { validate } from "../helpers/validations/validate.js";
+import { getProductDetailService, getProductService } from "../services/product-service.js";
 
 const getProductController = async (req, res, next) => {
   try {
@@ -15,7 +17,19 @@ const getProductController = async (req, res, next) => {
 
 const getProductDetailController = async (req, res, next) => {
   try {
-  } catch (error) {}
+    const { productId } = req.params;
+
+    validate(productIdSchema, productId);
+
+    const data = await getProductDetailService(productId);
+
+    return res.status(200).json({
+      message: "Successfully get product detail",
+      data: data,
+    });
+  } catch (error) {
+    next(error);
+  }
 };
 
 export { getProductController, getProductDetailController };
