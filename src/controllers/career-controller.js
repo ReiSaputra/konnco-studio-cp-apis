@@ -3,7 +3,37 @@ import { PropertyError } from "../helpers/class/property-error.js";
 import { applicationIdSchema, careerApplicationSchema, careerIdSchema } from "../helpers/validations/career-validation.js";
 import { validate } from "../helpers/validations/validate.js";
 
-import { createApplicationService, getResponseApplicationService } from "../services/career-service.js";
+import { createApplicationService, getCareerDetailService, getCareerService, getResponseApplicationService } from "../services/career-service.js";
+
+const getCareerController = async (req, res, next) => {
+  try {
+    const data = await getCareerService();
+
+    return res.status(200).json({
+      message: "Successfully get careers",
+      data: data,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+const getCareerDetailController = async (req, res, next) => {
+  try {
+    const { careerId } = req.params;
+
+    validate(careerIdSchema, careerId);
+
+    const data = await getCareerDetailService(careerId);
+
+    return res.status(200).json({
+      message: "Successfully get career detail",
+      data: data,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
 
 const createCareerApplicationController = async (req, res, next) => {
   try {
@@ -87,4 +117,4 @@ const getResponseApplicationController = async (req, res, next) => {
   }
 };
 
-export { createCareerApplicationController, getResponseApplicationController };
+export { createCareerApplicationController, getResponseApplicationController, getCareerController, getCareerDetailController };

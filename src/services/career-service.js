@@ -1,5 +1,21 @@
 import { prisma } from "../database.js";
 
+const getCareerService = async () => {
+  const data = await prisma.career.findMany({
+    select: {
+      id: true,
+      title: true,
+      description: true,
+      type: true,
+    },
+    orderBy: {
+      title: "asc",
+    },
+  });
+};
+
+const getCareerDetailService = async (careerId) => {};
+
 const createApplicationService = async (applicantName, email, phoneNumber, academic, companyName, position, lengthOfService, fileName, message, skills, careerId) => {
   const { educationLevel, instituteName } = academic;
 
@@ -54,4 +70,4 @@ const getResponseApplicationService = async (careerId, applicationId) => {
   return findCareer;
 };
 
-export { createApplicationService, getResponseApplicationService };
+export { getCareerService, getCareerDetailService, createApplicationService, getResponseApplicationService };
