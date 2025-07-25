@@ -18,7 +18,7 @@ const adminSchema = joi.object({});
 const getAdminBlogSchema = joi.object({
   page: joi.number().integer().min(1).default(1),
   search: joi.string().allow("").max(255).optional(),
-  category: joi.string().allow("").valid("tech", "business", "news", "tutorial", "other").optional(),
+  category: joi.string().allow("").valid("tech", "business", "news", "tutorial", "other").optional().insensitive(),
   status: joi.string().valid("visible", "not-visible").optional(),
 });
 

@@ -135,12 +135,11 @@ const getAdminBlogService = async (id, role, permissions, page, search, category
       if (search) {
         where.title = {
           contains: search,
-          mode: "insensitive",
         };
       }
 
       if (category) {
-        where.type = category;
+        where.type = category.toUpperCase();
       }
 
       if (status === "visible") {

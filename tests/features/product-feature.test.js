@@ -27,8 +27,6 @@ describe("when users access GET /api/v1/products", () => {
   it("should be able to get products successfully", async () => {
     const response = await supertest(app).get("/api/v1/products");
 
-    console.info(response.body);
-
     expect(response.status).toBe(200);
     expect(response.body).toEqual({
       message: "Successfully get products",
@@ -47,8 +45,6 @@ describe("when users access GET /api/v1/products", () => {
     await prisma.product.deleteMany();
 
     const response = await supertest(app).get("/api/v1/products");
-
-    console.info(response.body);
 
     expect(response.status).toBe(200);
     expect(response.body).toEqual({

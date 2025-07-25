@@ -38,7 +38,18 @@ const dashboardAdminController = async (req, res, next) => {
         id,
         name,
         role,
-        permissions,
+        permissions: {
+          canShowBlog: permissions.canShowBlog,
+          canViewBlog: permissions.canViewBlog,
+          canUpdateBlog: permissions.canUpdateBlog,
+          canDeleteBlog: permissions.canDeleteBlog,
+
+          canShowAdmin: permissions.canShowAdmin,
+          canViewAdmin: permissions.canViewAdmin,
+
+          canShowApplication: permissions.canShowApplication,
+          canViewApplication: permissions.canViewApplication,
+        },
       },
     });
   } catch (error) {
@@ -51,14 +62,25 @@ const getAdminBlogController = async (req, res, next) => {
     const { id, name, role, permissions } = req.user;
     const { page, search, category, status } = req.query;
 
-    if (!page) page = 1;
-
     validate(getAdminBlogSchema, { page, search, category, status });
 
     const data = await getAdminBlogService(id, role, permissions, parseInt(page) || 1, search, category, status);
 
     return res.status(200).json({
       message: "Successfully get admin blogs",
+      data: data,
+      user: {
+        id,
+        name,
+        role,
+        permissions: {
+          canShowBlog: permissions.canShowBlog,
+          canViewBlog: permissions.canViewBlog,
+          canCreateBlog: permissions.canCreateBlog,
+          canUpdateBlog: permissions.canUpdateBlog,
+          canDeleteBlog: permissions.canDeleteBlog,
+        },
+      },
     });
   } catch (error) {
     next(error);

@@ -23,18 +23,7 @@ const authMiddleware = async (req, res, next) => {
         id: true,
         name: true,
         role: true,
-        permissions: {
-          select: {
-            canShowBlog: true,
-            canShowAdmin: true,
-            canShowApplication: true,
-            canViewBlog: true,
-            canViewAdmin: true,
-            canViewApplication: true,
-            canUpdateBlog: true,
-            canDeleteBlog: true,
-          },
-        },
+        permissions: true,
       },
     });
 
