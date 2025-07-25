@@ -17,7 +17,7 @@ const getProductService = async () => {
 };
 
 const getProductDetailService = async (productId) => {
-  const findData = await prisma.product.findMany({
+  const findData = await prisma.product.findUnique({
     where: {
       id: parseInt(productId),
     },

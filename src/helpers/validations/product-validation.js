@@ -1,5 +1,5 @@
 import joi from "joi";
 
-const productIdSchema = joi.string().required();
+const productIdSchema = joi.number().required();
 
 export { productIdSchema };
