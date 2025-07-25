@@ -1,7 +1,7 @@
 import { PropertyError } from "../helpers/class/property-error.js";
-import { authSchema } from "../helpers/validations/admin-validation.js";
+import { authSchema, getAdminBlogSchema } from "../helpers/validations/admin-validation.js";
 import { validate } from "../helpers/validations/validate.js";
-import { loginAdminService, dashboardAdminService, getAdminBlogsService } from "../services/admin-service.js";
+import { loginAdminService, dashboardAdminService, getAdminBlogService } from "../services/admin-service.js";
 
 const loginAdminController = async (req, res, next) => {
   try {
@@ -46,12 +46,16 @@ const dashboardAdminController = async (req, res, next) => {
   }
 };
 
-const getAdminBlogsController = async (req, res, next) => {
+const getAdminBlogController = async (req, res, next) => {
   try {
     const { id, name, role, permissions } = req.user;
-    const { page, search, category, status, latest } = req.query;
+    const { page, search, category, status } = req.query;
 
-    const data = await getAdminBlogsService(id, role, permissions, parseInt(page) || 1, search, category, status, latest);
+    if (!page) page = 1;
+
+    validate(getAdminBlogSchema, { page, search, category, status });
+
+    const data = await getAdminBlogService(id, role, permissions, parseInt(page) || 1, search, category, status);
 
     return res.status(200).json({
       message: "Successfully get admin blogs",
@@ -66,4 +70,4 @@ const getAdminBlogDetailController = async (req, res, next) => {
   } catch (error) {}
 };
 
-export { loginAdminController, dashboardAdminController, getAdminBlogsController, getAdminBlogDetailController };
+export { loginAdminController, dashboardAdminController, getAdminBlogController, getAdminBlogDetailController };

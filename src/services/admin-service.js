@@ -121,10 +121,10 @@ const dashboardAdminService = async (id, role, permissions) => {
   };
 };
 
-const getAdminBlogsService = async (id, role, permissions, page, search, filter) => {
+const getAdminBlogService = async (id, role, permissions, page, search, category, status) => {
   let findBlogDatas = null;
 
-  const offset = (parseInt(page) - 1) * 10;
+  const offset = (page - 1) * 10;
 
   if (role === "ADMIN") {
     if (permissions.canShowBlog) {
@@ -133,18 +133,24 @@ const getAdminBlogsService = async (id, role, permissions, page, search, filter)
       };
 
       if (search) {
-        where.name = {
+        where.title = {
           contains: search,
           mode: "insensitive",
         };
       }
 
-      
+      if (category) {
+        where.type = category;
+      }
+
+      if (status === "visible") {
+        where.isVisible = true;
+      } else if (status === "not-visible") {
+        where.isVisible = false;
+      }
 
       findBlogDatas = await prisma.blog.findMany({
-        where: {
-          authorId: id,
-        },
+        where,
         skip: offset,
         take: 10,
         select: {
@@ -160,6 +166,8 @@ const getAdminBlogsService = async (id, role, permissions, page, search, filter)
       });
     }
   }
+
+  return findBlogDatas;
 };
 
-export { loginAdminService, dashboardAdminService, getAdminBlogsService };
+export { loginAdminService, dashboardAdminService, getAdminBlogService };
