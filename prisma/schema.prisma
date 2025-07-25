@@ -115,6 +115,7 @@ model Career {
   description   String     @db.Text
   salary        String     @db.VarChar(255)
   tags          String     @db.Text
+  requirements  String     @db.Text
   type          CareerType
   linkedInInfo  String     @map("linkedin_info") @db.VarChar(255)
   glintsInfo    String     @map("glints_info") @db.VarChar(255)
@@ -201,9 +202,9 @@ model Product {
   description String  @db.Text
   mainFeature String  @map("main_feature") @db.Text
   advantage   String  @db.Text
-  mainPhoto   String  @db.VarChar(255)
-  secondPhoto String? @db.VarChar(255)
-  thirdPhoto  String? @db.VarChar(255)
+  mainPhoto   String  @map("main_photo") @db.VarChar(255)
+  secondPhoto String? @map("second_photo") @db.VarChar(255)
+  thirdPhoto  String? @map("third_photo") @db.VarChar(255)
 
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
