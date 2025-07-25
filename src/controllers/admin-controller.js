@@ -30,7 +30,6 @@ const dashboardAdminController = async (req, res, next) => {
 
   try {
     const data = await dashboardAdminService(id, role, permissions);
-
     return res.status(200).json({
       message: "Successfully get dashboard data",
       data: data,
