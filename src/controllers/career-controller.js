@@ -39,7 +39,7 @@ const createCareerApplicationController = async (req, res, next) => {
   try {
     let { applicantName, email, phoneNumber, educationLevel, instituteName, skills, companyName, position, lengthOfService, message } = req.body;
     const file = req.file;
-    const { careerId } = req.params;
+    const { careerId } = req.params; 
 
     if (!applicantName) throw new PropertyError("Applicant's Name is required");
     if (!email) throw new PropertyError("Email is required");

@@ -1,6 +1,7 @@
 import "dotenv/config";
 import express from "express";
 import cors from "cors";
+import cors from "cors";
 
 import { errorMiddleware } from "./middlewares/error-middleware.js";
 
