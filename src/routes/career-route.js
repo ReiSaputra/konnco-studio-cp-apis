@@ -15,7 +15,7 @@ if (!fs.existsSync(path)) {
 
 const careerRoute = express.Router();
 
-const upload = createMulterUpload(path, 2);
+const upload = createMulterUpload(path, 2, "application/pdf");
 
 careerRoute.get("/careers", getCareerController);
 careerRoute.get("/careers/:careerId", getCareerDetailController);

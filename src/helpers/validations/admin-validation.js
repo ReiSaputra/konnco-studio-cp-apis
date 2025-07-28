@@ -24,4 +24,15 @@ const getAdminBlogSchema = joi.object({
 
 const blogSlugSchema = joi.string().required();
 
-export { authSchema, getAdminBlogSchema, blogSlugSchema };
+const blogSchema = joi
+  .object({
+    title: joi.string().required(),
+    content: joi.string().min(100).max(1000).required(),
+    photo: joi.string().required(),
+    type: joi.string().valid("TECH", "BUSINESS", "NEWS", "TUTORIAL", "OTHER").required(),
+    authorId: joi.number().required(),
+    slug: joi.string().required(),
+  })
+  .required();
+
+export { authSchema, getAdminBlogSchema, blogSlugSchema, blogSchema };

@@ -1,5 +1,7 @@
 import bcrypt from "bcrypt";
 import CryptoJS from "crypto-js";
+import fs from "fs";
+import path from "path";
 import "dotenv/config";
 
 import { prisma } from "../database.js";
@@ -195,12 +197,75 @@ const getAdminBlogDetailService = async (role, permissions, blogSlug) => {
   return findBlogData;
 };
 
-// const createAdminBlogService = async (data) => {
-//   const findData = await prisma.blog.findUnique({
-//     where: { slug: data.slug },
-//   });
+const editAdminBlogDetailService = async (role, permissions, blogSlug, title, content, photoName, type, authorId, slug) => {
+  let updateBlogData = null;
 
-//   if (findData) throw new Error("Blog already exists");
-// };
+  if (role === "ADMIN" || role === "SUPER_ADMIN") {
+    if (permissions.canUpdateBlog) {
+      const findBlogData = await prisma.blog.findUnique({
+        where: { slug: blogSlug },
+        select: {
+          photo: true,
+        },
+      });
 
-export { loginAdminService, dashboardAdminService, getAdminBlogService, getAdminBlogDetailService };
+      if (!findBlogData) throw new Error("Blog not found");
+
+      if (photoName && findBlogData.photo && photoName !== findBlogData.photo) {
+        const oldFilePath = path.join("public", "blogs", findBlogData.photo);
+        if (fs.existsSync(oldFilePath)) {
+          fs.unlinkSync(oldFilePath);
+        }
+      }
+
+      updateBlogData = await prisma.blog.update({
+        where: {
+          slug: blogSlug,
+        },
+        data: {
+          title: title,
+          content: content,
+          photo: photoName,
+          type: type,
+          authorId: parseInt(authorId),
+          slug: slug,
+        },
+      });
+
+      if (!findBlogData) throw new Error("Blog not found");
+    }
+  }
+
+  return updateBlogData;
+};
+
+const createAdminBlogService = async (role, permissions, title, content, photoName, type, authorId, slug) => {
+  let createData = null;
+
+  if (role === "ADMIN" || role === "SUPER_ADMIN") {
+    if (permissions.canCreateBlog) {
+      const findData = await prisma.blog.findUnique({
+        where: { slug: slug },
+      });
+
+      if (findData) throw new Error("Blog already exists");
+
+      createData = await prisma.blog.create({
+        data: {
+          title: title,
+          content: content,
+          photo: photoName,
+          type: type,
+          authorId: parseInt(authorId),
+          slug: slug,
+        },
+      });
+
+      if (!createData) throw new Error("Failed to create blog");
+    }
+  }
+
+  return createData;
+};
+
+export { loginAdminService, dashboardAdminService, getAdminBlogService, getAdminBlogDetailService, editAdminBlogDetailService, createAdminBlogService };

@@ -1,7 +1,8 @@
+import { FileUploadError } from "../helpers/class/file-upload-error.js";
 import { PropertyError } from "../helpers/class/property-error.js";
-import { authSchema, blogSlugSchema, getAdminBlogSchema } from "../helpers/validations/admin-validation.js";
+import { authSchema, blogSchema, blogSlugSchema, getAdminBlogSchema } from "../helpers/validations/admin-validation.js";
 import { validate } from "../helpers/validations/validate.js";
-import { loginAdminService, dashboardAdminService, getAdminBlogService, getAdminBlogDetailService } from "../services/admin-service.js";
+import { loginAdminService, dashboardAdminService, getAdminBlogService, getAdminBlogDetailService, editAdminBlogDetailService, createAdminBlogService } from "../services/admin-service.js";
 
 const loginAdminController = async (req, res, next) => {
   try {
@@ -113,4 +114,73 @@ const getAdminBlogDetailController = async (req, res, next) => {
   }
 };
 
-export { loginAdminController, dashboardAdminController, getAdminBlogController, getAdminBlogDetailController };
+const editAdminBlogDetailController = async (req, res, next) => {
+  try {
+    const { id, name, role, permissions } = req.user;
+    const { title, content, type, authorId, slug } = req.body;
+    const photo = req.file;
+    const { blogSlug } = req.params;
+
+    if (!title) throw new PropertyError("Title is required");
+    if (!content) throw new PropertyError("Content is required");
+    if (!type) throw new PropertyError("Type is required");
+    if (!authorId) throw new PropertyError("Author id is required");
+    if (!slug) throw new PropertyError("Slug is required");
+    if (!photo) throw new FileUploadError("Either File is required or File Mime Type is not PDF");
+
+    const photoName = photo.filename;
+
+    validate(blogSlugSchema, blogSlug);
+    validate(blogSchema, { title, content, photo: photoName, type, authorId, slug });
+
+    const data = await editAdminBlogDetailService(role, permissions, blogSlug, title, content, photoName, type, authorId, slug);
+
+    return res.status(200).json({
+      message: "Successfully update admin blog detail",
+      data: data,
+      user: {
+        id,
+        name,
+        role,
+        permissions: {
+          canUpdateBlog: permissions.canUpdateBlog,
+        },
+      },
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+const createAdminBlogController = async (req, res, next) => {
+  const { id, name, role, permissions } = req.user;
+  const { title, content, type, authorId, slug } = req.body;
+  const photo = req.file;
+  const photoName = photo.filename;
+
+  if (!title) throw new PropertyError("Title is required");
+  if (!content) throw new PropertyError("Content is required");
+  if (!type) throw new PropertyError("Type is required");
+  if (!authorId) throw new PropertyError("Author id is required");
+  if (!slug) throw new PropertyError("Slug is required");
+  if (!photo) throw new FileUploadError("Either File is required or File Mime Type is not PDF");
+
+  validate(blogSchema, { title, content, photo: photoName, type, authorId, slug });
+
+  const data = await createAdminBlogService(role, permissions, title, content, photoName, type, authorId, slug);
+
+  return res.status(200).json({
+    message: "Successfully create admin blog",
+    data: data,
+    user: {
+      id,
+      name,
+      role,
+      permissions: {
+        canCreateBlog: permissions.canCreateBlog,
+      },
+    },
+  });
+};
+
+export { loginAdminController, dashboardAdminController, getAdminBlogController, getAdminBlogDetailController, editAdminBlogDetailController, createAdminBlogController };

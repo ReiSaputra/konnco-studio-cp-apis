@@ -1,7 +1,7 @@
 import multer, { diskStorage } from "multer";
 import path from "path";
 
-const createMulterUpload = (folderPath, maxSizeMB) => {
+const createMulterUpload = (folderPath, maxSizeMB, mime) => {
   const storage = diskStorage({
     destination: (req, file, cb) => {
       cb(null, folderPath);
@@ -18,7 +18,7 @@ const createMulterUpload = (folderPath, maxSizeMB) => {
       fileSize: maxSizeMB * 1024 * 1024,
     },
     fileFilter: (req, file, cb) => {
-      if (file.mimetype === "application/pdf") {
+      if (file.mimetype === mime) {
         cb(null, true);
       } else {
         cb(null, false);
