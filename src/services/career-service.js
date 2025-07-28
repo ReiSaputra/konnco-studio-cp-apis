@@ -36,6 +36,8 @@ const getCareerDetailService = async (careerId) => {
     },
   });
 
+  if (!data) throw new Error("Career not found");
+
   return data;
 };
 

@@ -1,4 +1,4 @@
-import { afterAll, beforeAll, beforeEach, describe, expect, it } from "@jest/globals";
+import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, it } from "@jest/globals";
 import supertest from "supertest";
 import path from "path";
 import fs from "fs";
@@ -34,6 +34,7 @@ describe("when users create wants to apply for a job application", () => {
         glintsInfo: "https://glints.com",
         linkedInInfo: "https://linkedin.com",
         jobStreetInfo: "https://jobstreet.co.id",
+        requirements: "Requirement A, Requirement B, Requirement C",
         author: {
           create: {
             name: "Admin A",
@@ -580,6 +581,7 @@ describe("when users create wants to apply for a job application", () => {
         glintsInfo: "https://glints.com",
         linkedInInfo: "https://linkedin.com",
         jobStreetInfo: "https://jobstreet.co.id",
+        requirements: "Requirement A, Requirement B, Requirement C",
         author: {
           create: {
             name: "Admin A",
@@ -665,13 +667,195 @@ describe("when users create wants to apply for a job application", () => {
   });
 });
 
+describe("when users want to get careers data in route GET /api/v1/careers", () => {
+  beforeAll(async () => {
+    await prisma.application.deleteMany();
+    await prisma.career.deleteMany();
+    await prisma.adminPermission.deleteMany();
+    await prisma.admin.deleteMany();
+  });
+
+  beforeEach(async () => {
+    const admin = await prisma.admin.create({
+      data: {
+        email: "xl5d5@konnco.com",
+        password: "dontknowityet",
+        name: "Admin A",
+        phoneNumber: "087823322523",
+        role: "ADMIN",
+        permissions: {
+          create: {},
+        },
+      },
+      select: {
+        id: true,
+      },
+    });
+
+    let careers;
+
+    careers = await prisma.career.createMany({
+      data: [
+        {
+          title: "Software Developer (React)",
+          description: "Description A",
+          tags: "Tag A, Tag B, Tag C",
+          type: "WEB",
+          glintsInfo: "https://glints.com",
+          linkedInInfo: "https://linkedin.com",
+          jobStreetInfo: "https://jobstreet.co.id",
+          requirements: "Requirement A, Requirement B, Requirement C",
+          authorId: admin.id,
+          salary: "Rp. 1.000.000",
+        },
+        {
+          title: "Software Developer (Vue)",
+          description: "Description B",
+          tags: "Tag D, Tag E, Tag F",
+          type: "WEB",
+          glintsInfo: "https://glints.com",
+          linkedInInfo: "https://linkedin.com",
+          jobStreetInfo: "https://jobstreet.co.id",
+          authorId: admin.id,
+          requirements: "Requirement A, Requirement B, Requirement C",
+          salary: "Rp. 2.000.000",
+        },
+        {
+          title: "Software Developer (Angular)",
+          description: "Description C",
+          tags: "Tag G, Tag H, Tag I",
+          type: "WEB",
+          glintsInfo: "https://glints.com",
+          linkedInInfo: "https://linkedin.com",
+          jobStreetInfo: "https://jobstreet.co.id",
+          authorId: admin.id,
+          requirements: "Requirement A, Requirement B, Requirement C",
+          salary: "Rp. 3.000.000",
+        },
+      ],
+    });
+  });
+
+  afterEach(async () => {
+    await prisma.application.deleteMany();
+    await prisma.career.deleteMany();
+    await prisma.adminPermission.deleteMany();
+    await prisma.admin.deleteMany();
+  });
+
+  it("should be able to get careers data successfully", async () => {
+    const response = await supertest(app).get("/api/v1/careers");
+
+    expect(response.status).toBe(200);
+    expect(response.body.message).toEqual("Successfully get careers");
+    expect(response.body.data).toHaveLength(3);
+  });
+
+  it("should be able to get careers data successfully but did not find any", async () => {
+    await prisma.career.deleteMany();
+    const response = await supertest(app).get("/api/v1/careers");
+
+    expect(response.status).toBe(200);
+    expect(response.body.message).toEqual("Successfully get careers");
+    expect(response.body.data).toHaveLength(0);
+  });
+
+  afterAll(async () => {
+    await prisma.application.deleteMany();
+    await prisma.career.deleteMany();
+    await prisma.adminPermission.deleteMany();
+    await prisma.admin.deleteMany();
+  });
+});
+
+describe("when users want to get career detail data in route GET /api/v1/careers/:careerId", () => {
+  beforeAll(async () => {
+    await prisma.application.deleteMany();
+    await prisma.career.deleteMany();
+    await prisma.adminPermission.deleteMany();
+    await prisma.admin.deleteMany();
+  });
+
+  let careers;
+
+  beforeEach(async () => {
+    const admin = await prisma.admin.create({
+      data: {
+        email: "xl5d5@konnco.com",
+        password: "dontknowityet",
+        name: "Admin A",
+        phoneNumber: "087823322523",
+        role: "ADMIN",
+        permissions: {
+          create: {},
+        },
+      },
+      select: {
+        id: true,
+      },
+    });
+
+    careers = await prisma.career.create({
+      data: {
+        title: "Software Developer (React)",
+        description: "Description A",
+        tags: "Tag A, Tag B, Tag C",
+        type: "WEB",
+        glintsInfo: "https://glints.com",
+        linkedInInfo: "https://linkedin.com",
+        jobStreetInfo: "https://jobstreet.co.id",
+        requirements: "Requirement A, Requirement B, Requirement C",
+        authorId: admin.id,
+        salary: "Rp. 1.000.000",
+      },
+      select: {
+        id: true,
+      },
+    });
+  });
+
+  afterEach(async () => {
+    await prisma.application.deleteMany();
+    await prisma.career.deleteMany();
+    await prisma.adminPermission.deleteMany();
+    await prisma.admin.deleteMany();
+  });
+
+  it("should be able to get career detail data successfully", async () => {
+    const response = await supertest(app).get(`/api/v1/careers/${careers.id}`);
+
+    console.info(response.body);
+
+    expect(response.status).toBe(200);
+    expect(response.body.message).toEqual("Successfully get career detail");
+  });
+
+  it("should not be able to get career detail data - careerId is number but did not find in schema", async () => {
+    const response = await supertest(app).get(`/api/v1/careers/1`);
+
+    console.info(response.body);
+
+    expect(response.status).toBe(400);
+    expect(response.body.message).toEqual("Error: Career not found");
+  });
+
+  it("should not be able to get career detail data - careerId is wrong", async () => {
+    const response = await supertest(app).get(`/api/v1/careers/there-is-no-id`);
+
+    console.info(response.body);
+
+    expect(response.status).toBe(400);
+    expect(response.body.message).toContain("ValidationError");
+  });
+});
+
 afterAll(async () => {
   await prisma.application.deleteMany();
   await prisma.career.deleteMany();
   await prisma.adminPermission.deleteMany();
   await prisma.admin.deleteMany();
 
-const folderPath = "assets/files/cv"
+  const folderPath = "assets/files/cv";
 
   if (fs.existsSync(folderPath)) {
     fs.rmSync(folderPath, { recursive: true, force: true });
