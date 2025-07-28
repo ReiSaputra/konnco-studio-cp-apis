@@ -1,7 +1,7 @@
 import { PropertyError } from "../helpers/class/property-error.js";
-import { authSchema, getAdminBlogSchema } from "../helpers/validations/admin-validation.js";
+import { authSchema, blogSlugSchema, getAdminBlogSchema } from "../helpers/validations/admin-validation.js";
 import { validate } from "../helpers/validations/validate.js";
-import { loginAdminService, dashboardAdminService, getAdminBlogService } from "../services/admin-service.js";
+import { loginAdminService, dashboardAdminService, getAdminBlogService, getAdminBlogDetailService } from "../services/admin-service.js";
 
 const loginAdminController = async (req, res, next) => {
   try {
@@ -89,7 +89,28 @@ const getAdminBlogController = async (req, res, next) => {
 
 const getAdminBlogDetailController = async (req, res, next) => {
   try {
-  } catch (error) {}
+    const { id, name, role, permissions } = req.user;
+    const { blogSlug } = req.params;
+
+    validate(blogSlugSchema, blogSlug);
+
+    const data = await getAdminBlogDetailService(role, permissions, blogSlug);
+
+    return res.status(200).json({
+      message: "Successfully get admin blog detail",
+      data: data,
+      user: {
+        id,
+        name,
+        role,
+        permissions: {
+          canViewBlog: permissions.canViewBlog,
+        },
+      },
+    });
+  } catch (error) {
+    next(error);
+  }
 };
 
-export { loginAdminController, dashboardAdminController, getAdminBlogController, getAdminBlogDetailController };
+export { loginAdminController, dashboardAdminController, getAdminBlogController, getAdminBlogDetailController, getAdminBlogDetailController };

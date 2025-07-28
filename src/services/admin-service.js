@@ -169,4 +169,36 @@ const getAdminBlogService = async (id, role, permissions, page, search, category
   return findBlogDatas;
 };
 
-export { loginAdminService, dashboardAdminService, getAdminBlogService };
+const getAdminBlogDetailService = async (role, permissions, blogSlug) => {
+  let findBlogData = null;
+
+  if (role === "ADMIN" || role === "SUPER_ADMIN") {
+    if (permissions.canShowBlog) {
+      findBlogData = await prisma.blog.findUnique({
+        where: { slug: blogSlug },
+        select: {
+          title: true,
+          content: true,
+          photo: true,
+          type: true,
+          author: {
+            select: { name: true },
+          },
+          createdAt: true,
+        },
+      });
+    }
+  }
+
+  return findBlogData;
+};
+
+// const createAdminBlogService = async (data) => {
+//   const findData = await prisma.blog.findUnique({
+//     where: { slug: data.slug },
+//   });
+
+//   if (findData) throw new Error("Blog already exists");
+// };
+
+export { loginAdminService, dashboardAdminService, getAdminBlogService, getAdminBlogDetailService };

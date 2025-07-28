@@ -22,4 +22,6 @@ const getAdminBlogSchema = joi.object({
   status: joi.string().valid("visible", "not-visible").optional(),
 });
 
-export { authSchema, getAdminBlogSchema };
+const blogSlugSchema = joi.string().required();
+
+export { authSchema, getAdminBlogSchema, blogSlugSchema };
