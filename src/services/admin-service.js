@@ -15,6 +15,7 @@ const loginAdminService = async (email, password) => {
       password: true,
       email: true,
       role: true,
+      name: true,
     },
   });
 
@@ -37,7 +38,7 @@ const loginAdminService = async (email, password) => {
     data: { token: tokenEncrypt },
   });
 
-  return { token: tokenEncrypt };
+  return { token: tokenEncrypt, name: findData.name };
 };
 
 const dashboardAdminService = async (id, role, permissions) => {

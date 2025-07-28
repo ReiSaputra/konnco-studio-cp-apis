@@ -18,6 +18,7 @@ const loginAdminController = async (req, res, next) => {
       message: "Successfully login to konnco studio admin panel",
       data: {
         token: data.token,
+        name: data.name,
       },
     });
   } catch (error) {
@@ -27,7 +28,6 @@ const loginAdminController = async (req, res, next) => {
 
 const dashboardAdminController = async (req, res, next) => {
   const { id, name, role, permissions } = req.user;
-
   try {
     const data = await dashboardAdminService(id, role, permissions);
     return res.status(200).json({
