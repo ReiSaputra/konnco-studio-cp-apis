@@ -1,20 +1,43 @@
 import { prisma } from "../database.js";
 
 const getCareerService = async () => {
-  const data = await prisma.career.findMany({
+  const findDatas = await prisma.career.findMany({
+    where: {
+      isVisible: true,
+    },
     select: {
       id: true,
       title: true,
       description: true,
       type: true,
+      tags: true,
     },
     orderBy: {
       title: "asc",
     },
   });
+
+  return findDatas;
 };
 
-const getCareerDetailService = async (careerId) => {};
+const getCareerDetailService = async (careerId) => {
+  const data = await prisma.career.findUnique({
+    where: {
+      id: parseInt(careerId),
+    },
+    select: {
+      title: true,
+      salary: true,
+      description: true,
+      requirements: true,
+      linkedInInfo: true,
+      jobStreetInfo: true,
+      glintsInfo: true,
+    },
+  });
+
+  return data;
+};
 
 const createApplicationService = async (applicantName, email, phoneNumber, academic, companyName, position, lengthOfService, fileName, message, skills, careerId) => {
   const { educationLevel, instituteName } = academic;
