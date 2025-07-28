@@ -824,8 +824,6 @@ describe("when users want to get career detail data in route GET /api/v1/careers
   it("should be able to get career detail data successfully", async () => {
     const response = await supertest(app).get(`/api/v1/careers/${careers.id}`);
 
-    console.info(response.body);
-
     expect(response.status).toBe(200);
     expect(response.body.message).toEqual("Successfully get career detail");
   });
@@ -833,16 +831,12 @@ describe("when users want to get career detail data in route GET /api/v1/careers
   it("should not be able to get career detail data - careerId is number but did not find in schema", async () => {
     const response = await supertest(app).get(`/api/v1/careers/1`);
 
-    console.info(response.body);
-
     expect(response.status).toBe(400);
     expect(response.body.message).toEqual("Error: Career not found");
   });
 
   it("should not be able to get career detail data - careerId is wrong", async () => {
     const response = await supertest(app).get(`/api/v1/careers/there-is-no-id`);
-
-    console.info(response.body);
 
     expect(response.status).toBe(400);
     expect(response.body.message).toContain("ValidationError");
