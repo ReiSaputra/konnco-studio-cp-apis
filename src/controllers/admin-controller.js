@@ -113,4 +113,4 @@ const getAdminBlogDetailController = async (req, res, next) => {
   }
 };
 
-export { loginAdminController, dashboardAdminController, getAdminBlogController, getAdminBlogDetailController, getAdminBlogDetailController };
+export { loginAdminController, dashboardAdminController, getAdminBlogController, getAdminBlogDetailController };

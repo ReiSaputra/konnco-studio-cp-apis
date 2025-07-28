@@ -1,4 +1,4 @@
-import { afterEach, beforeAll, beforeEach, describe, expect, it } from "@jest/globals";
+import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, it } from "@jest/globals";
 import supertest from "supertest";
 import bcrypt from "bcrypt";
 
@@ -598,9 +598,9 @@ describe("when admin want to get blogs data in route GET /api/v1/admins/blogs", 
         token: expect.any(String),
       },
     });
-    
+
     const response = await supertest(app).get("/api/v1/admins/blogs");
-    
+
     expect(response.status).toBe(401);
     expect(response.body.message).toBe("TokenError: Unauthorized");
   });
@@ -614,9 +614,149 @@ describe("when admin want to get blogs data in route GET /api/v1/admins/blogs", 
   });
 });
 
-describe("when admin want to get detail blog data in route GET /api/v1/admins/blogs/:blogSlug", () => {});
+describe("when admin want to get detail blog data in route GET /api/v1/admins/blogs/:blogSlug", () => {
+  beforeAll(async () => {
+    await prisma.blog.deleteMany();
+    await prisma.application.deleteMany();
+    await prisma.career.deleteMany();
+    await prisma.adminPermission.deleteMany();
+    await prisma.admin.deleteMany();
+  });
+
+  beforeEach(async () => {
+    const hash = await bcrypt.hash("dontknowityet", 10);
+    const admin = await prisma.admin.create({
+      data: {
+        name: "Admin A",
+        email: "adminA@konnco.com",
+        password: hash,
+        phoneNumber: "087843202523",
+        role: "ADMIN",
+        permissions: {
+          create: {
+            canShowApplication: true,
+            canCreateApplication: true,
+            canViewApplication: true,
+            canUpdateApplication: true,
+            canDeleteApplication: true,
+
+            canShowCareer: true,
+            canCreateCareer: true,
+            canViewCareer: true,
+            canUpdateCareer: true,
+            canDeleteCareer: true,
+
+            canShowProduct: true,
+            canCreateProduct: true,
+            canViewProduct: true,
+            canUpdateProduct: true,
+            canDeleteProduct: true,
+
+            canShowBlog: true,
+            canCreateBlog: true,
+            canViewBlog: true,
+            canUpdateBlog: true,
+            canDeleteBlog: true,
+
+            canShowAdmin: true,
+          },
+        },
+      },
+      select: {
+        id: true,
+      },
+    });
+
+    await prisma.blog.createMany({
+      data: [
+        {
+          title: "Quebec",
+          content: "Quebec",
+          slug: "quebec",
+          type: "TECH",
+          authorId: admin.id,
+          photo: "/photos/blogs/1.jpg",
+        },
+      ],
+    });
+  });
+
+  afterEach(async () => {
+    await prisma.blog.deleteMany();
+    await prisma.application.deleteMany();
+    await prisma.career.deleteMany();
+    await prisma.adminPermission.deleteMany();
+    await prisma.admin.deleteMany();
+  });
+
+  it("should be able to get admin blog detail data successfully", async () => {
+    const responseLogin = await supertest(app).post("/api/v1/admins/auth/login").send({
+      email: "adminA@konnco.com",
+      password: "dontknowityet",
+    });
+
+    expect(responseLogin.status).toBe(200);
+    expect(responseLogin.body).toEqual({
+      message: "Successfully login to konnco studio admin panel",
+      data: {
+        token: expect.any(String),
+      },
+    });
+
+    console.info(await prisma.blog.findMany());
+
+    const response = await supertest(app).get("/api/v1/admins/blogs/quebec").set("Authorization", `Basic ${responseLogin.body.data.token}`);
+
+    console.info(response.body);
+
+    expect(response.status).toBe(200);
+    expect(response.body.message).toBe("Successfully get admin blog detail");
+    expect(response.body.data.title).toBe("Quebec");
+  });
+
+  it("should not be able to get admin blog detail data successfully - blog not found", async () => {
+    const responseLogin = await supertest(app).post("/api/v1/admins/auth/login").send({
+      email: "adminA@konnco.com",
+      password: "dontknowityet",
+    });
+
+    expect(responseLogin.status).toBe(200);
+    expect(responseLogin.body).toEqual({
+      message: "Successfully login to konnco studio admin panel",
+      data: {
+        token: expect.any(String),
+      },
+    });
+
+    const response = await supertest(app).get("/api/v1/admins/blogs/asterix").set("Authorization", `Basic ${responseLogin.body.data.token}`);
+
+    expect(response.status).toBe(400);
+    expect(response.body.message).toBe("Error: Blog not found");
+  });
+
+  it("should not be able to get admin blog detail data successfully - number validation blogSlug", async () => {
+    const responseLogin = await supertest(app).post("/api/v1/admins/auth/login").send({
+      email: "adminA@konnco.com",
+      password: "dontknowityet",
+    });
+
+    expect(responseLogin.status).toBe(200);
+    expect(responseLogin.body).toEqual({
+      message: "Successfully login to konnco studio admin panel",
+      data: {
+        token: expect.any(String),
+      },
+    });
+
+    const response = await supertest(app).get("/api/v1/admins/blogs/1").set("Authorization", `Basic ${responseLogin.body.data.token}`);
+
+    expect(response.status).toBe(400);
+    expect(response.body.message).toBe("Error: Blog not found");
+  });
+});
 
 afterAll(async () => {
+  await prisma.blog.deleteMany();
   await prisma.application.deleteMany();
   await prisma.career.deleteMany();
   await prisma.adminPermission.deleteMany();

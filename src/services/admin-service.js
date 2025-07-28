@@ -187,6 +187,8 @@ const getAdminBlogDetailService = async (role, permissions, blogSlug) => {
           createdAt: true,
         },
       });
+
+      if (!findBlogData) throw new Error("Blog not found");
     }
   }
 
