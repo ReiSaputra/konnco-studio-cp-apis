@@ -4,6 +4,7 @@ import bcrypt from "bcrypt";
 
 import app from "../../src/app.js";
 import { prisma } from "../../src/database.js";
+import path from "path";
 
 beforeAll(async () => {
   await prisma.blog.deleteMany();
@@ -703,11 +704,7 @@ describe("when admin want to get detail blog data in route GET /api/v1/admins/bl
       },
     });
 
-    console.info(await prisma.blog.findMany());
-
     const response = await supertest(app).get("/api/v1/admins/blogs/quebec").set("Authorization", `Basic ${responseLogin.body.data.token}`);
-
-    console.info(response.body);
 
     expect(response.status).toBe(200);
     expect(response.body.message).toBe("Successfully get admin blog detail");
@@ -752,6 +749,561 @@ describe("when admin want to get detail blog data in route GET /api/v1/admins/bl
 
     expect(response.status).toBe(400);
     expect(response.body.message).toBe("Error: Blog not found");
+  });
+});
+
+describe("when admin want to create blog data in route POST /api/v1/admins/blogs", () => {
+  const filePath = path.resolve(__dirname, "../samples/img/konco2.jpg");
+  const filePath2 = path.resolve(__dirname, "../samples/file/[2] PRD - Konnco Studio Company Profile.pdf");
+  let admin;
+
+  beforeAll(async () => {
+    await prisma.blog.deleteMany();
+    await prisma.application.deleteMany();
+    await prisma.career.deleteMany();
+    await prisma.adminPermission.deleteMany();
+    await prisma.admin.deleteMany();
+  });
+
+  beforeEach(async () => {
+    const hash = await bcrypt.hash("dontknowityet", 10);
+
+    admin = await prisma.admin.create({
+      data: {
+        name: "Admin Konnco",
+        email: "adminkonnco@konnco.com",
+        password: hash,
+        phoneNumber: "087843202523",
+        role: "ADMIN",
+        permissions: {
+          create: {
+            canShowApplication: true,
+            canCreateApplication: true,
+            canViewApplication: true,
+            canUpdateApplication: true,
+            canDeleteApplication: true,
+
+            canShowCareer: true,
+            canCreateCareer: true,
+            canViewCareer: true,
+            canUpdateCareer: true,
+            canDeleteCareer: true,
+
+            canShowProduct: true,
+            canCreateProduct: true,
+            canViewProduct: true,
+            canUpdateProduct: true,
+            canDeleteProduct: true,
+
+            canShowBlog: true,
+            canCreateBlog: true,
+            canViewBlog: true,
+            canUpdateBlog: true,
+            canDeleteBlog: true,
+
+            canShowAdmin: true,
+          },
+        },
+      },
+      select: {
+        id: true,
+      },
+    });
+  });
+
+  it("should be able to create blog data successfully", async () => {
+    const responseLogin = await supertest(app).post("/api/v1/admins/auth/login").send({
+      email: "adminkonnco@konnco.com",
+      password: "dontknowityet",
+    });
+
+    expect(responseLogin.status).toBe(200);
+    expect(responseLogin.body).toEqual({
+      message: "Successfully login to konnco studio admin panel",
+      data: {
+        token: expect.any(String),
+      },
+    });
+
+    const response = await supertest(app)
+      .post("/api/v1/admins/blogs")
+      .set("Authorization", `Basic ${responseLogin.body.data.token}`)
+      .field("authorId", admin.id)
+      .field("title", "News of A")
+      .field("slug", "news-of-a")
+      .field("content", "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed nec augue ex. Nulla condimentum tempus ultrices. Donec sed sagittis dolor. Duis a lectus eu justo scelerisque vestibulum.")
+      .field("type", "NEWS")
+      .attach("photo", filePath);
+
+    expect(response.status).toBe(200);
+    expect(response.body.message).toBe("Successfully create admin blog");
+  });
+
+  it("should not be able to create blog data successfully - no sending title", async () => {
+    const responseLogin = await supertest(app).post("/api/v1/admins/auth/login").send({
+      email: "adminkonnco@konnco.com",
+      password: "dontknowityet",
+    });
+
+    expect(responseLogin.status).toBe(200);
+    expect(responseLogin.body).toEqual({
+      message: "Successfully login to konnco studio admin panel",
+      data: {
+        token: expect.any(String),
+      },
+    });
+
+    const response = await supertest(app)
+      .post("/api/v1/admins/blogs")
+      .set("Authorization", `Basic ${responseLogin.body.data.token}`)
+      .field("authorId", admin.id)
+      .field("slug", "news-of-a")
+      .field("content", "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed nec augue ex. Nulla condimentum tempus ultrices. Donec sed sagittis dolor. Duis a lectus eu justo scelerisque vestibulum.")
+      .field("type", "NEWS")
+      .attach("photo", filePath);
+
+    expect(response.status).toBe(400);
+    expect(response.body.message).toContain("Title is required");
+  });
+
+  it("should not be able to create blog data successfully - no sending slug", async () => {
+    const responseLogin = await supertest(app).post("/api/v1/admins/auth/login").send({
+      email: "adminkonnco@konnco.com",
+      password: "dontknowityet",
+    });
+
+    expect(responseLogin.status).toBe(200);
+    expect(responseLogin.body).toEqual({
+      message: "Successfully login to konnco studio admin panel",
+      data: {
+        token: expect.any(String),
+      },
+    });
+
+    const response = await supertest(app)
+      .post("/api/v1/admins/blogs")
+      .set("Authorization", `Basic ${responseLogin.body.data.token}`)
+      .field("authorId", admin.id)
+      .field("title", "News of A")
+      .field("content", "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed nec augue ex. Nulla condimentum tempus ultrices. Donec sed sagittis dolor. Duis a lectus eu justo scelerisque vestibulum.")
+      .field("type", "NEWS")
+      .attach("photo", filePath);
+
+    expect(response.status).toBe(400);
+    expect(response.body.message).toContain("Slug is required");
+  });
+
+  it("should not be able to create blog data successfully - no sending content", async () => {
+    const responseLogin = await supertest(app).post("/api/v1/admins/auth/login").send({
+      email: "adminkonnco@konnco.com",
+      password: "dontknowityet",
+    });
+
+    expect(responseLogin.status).toBe(200);
+    expect(responseLogin.body).toEqual({
+      message: "Successfully login to konnco studio admin panel",
+      data: {
+        token: expect.any(String),
+      },
+    });
+
+    const response = await supertest(app)
+      .post("/api/v1/admins/blogs")
+      .set("Authorization", `Basic ${responseLogin.body.data.token}`)
+      .field("authorId", admin.id)
+      .field("title", "News of A")
+      .field("slug", "slug-of-a")
+      .field("content", "")
+      .field("type", "NEWS")
+      .attach("photo", filePath);
+
+    expect(response.status).toBe(400);
+    expect(response.body.message).toContain("Content is required");
+  });
+
+  it("should not be able to create blog data successfully - no sending content", async () => {
+    const responseLogin = await supertest(app).post("/api/v1/admins/auth/login").send({
+      email: "adminkonnco@konnco.com",
+      password: "dontknowityet",
+    });
+
+    expect(responseLogin.status).toBe(200);
+    expect(responseLogin.body).toEqual({
+      message: "Successfully login to konnco studio admin panel",
+      data: {
+        token: expect.any(String),
+      },
+    });
+
+    const response = await supertest(app)
+      .post("/api/v1/admins/blogs")
+      .set("Authorization", `Basic ${responseLogin.body.data.token}`)
+      .field("authorId", admin.id)
+      .field("title", "News of A")
+      .field("slug", "slug-of-a")
+      .field("content", "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed nec augue ex. Nulla condimentum tempus ultrices. Donec sed sagittis dolor. Duis a lectus eu justo scelerisque vestibulum.")
+      .field("type", "NONE")
+      .attach("photo", filePath);
+
+    expect(response.status).toBe(400);
+    expect(response.body.message).toContain("ValidationError");
+  });
+
+  it("should not be able to create blog data successfully - no sending photo", async () => {
+    const responseLogin = await supertest(app).post("/api/v1/admins/auth/login").send({
+      email: "adminkonnco@konnco.com",
+      password: "dontknowityet",
+    });
+
+    expect(responseLogin.status).toBe(200);
+    expect(responseLogin.body).toEqual({
+      message: "Successfully login to konnco studio admin panel",
+      data: {
+        token: expect.any(String),
+      },
+    });
+
+    const response = await supertest(app)
+      .post("/api/v1/admins/blogs")
+      .set("Authorization", `Basic ${responseLogin.body.data.token}`)
+      .field("authorId", admin.id)
+      .field("title", "News of A")
+      .field("slug", "slug-of-a")
+      .field("content", "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed nec augue ex. Nulla condimentum tempus ultrices. Donec sed sagittis dolor. Duis a lectus eu justo scelerisque vestibulum.")
+      .field("type", "NEWS");
+
+    expect(response.status).toBe(400);
+    expect(response.body.message).toContain("Either Photo");
+  });
+
+  it("should not be able to create blog data successfully - invalid mime type photo", async () => {
+    const responseLogin = await supertest(app).post("/api/v1/admins/auth/login").send({
+      email: "adminkonnco@konnco.com",
+      password: "dontknowityet",
+    });
+
+    expect(responseLogin.status).toBe(200);
+    expect(responseLogin.body).toEqual({
+      message: "Successfully login to konnco studio admin panel",
+      data: {
+        token: expect.any(String),
+      },
+    });
+
+    const response = await supertest(app)
+      .post("/api/v1/admins/blogs")
+      .set("Authorization", `Basic ${responseLogin.body.data.token}`)
+      .field("authorId", admin.id)
+      .field("title", "News of A")
+      .field("slug", "slug-of-a")
+      .field("content", "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed nec augue ex. Nulla condimentum tempus ultrices. Donec sed sagittis dolor. Duis a lectus eu justo scelerisque vestibulum.")
+      .field("type", "NEWS")
+      .field("photo", filePath2);
+
+    expect(response.status).toBe(400);
+    expect(response.body.message).toContain("Either Photo");
+  });
+
+  it("should not be able to create blog data successfully - admin is not allowed on permission", async () => {
+    await prisma.adminPermission.update({
+      where: {
+        adminId: admin.id,
+      },
+      data: {
+        canCreateBlog: false,
+      },
+    });
+
+    const responseLogin = await supertest(app).post("/api/v1/admins/auth/login").send({
+      email: "adminkonnco@konnco.com",
+      password: "dontknowityet",
+    });
+
+    expect(responseLogin.status).toBe(200);
+    expect(responseLogin.body).toEqual({
+      message: "Successfully login to konnco studio admin panel",
+      data: {
+        token: expect.any(String),
+      },
+    });
+
+    const response = await supertest(app)
+      .post("/api/v1/admins/blogs")
+      .set("Authorization", `Basic ${responseLogin.body.data.token}`)
+      .field("authorId", admin.id)
+      .field("title", "News of A")
+      .field("slug", "slug-of-a")
+      .field("content", "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed nec augue ex. Nulla condimentum tempus ultrices. Donec sed sagittis dolor. Duis a lectus eu justo scelerisque vestibulum.")
+      .field("type", "NEWS")
+      .attach("photo", filePath);
+
+    expect(response.status).toBe(400);
+    expect(response.body.message).toContain("Error: You don't have permission to create blog");
+  });
+
+  afterEach(async () => {
+    await prisma.blog.deleteMany();
+    await prisma.application.deleteMany();
+    await prisma.career.deleteMany();
+    await prisma.adminPermission.deleteMany();
+    await prisma.admin.deleteMany();
+  });
+});
+
+describe("when admin want to edit blog data in route PUT /api/v1/admins/blogs/:blogSlug", () => {
+  const filePath = path.resolve(__dirname, "../samples/img/konco2.jpg");
+  let admin;
+
+  beforeAll(async () => {
+    await prisma.blog.deleteMany();
+    await prisma.application.deleteMany();
+    await prisma.career.deleteMany();
+    await prisma.adminPermission.deleteMany();
+    await prisma.admin.deleteMany();
+  });
+
+  beforeEach(async () => {
+    const hash = await bcrypt.hash("dontknowityet", 10);
+
+    admin = await prisma.admin.create({
+      data: {
+        name: "Admin Konnco",
+        email: "adminkonnco@konnco.com",
+        password: hash,
+        phoneNumber: "087843202523",
+        role: "ADMIN",
+        permissions: {
+          create: {
+            canShowApplication: true,
+            canCreateApplication: true,
+            canViewApplication: true,
+            canUpdateApplication: true,
+            canDeleteApplication: true,
+
+            canShowCareer: true,
+            canCreateCareer: true,
+            canViewCareer: true,
+            canUpdateCareer: true,
+            canDeleteCareer: true,
+
+            canShowProduct: true,
+            canCreateProduct: true,
+            canViewProduct: true,
+            canUpdateProduct: true,
+            canDeleteProduct: true,
+
+            canShowBlog: true,
+            canCreateBlog: true,
+            canViewBlog: true,
+            canUpdateBlog: true,
+            canDeleteBlog: true,
+
+            canShowAdmin: true,
+          },
+        },
+      },
+      select: {
+        id: true,
+      },
+    });
+  });
+
+  afterEach(async () => {
+    await prisma.blog.deleteMany();
+    await prisma.application.deleteMany();
+    await prisma.career.deleteMany();
+    await prisma.adminPermission.deleteMany();
+    await prisma.admin.deleteMany();
+  });
+
+  it("should be able to edit blog data successfully", async () => {
+    const responseLogin = await supertest(app).post("/api/v1/admins/auth/login").send({
+      email: "adminkonnco@konnco.com",
+      password: "dontknowityet",
+    });
+
+    expect(responseLogin.status).toBe(200);
+    expect(responseLogin.body).toEqual({
+      message: "Successfully login to konnco studio admin panel",
+      data: {
+        token: expect.any(String),
+      },
+    });
+
+    const responseCreate = await supertest(app)
+      .post("/api/v1/admins/blogs")
+      .set("Authorization", `Basic ${responseLogin.body.data.token}`)
+      .field("authorId", admin.id)
+      .field("title", "News of A")
+      .field("slug", "news-of-a")
+      .field("content", "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed nec augue ex. Nulla condimentum tempus ultrices. Donec sed sagittis dolor. Duis a lectus eu justo scelerisque vestibulum.")
+      .field("type", "NEWS")
+      .attach("photo", filePath);
+
+    expect(responseCreate.status).toBe(200);
+    expect(responseCreate.body.message).toBe("Successfully create admin blog");
+
+    const blog = await prisma.blog.findUnique({
+      where: {
+        slug: "news-of-a",
+      },
+      select: {
+        slug: true,
+      },
+    });
+
+    const response = await supertest(app)
+      .put(`/api/v1/admins/blogs/${blog.slug}`)
+      .set("Authorization", `Basic ${responseLogin.body.data.token}`)
+      .field("authorId", admin.id)
+      .field("title", "News of B")
+      .field("slug", "news-of-b")
+      .field("content", "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed nec augue ex. Nulla condimentum tempus ultrices. Donec sed sagittis dolor. Duis a lectus eu justo scelerisque vestibulum.")
+      .field("type", "NEWS")
+      .attach("photo", filePath);
+
+    expect(response.status).toBe(200);
+    expect(response.body.message).toBe("Successfully update admin blog detail");
+  });
+
+  it("should not be able to edit blog data - invalid blog slug params", async () => {
+    const responseLogin = await supertest(app).post("/api/v1/admins/auth/login").send({
+      email: "adminkonnco@konnco.com",
+      password: "dontknowityet",
+    });
+
+    expect(responseLogin.status).toBe(200);
+    expect(responseLogin.body).toEqual({
+      message: "Successfully login to konnco studio admin panel",
+      data: {
+        token: expect.any(String),
+      },
+    });
+
+    const responseCreate = await supertest(app)
+      .post("/api/v1/admins/blogs")
+      .set("Authorization", `Basic ${responseLogin.body.data.token}`)
+      .field("authorId", admin.id)
+      .field("title", "News of A")
+      .field("slug", "news-of-a")
+      .field("content", "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed nec augue ex. Nulla condimentum tempus ultrices. Donec sed sagittis dolor. Duis a lectus eu justo scelerisque vestibulum.")
+      .field("type", "NEWS")
+      .attach("photo", filePath);
+
+    expect(responseCreate.status).toBe(200);
+    expect(responseCreate.body.message).toBe("Successfully create admin blog");
+
+    const response = await supertest(app)
+      .put("/api/v1/admins/blogs/invalid-blog-slug")
+      .set("Authorization", `Basic ${responseLogin.body.data.token}`)
+      .field("authorId", admin.id)
+      .field("title", "News of B")
+      .field("slug", "news-of-b")
+      .field("content", "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed nec augue ex. Nulla condimentum tempus ultrices. Donec sed sagittis dolor. Duis a lectus eu justo scelerisque vestibulum.")
+      .field("type", "NEWS")
+      .attach("photo", filePath);
+
+    expect(response.status).toBe(400);
+    expect(response.body.message).toBe("Error: Blog not found");
+  });
+
+  it("should not be able to edit blog data - invalid blog slug params", async () => {
+    const responseLogin = await supertest(app).post("/api/v1/admins/auth/login").send({
+      email: "adminkonnco@konnco.com",
+      password: "dontknowityet",
+    });
+
+    expect(responseLogin.status).toBe(200);
+    expect(responseLogin.body).toEqual({
+      message: "Successfully login to konnco studio admin panel",
+      data: {
+        token: expect.any(String),
+      },
+    });
+
+    const responseCreate = await supertest(app)
+      .post("/api/v1/admins/blogs")
+      .set("Authorization", `Basic ${responseLogin.body.data.token}`)
+      .field("authorId", admin.id)
+      .field("title", "News of A")
+      .field("slug", "news-of-a")
+      .field("content", "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed nec augue ex. Nulla condimentum tempus ultrices. Donec sed sagittis dolor. Duis a lectus eu justo scelerisque vestibulum.")
+      .field("type", "NEWS")
+      .attach("photo", filePath);
+
+    expect(responseCreate.status).toBe(200);
+    expect(responseCreate.body.message).toBe("Successfully create admin blog");
+
+    const blog = await prisma.blog.findUnique({
+      where: {
+        slug: "news-of-a",
+      },
+      select: {
+        slug: true,
+      },
+    });
+
+    const response = await supertest(app)
+      .put("/api/v1/admins/blogs/invalid-blog-slug")
+      .set("Authorization", `Basic ${responseLogin.body.data.token}`)
+      .field("authorId", admin.id)
+      .field("title", "News of B")
+      .field("slug", "news-of-b")
+      .field("content", "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed nec augue ex. Nulla condimentum tempus ultrices. Donec sed sagittis dolor. Duis a lectus eu justo scelerisque vestibulum.")
+      .field("type", "NEWS")
+      .attach("photo", filePath);
+
+    expect(response.status).toBe(400);
+    expect(response.body.message).toBe("Error: Blog not found");
+  });
+
+  it("should not be able to edit blog data - no sending title", async () => {
+    const responseLogin = await supertest(app).post("/api/v1/admins/auth/login").send({
+      email: "adminkonnco@konnco.com",
+      password: "dontknowityet",
+    });
+
+    expect(responseLogin.status).toBe(200);
+    expect(responseLogin.body).toEqual({
+      message: "Successfully login to konnco studio admin panel",
+      data: {
+        token: expect.any(String),
+      },
+    });
+
+    const responseCreate = await supertest(app)
+      .post("/api/v1/admins/blogs")
+      .set("Authorization", `Basic ${responseLogin.body.data.token}`)
+      .field("authorId", admin.id)
+      .field("title", "News of A")
+      .field("slug", "news-of-a")
+      .field("content", "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed nec augue ex. Nulla condimentum tempus ultrices. Donec sed sagittis dolor. Duis a lectus eu justo scelerisque vestibulum.")
+      .field("type", "NEWS")
+      .attach("photo", filePath);
+
+    expect(responseCreate.status).toBe(200);
+    expect(responseCreate.body.message).toBe("Successfully create admin blog");
+
+    const blog = await prisma.blog.findUnique({
+      where: {
+        slug: "news-of-a",
+      },
+      select: {
+        slug: true,
+      },
+    });
+
+    const response = await supertest(app)
+      .put("/api/v1/admins/blogs/invalid-blog-slug")
+      .set("Authorization", `Basic ${responseLogin.body.data.token}`)
+      .field("authorId", admin.id)
+      .field("slug", "news-of-b")
+      .field("content", "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed nec augue ex. Nulla condimentum tempus ultrices. Donec sed sagittis dolor. Duis a lectus eu justo scelerisque vestibulum.")
+      .field("type", "NEWS")
+      .attach("photo", filePath);
+
+    expect(response.status).toBe(400);
+    expect(response.body.message).toBe("PropertyError: Title is required");
   });
 });
 

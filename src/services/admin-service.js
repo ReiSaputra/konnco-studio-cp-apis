@@ -166,6 +166,8 @@ const getAdminBlogService = async (id, role, permissions, page, search, category
         },
       });
     }
+  } else {
+    throw new Error("You don't have permission to show blog");
   }
 
   return findBlogDatas;
@@ -191,6 +193,8 @@ const getAdminBlogDetailService = async (role, permissions, blogSlug) => {
       });
 
       if (!findBlogData) throw new Error("Blog not found");
+    } else {
+      throw new Error("You don't have permission to view blog");
     }
   }
 
@@ -203,7 +207,9 @@ const editAdminBlogDetailService = async (role, permissions, blogSlug, title, co
   if (role === "ADMIN" || role === "SUPER_ADMIN") {
     if (permissions.canUpdateBlog) {
       const findBlogData = await prisma.blog.findUnique({
-        where: { slug: blogSlug },
+        where: {
+          slug: blogSlug,
+        },
         select: {
           photo: true,
         },
@@ -227,12 +233,14 @@ const editAdminBlogDetailService = async (role, permissions, blogSlug, title, co
           content: content,
           photo: photoName,
           type: type,
-          authorId: parseInt(authorId),
+          authorId: authorId,
           slug: slug,
         },
       });
 
       if (!findBlogData) throw new Error("Blog not found");
+    } else {
+      throw new Error("You don't have permission to update blog");
     }
   }
 
@@ -256,12 +264,14 @@ const createAdminBlogService = async (role, permissions, title, content, photoNa
           content: content,
           photo: photoName,
           type: type,
-          authorId: parseInt(authorId),
+          authorId: authorId,
           slug: slug,
         },
       });
 
       if (!createData) throw new Error("Failed to create blog");
+    } else {
+      throw new Error("You don't have permission to create blog");
     }
   }
 

@@ -30,7 +30,7 @@ const blogSchema = joi
     content: joi.string().min(100).max(1000).required(),
     photo: joi.string().required(),
     type: joi.string().valid("TECH", "BUSINESS", "NEWS", "TUTORIAL", "OTHER").required(),
-    authorId: joi.number().required(),
+    authorId: joi.string().required(),
     slug: joi.string().required(),
   })
   .required();

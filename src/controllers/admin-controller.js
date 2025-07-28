@@ -156,14 +156,16 @@ const createAdminBlogController = async (req, res, next) => {
   const { id, name, role, permissions } = req.user;
   const { title, content, type, authorId, slug } = req.body;
   const photo = req.file;
-  const photoName = photo.filename;
-
+  
   if (!title) throw new PropertyError("Title is required");
   if (!content) throw new PropertyError("Content is required");
   if (!type) throw new PropertyError("Type is required");
   if (!authorId) throw new PropertyError("Author id is required");
   if (!slug) throw new PropertyError("Slug is required");
-  if (!photo) throw new FileUploadError("Either File is required or File Mime Type is not PDF");
+  if (!photo) throw new FileUploadError("Either Photo is required or File Mime Type is not PDF");
+  
+
+  const photoName = photo.filename;
 
   validate(blogSchema, { title, content, photo: photoName, type, authorId, slug });
 
