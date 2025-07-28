@@ -90,7 +90,7 @@ model Blog {
   type    BlogType
   photo   String   @db.VarChar(255)
 
-  isVisible Boolean @default(false) @map("is_visible")
+  isVisible Boolean @default(true) @map("is_visible")
 
   authorId String @map("author_id") @db.VarChar(255)
   author   Admin  @relation(fields: [authorId], references: [id])
@@ -117,6 +117,7 @@ model Career {
   tags          String     @db.Text
   requirements  String     @db.Text
   type          CareerType
+  isVisible     Boolean    @default(true) @map("is_visible")
   linkedInInfo  String     @map("linkedin_info") @db.VarChar(255)
   glintsInfo    String     @map("glints_info") @db.VarChar(255)
   jobStreetInfo String     @map("jobstreet_info") @db.VarChar(255)
