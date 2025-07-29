@@ -172,7 +172,7 @@ const createAdminBlogController = async (req, res, next) => {
   if (!type) throw new PropertyError("Type is required");
   if (!authorId) throw new PropertyError("Author id is required");
   if (!slug) throw new PropertyError("Slug is required");
-  if (!photo) throw new FileUploadError("Either Photo is required or File Mime Type is not PDF");
+  if (!photo) throw new FileUploadError("Either Photo is required or File Mime Type is not JPG/JPEG");
 
   const photoName = photo.filename;
 
