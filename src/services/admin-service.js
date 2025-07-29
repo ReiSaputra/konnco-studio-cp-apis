@@ -293,7 +293,7 @@ const deleteAdminBlogDetailService = async (role, permissions, blogSlug) => {
       });
 
       if (!findBlogData) throw new Error("Blog not found");
-      
+
       deleteBlogData = await prisma.blog.delete({
         where: {
           slug: blogSlug,
@@ -363,7 +363,91 @@ const getAdminCareerService = async (id, role, permissions) => {
   return findCareerDatas;
 };
 
-const getAdminCareerDetailService = async () => {};
+const getAdminCareerDetailService = async (role, permissions, careerId) => {
+  let findCareerData = null;
+
+  if (role === "ADMIN") {
+    if (permissions.canShowCareer) {
+      findCareerData = await prisma.career.findUnique({
+        where: { id: parseInt(careerId) },
+        select: {
+          title: true,
+          description: true,
+          salary: true,
+          requirements: true,
+          linkedInInfo: true,
+          jobStreetInfo: true,
+          glintsInfo: true,
+          tags: true,
+          createdAt: true,
+        },
+      });
+    } else {
+      throw new Error("You don't have permission to show admin careers");
+    }
+  } else if (role === "SUPER_ADMIN") {
+    if (permissions.canShowCareer) {
+      findCareerData = await prisma.career.findUnique({
+        where: { id: parseInt(careerId) },
+        select: {
+          title: true,
+          description: true,
+          salary: true,
+          requirements: true,
+          linkedInInfo: true,
+          jobStreetInfo: true,
+          glintsInfo: true,
+          tags: true,
+          author: {
+            select: { name: true },
+          },
+          createdAt: true,
+        },
+      });
+    } else {
+      throw new Error("You don't have permission to show admin careers");
+    }
+  } else {
+    throw new Error("You don't have permission to show admin careers");
+  }
+
+  return findCareerData;
+};
+
+const editAdminCareerDetailService = async (id, role, permissions, careerId, title, description, salary, requirements, type, linkedInInfo, jobStreetInfo, glintsInfo, tags) => {
+  let editData = null;
+
+  if (role === "ADMIN" || role === "SUPER_ADMIN") {
+    if (permissions.canUpdateCareer) {
+      const tagEach = tags.map((tag) => tag.trim()).join(", ");
+      const requirementEach = requirements.map((requirement) => requirement.trim()).join(", ");
+
+      editData = await prisma.career.update({
+        where: {
+          id: parseInt(careerId),
+        },
+        data: {
+          title: title,
+          description: description,
+          salary: salary,
+          requirements: requirementEach,
+          type: type,
+          linkedInInfo: linkedInInfo,
+          jobStreetInfo: jobStreetInfo,
+          glintsInfo: glintsInfo,
+          tags: tagEach,
+          authorId: id,
+        },
+      });
+    } else {
+      throw new Error("You don't have permission to update admin careers");
+    }
+  } else {
+    throw new Error("You don't have permission to update admin careers");
+  }
+
+  return editData;
+};
 
 const createAdminCareerService = async (id, role, permissions, title, description, salary, requirements, type, linkedInInfo, jobStreetInfo, glintsInfo, tags) => {
   let createData = null;
@@ -399,6 +483,32 @@ const createAdminCareerService = async (id, role, permissions, title, descriptio
   return createData;
 };
 
+const deleteAdminCareerDetailService = async (role, permissions, careerId) => {
+  let deleteData = null;
+
+  if (role === "ADMIN" || role === "SUPER_ADMIN") {
+    if (permissions.canDeleteCareer) {
+      const findData = await prisma.career.findUnique({
+        where: {
+          id: parseInt(careerId),
+        },
+      });
+
+      if (!findData) throw new Error("Career not found");
+
+      deleteData = await prisma.career.delete({
+        where: {
+          id: parseInt(careerId),
+        },
+      });
+    } else {
+      throw new Error("You don't have permission to delete admin careers");
+    }
+  } else {
+    throw new Error("You don't have permission to delete admin careers");
+  }
+};
+
 export {
   loginAdminService,
   dashboardAdminService,
@@ -410,4 +520,6 @@ export {
   getAdminCareerService,
   getAdminCareerDetailService,
   createAdminCareerService,
+  editAdminCareerDetailService,
+  deleteAdminCareerDetailService,
 };

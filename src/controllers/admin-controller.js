@@ -1,6 +1,7 @@
 import { FileUploadError } from "../helpers/class/file-upload-error.js";
 import { PropertyError } from "../helpers/class/property-error.js";
 import { authSchema, blogSchema, blogSlugSchema, careerSchema, getAdminBlogSchema } from "../helpers/validations/admin-validation.js";
+import { careerIdSchema } from "../helpers/validations/admin-validation.js";
 import { validate } from "../helpers/validations/validate.js";
 import {
   loginAdminService,
@@ -12,6 +13,9 @@ import {
   deleteAdminBlogDetailService,
   createAdminCareerService,
   getAdminCareerService,
+  getAdminCareerDetailService,
+  editAdminCareerDetailService,
+  deleteAdminCareerDetailService,
 } from "../services/admin-service.js";
 
 const loginAdminController = async (req, res, next) => {
@@ -240,7 +244,7 @@ const getAdminCareerController = async (req, res, next) => {
           canDeleteCareer: permissions.canDeleteCareer,
         },
       },
-    })
+    });
   } catch (error) {
     next(error);
   }
@@ -248,6 +252,25 @@ const getAdminCareerController = async (req, res, next) => {
 
 const getAdminCareerDetailController = async (req, res, next) => {
   try {
+    const { id, name, role, permissions } = req.user;
+    const { careerId } = req.params;
+
+    validate(careerIdSchema, careerId);
+
+    const data = await getAdminCareerDetailService(role, permissions, careerId);
+
+    return res.status(200).json({
+      message: "Successfully get admin career detail",
+      data: data,
+      user: {
+        id,
+        name,
+        role,
+        permissions: {
+          canViewCareer: permissions.canViewCareer,
+        },
+      },
+    });
   } catch (error) {
     next(error);
   }
@@ -255,6 +278,34 @@ const getAdminCareerDetailController = async (req, res, next) => {
 
 const editAdminCareerDetailController = async (req, res, next) => {
   try {
+    const { id, name, role, permissions } = req.user;
+    const { careerId } = req.params;
+
+    const { title, description, salary, requirements, type, linkedInInfo, jobStreetInfo, glintsInfo, tags } = req.body;
+
+    if (!title) throw new PropertyError("Title is required");
+    if (!description) throw new PropertyError("Description is required");
+    if (!salary) throw new PropertyError("Salary is required");
+    if (!requirements) throw new PropertyError("Requirements is required");
+    if (!type) throw new PropertyError("Type is required");
+    if (!tags) throw new PropertyError("Tags is required");
+
+    validate(careerSchema, { title, description, salary, requirements, type, linkedInInfo, jobStreetInfo, glintsInfo, tags });
+
+    const data = await editAdminCareerDetailService(id, role, permissions, careerId, title, description, salary, requirements, type, linkedInInfo, jobStreetInfo, glintsInfo, tags);
+
+    return res.status(200).json({
+      message: "Successfully update admin career detail",
+      data: data,
+      user: {
+        id,
+        name,
+        role,
+        permissions: {
+          canUpdateCareer: permissions.canUpdateCareer,
+        },
+      },
+    });
   } catch (error) {
     next(error);
   }
@@ -295,6 +346,24 @@ const createAdminCareerController = async (req, res, next) => {
 
 const deleteAdminCareerDetailController = async (req, res, next) => {
   try {
+    const { id, name, role, permissions } = req.user;
+    const { careerId } = req.params;
+
+    validate(careerIdSchema, careerId);
+
+    const data = await deleteAdminCareerDetailService(role, permissions, careerId);
+
+    return res.status(200).json({
+      message: "Successfully delete admin career detail",
+      user: {
+        id,
+        name,
+        role,
+        permissions: {
+          canDeleteCareer: permissions.canDeleteCareer,
+        },
+      },
+    });
   } catch (error) {
     next(error);
   }
