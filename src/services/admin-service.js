@@ -256,7 +256,7 @@ const createAdminBlogService = async (role, permissions, title, content, photoNa
         where: { slug: slug },
       });
 
-      if (findData) throw new Error("Blog already exists");
+      if (findData) throw new Error("Blog Slug already exists");
 
       createData = await prisma.blog.create({
         data: {
