@@ -7,6 +7,11 @@ import {
   editAdminBlogDetailController,
   createAdminBlogController,
   deleteAdminBlogDetailController,
+  createAdminCareerController,
+  deleteAdminCareerDetailController,
+  editAdminCareerDetailController,
+  getAdminCareerDetailController,
+  getAdminCareerController,
 } from "../controllers/admin-controller.js";
 import { authMiddleware } from "../middlewares/auth-middleware.js";
 import fs from "fs";
