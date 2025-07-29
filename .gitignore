@@ -34,3 +34,6 @@ tests/samples
 
 # assets
 assets/
+
+public/blogs
+public/products
