@@ -201,7 +201,7 @@ model Product {
   description String  @db.Text
   mainFeature String  @map("main_feature") @db.Text
   advantage   String  @db.Text
-  mainPhoto   String  @default("default-photo.jpg")
+  mainPhoto   String?  @db.VarChar(255)
   secondPhoto String? @db.VarChar(255)
   thirdPhoto  String? @db.VarChar(255)
 
