@@ -33,9 +33,14 @@ adminRoute.get("/admins/blogs", authMiddleware, getAdminBlogController);
 adminRoute.get("/admins/blogs/:blogSlug", authMiddleware, getAdminBlogDetailController);
 adminRoute.put("/admins/blogs/:blogSlug", authMiddleware, upload.single("photo"), editAdminBlogDetailController);
 adminRoute.post("/admins/blogs", authMiddleware, upload.single("photo"), createAdminBlogController);
-// adminRoute.delete("/admins/blogs/:blogSlug", authMiddleware, deleteAdminBlogDetailController);
+adminRoute.delete("/admins/blogs/:blogSlug", authMiddleware, deleteAdminBlogDetailController);
 
 // Careers
+adminRoute.get("/admins/careers", authMiddleware, getAdminCareerController);
+adminRoute.get("/admins/careers/:careerId", authMiddleware, getAdminCareerDetailController);
+adminRoute.put("/admins/careers/:careerId", authMiddleware, editAdminCareerDetailController);
+adminRoute.post("/admins/careers", authMiddleware, createAdminCareerController);
+adminRoute.delete("/admins/careers/:careerId", authMiddleware, deleteAdminCareerDetailController);
 
 // Products
 

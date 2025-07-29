@@ -278,4 +278,124 @@ const createAdminBlogService = async (role, permissions, title, content, photoNa
   return createData;
 };
 
-export { loginAdminService, dashboardAdminService, getAdminBlogService, getAdminBlogDetailService, editAdminBlogDetailService, createAdminBlogService };
+const deleteAdminBlogDetailService = async (role, permissions, blogSlug) => {
+  let deleteBlogData = null;
+
+  if (role === "ADMIN" || role === "SUPER_ADMIN") {
+    if (permissions.canDeleteBlog) {
+      deleteBlogData = await prisma.blog.delete({
+        where: {
+          slug: blogSlug,
+        },
+      });
+
+      if (!deleteBlogData) throw new Error("Blog not found");
+    } else {
+      throw new Error("You don't have permission to delete blog");
+    }
+
+    if (!deleteBlogData) throw new Error("Blog not found");
+  } else {
+    throw new Error("You don't have permission to delete blog");
+  }
+
+  return deleteBlogData;
+};
+
+const getAdminCareerService = async (id, role, permissions) => {
+  let findCareerDatas = null;
+
+  if (role === "ADMIN") {
+    if (permissions.canShowCareer) {
+      findCareerDatas = await prisma.career.findMany({
+        where: {
+          authorId: id,
+        },
+        orderBy: {
+          title: "asc",
+        },
+        select: {
+          id: true,
+          title: true,
+          description: true,
+          type: true,
+          tags: true,
+        },
+      });
+    } else {
+      throw new Error("You don't have permission to show admin careers");
+    }
+  } else if (role === "SUPER_ADMIN") {
+    if (permissions.canShowCareer) {
+      findCareerDatas = await prisma.career.findMany({
+        orderBy: {
+          title: "asc",
+        },
+        select: {
+          id: true,
+          title: true,
+          description: true,
+          type: true,
+          tags: true,
+          author: {
+            select: { name: true },
+          },
+        },
+      });
+    } else {
+      throw new Error("You don't have permission to show admin careers");
+    }
+  } else {
+    throw new Error("You don't have permission to show admin careers");
+  }
+
+  return findCareerDatas;
+};
+
+const getAdminCareerDetailService = async () => {};
+
+const createAdminCareerService = async (id, role, permissions, title, description, salary, requirements, type, linkedInInfo, jobStreetInfo, glintsInfo, tags) => {
+  let createData = null;
+
+  if (role === "ADMIN" || role === "SUPER_ADMIN") {
+    if (permissions.canCreateCareer) {
+      const tagEach = tags.map((tag) => tag.trim()).join(", ");
+
+      createData = await prisma.career.create({
+        data: {
+          title: title,
+          description: description,
+          salary: salary,
+          requirements: requirements,
+          type: type,
+          linkedInInfo: linkedInInfo,
+          jobStreetInfo: jobStreetInfo,
+          glintsInfo: glintsInfo,
+          tags: tagEach,
+          authorId: id,
+        },
+      });
+
+      if (!createData) throw new Error("Failed to create admin career");
+    } else {
+      throw new Error("You don't have permission to create admin");
+    }
+  } else {
+    throw new Error("You don't have permission to create admin");
+  }
+
+  return createData;
+};
+
+export {
+  loginAdminService,
+  dashboardAdminService,
+  getAdminBlogService,
+  getAdminBlogDetailService,
+  editAdminBlogDetailService,
+  createAdminBlogService,
+  deleteAdminBlogDetailService,
+  getAdminCareerService,
+  getAdminCareerDetailService,
+  createAdminCareerService,
+};
