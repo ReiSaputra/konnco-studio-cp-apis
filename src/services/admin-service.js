@@ -283,6 +283,17 @@ const deleteAdminBlogDetailService = async (role, permissions, blogSlug) => {
 
   if (role === "ADMIN" || role === "SUPER_ADMIN") {
     if (permissions.canDeleteBlog) {
+      const findBlogData = await prisma.blog.findUnique({
+        where: {
+          slug: blogSlug,
+        },
+        select: {
+          slug: true,
+        },
+      });
+
+      if (!findBlogData) throw new Error("Blog not found");
+      
       deleteBlogData = await prisma.blog.delete({
         where: {
           slug: blogSlug,
@@ -360,13 +371,14 @@ const createAdminCareerService = async (id, role, permissions, title, descriptio
   if (role === "ADMIN" || role === "SUPER_ADMIN") {
     if (permissions.canCreateCareer) {
       const tagEach = tags.map((tag) => tag.trim()).join(", ");
+      const requirementEach = requirements.map((requirement) => requirement.trim()).join(", ");
 
       createData = await prisma.career.create({
         data: {
           title: title,
           description: description,
           salary: salary,
-          requirements: requirements,
+          requirements: requirementEach,
           type: type,
           linkedInInfo: linkedInInfo,
           jobStreetInfo: jobStreetInfo,

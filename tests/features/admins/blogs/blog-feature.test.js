@@ -1008,6 +1008,131 @@ describe("when admin want to edit blog data in route PUT /api/v1/admins/blogs/:b
   });
 });
 
+describe("when admin want to delete blog data in route DELETE /api/v1/admins/blogs/:blogSlug", () => {
+  let admin;
+
+  beforeAll(async () => {
+    await prisma.blog.deleteMany();
+    await prisma.application.deleteMany();
+    await prisma.career.deleteMany();
+    await prisma.adminPermission.deleteMany();
+    await prisma.admin.deleteMany();
+  });
+
+  beforeEach(async () => {
+    const hash = await bcrypt.hash("dontknowityet", 10);
+
+    admin = await prisma.admin.create({
+      data: {
+        email: "xl5d5@konnco.com",
+        password: hash,
+        name: "Admin A",
+        phoneNumber: "087823322523",
+        role: "ADMIN",
+        permissions: {
+          create: {
+            canShowBlog: true,
+            canCreateBlog: true,
+            canViewBlog: true,
+            canUpdateBlog: true,
+            canDeleteBlog: true,
+          },
+        },
+      },
+      select: {
+        id: true,
+      },
+    });
+
+    const blog = await prisma.blog.create({
+      data: {
+        title: "News of A Blog",
+        content: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed nec augue ex. Nulla condimentum tempus ultrices. Donec sed sagittis dolor. Duis a lectus eu justo scelerisque vestibulum.",
+        authorId: admin.id,
+        slug: "news-of-a",
+        type: "NEWS",
+        photo: "photosOfA1.jpg",
+      },
+    });
+  });
+
+  afterEach(async () => {
+    await prisma.blog.deleteMany();
+    await prisma.application.deleteMany();
+    await prisma.career.deleteMany();
+    await prisma.adminPermission.deleteMany();
+    await prisma.admin.deleteMany();
+  });
+
+  it("should be able to delete blog data", async () => {
+    const responseLogin = await supertest(app).post("/api/v1/admins/auth/login").send({
+      email: "xl5d5@konnco.com",
+      password: "dontknowityet",
+    });
+
+    expect(responseLogin.status).toBe(200);
+    expect(responseLogin.body).toEqual({
+      message: "Successfully login to konnco studio admin panel",
+      data: {
+        token: expect.any(String),
+      },
+    });
+
+    const response = await supertest(app).delete("/api/v1/admins/blogs/news-of-a").set("Authorization", `Basic ${responseLogin.body.data.token}`);
+
+    expect(response.status).toBe(200);
+    expect(response.body.message).toBe("Successfully delete admin blog detail");
+  });
+
+  it("should not be able to delete blog data - blog not found", async () => {
+    const responseLogin = await supertest(app).post("/api/v1/admins/auth/login").send({
+      email: "xl5d5@konnco.com",
+      password: "dontknowityet",
+    });
+
+    expect(responseLogin.status).toBe(200);
+    expect(responseLogin.body).toEqual({
+      message: "Successfully login to konnco studio admin panel",
+      data: {
+        token: expect.any(String),
+      },
+    });
+
+    const response = await supertest(app).delete("/api/v1/admins/blogs/invalid-blog-slug").set("Authorization", `Basic ${responseLogin.body.data.token}`);
+
+    expect(response.status).toBe(400);
+    expect(response.body.message).toBe("Error: Blog not found");
+  });
+
+  it("should not be able to delete blog data - no authorization provided", async () => {
+    const response = await supertest(app).delete("/api/v1/admins/blogs/news-of-a");
+
+    expect(response.status).toBe(401);
+    expect(response.body.message).toBe("TokenError: Unauthorized");
+  });
+
+  it("should not be able to delete blog data - permission not allowed", async () => {
+    await prisma.adminPermission.update({
+      where: {
+        adminId: admin.id,
+      },
+      data: {
+        canDeleteBlog: false,
+      },
+    });
+
+    const responseLogin = await supertest(app).post("/api/v1/admins/auth/login").send({
+      email: "xl5d5@konnco.com",
+      password: "dontknowityet",
+    });
+
+    const response = await supertest(app).delete("/api/v1/admins/blogs/news-of-a").set("Authorization", `Basic ${responseLogin.body.data.token}`);
+
+    expect(response.status).toBe(400);
+    expect(response.body.message).toBe("Error: You don't have permission to delete blog");
+  });
+});
+
 afterAll(async () => {
   await prisma.blog.deleteMany();
   await prisma.application.deleteMany();
