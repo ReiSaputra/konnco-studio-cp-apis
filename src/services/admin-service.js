@@ -1,5 +1,7 @@
 import bcrypt from "bcrypt";
 import CryptoJS from "crypto-js";
+import fs from "fs";
+import path from "path";
 import "dotenv/config";
 
 import { prisma } from "../database.js";
@@ -122,4 +124,279 @@ const dashboardAdminService = async (id, role, permissions) => {
   };
 };
 
-export { loginAdminService, dashboardAdminService };
+const getAdminBlogService = async (id, role, permissions, page, search, category, status) => {
+  let findBlogDatas = null;
+
+  const offset = (page - 1) * 10;
+
+  if (role === "ADMIN") {
+    if (permissions.canShowBlog) {
+      const where = {
+        authorId: id,
+      };
+
+      if (search) {
+        where.title = {
+          contains: search,
+        };
+      }
+
+      if (category) {
+        where.type = category.toUpperCase();
+      }
+
+      if (status === "visible") {
+        where.isVisible = true;
+      } else if (status === "not-visible") {
+        where.isVisible = false;
+      }
+
+      findBlogDatas = await prisma.blog.findMany({
+        where,
+        skip: offset,
+        take: 10,
+        select: {
+          title: true,
+          content: true,
+          slug: true,
+          type: true,
+          createdAt: true,
+        },
+        orderBy: {
+          createdAt: "desc",
+        },
+      });
+    }
+  } else {
+    throw new Error("You don't have permission to show blog");
+  }
+
+  return findBlogDatas;
+};
+
+const getAdminBlogDetailService = async (role, permissions, blogSlug) => {
+  let findBlogData = null;
+
+  if (role === "ADMIN" || role === "SUPER_ADMIN") {
+    if (permissions.canShowBlog) {
+      findBlogData = await prisma.blog.findUnique({
+        where: { slug: blogSlug },
+        select: {
+          title: true,
+          content: true,
+          photo: true,
+          type: true,
+          author: {
+            select: { name: true },
+          },
+          createdAt: true,
+        },
+      });
+
+      if (!findBlogData) throw new Error("Blog not found");
+    } else {
+      throw new Error("You don't have permission to view blog");
+    }
+  }
+
+  return findBlogData;
+};
+
+const editAdminBlogDetailService = async (role, permissions, blogSlug, title, content, photoName, type, authorId, slug) => {
+  let updateBlogData = null;
+
+  if (role === "ADMIN" || role === "SUPER_ADMIN") {
+    if (permissions.canUpdateBlog) {
+      const findBlogData = await prisma.blog.findUnique({
+        where: {
+          slug: blogSlug,
+        },
+        select: {
+          photo: true,
+        },
+      });
+
+      if (!findBlogData) throw new Error("Blog not found");
+
+      if (photoName && findBlogData.photo && photoName !== findBlogData.photo) {
+        const oldFilePath = path.join("public", "blogs", findBlogData.photo);
+        if (fs.existsSync(oldFilePath)) {
+          fs.unlinkSync(oldFilePath);
+        }
+      }
+
+      updateBlogData = await prisma.blog.update({
+        where: {
+          slug: blogSlug,
+        },
+        data: {
+          title: title,
+          content: content,
+          photo: photoName,
+          type: type,
+          authorId: authorId,
+          slug: slug,
+        },
+      });
+
+      if (!findBlogData) throw new Error("Blog not found");
+    } else {
+      throw new Error("You don't have permission to update blog");
+    }
+  }
+
+  return updateBlogData;
+};
+
+const createAdminBlogService = async (role, permissions, title, content, photoName, type, authorId, slug) => {
+  let createData = null;
+
+  if (role === "ADMIN" || role === "SUPER_ADMIN") {
+    if (permissions.canCreateBlog) {
+      const findData = await prisma.blog.findUnique({
+        where: { slug: slug },
+      });
+
+      if (findData) throw new Error("Blog already exists");
+
+      createData = await prisma.blog.create({
+        data: {
+          title: title,
+          content: content,
+          photo: photoName,
+          type: type,
+          authorId: authorId,
+          slug: slug,
+        },
+      });
+
+      if (!createData) throw new Error("Failed to create blog");
+    } else {
+      throw new Error("You don't have permission to create blog");
+    }
+  }
+
+  return createData;
+};
+
+const deleteAdminBlogDetailService = async (role, permissions, blogSlug) => {
+  let deleteBlogData = null;
+
+  if (role === "ADMIN" || role === "SUPER_ADMIN") {
+    if (permissions.canDeleteBlog) {
+      deleteBlogData = await prisma.blog.delete({
+        where: {
+          slug: blogSlug,
+        },
+      });
+
+      if (!deleteBlogData) throw new Error("Blog not found");
+    } else {
+      throw new Error("You don't have permission to delete blog");
+    }
+
+    if (!deleteBlogData) throw new Error("Blog not found");
+  } else {
+    throw new Error("You don't have permission to delete blog");
+  }
+
+  return deleteBlogData;
+};
+
+const getAdminCareerService = async (id, role, permissions) => {
+  let findCareerDatas = null;
+
+  if (role === "ADMIN") {
+    if (permissions.canShowCareer) {
+      findCareerDatas = await prisma.career.findMany({
+        where: {
+          authorId: id,
+        },
+        orderBy: {
+          title: "asc",
+        },
+        select: {
+          id: true,
+          title: true,
+          description: true,
+          type: true,
+          tags: true,
+        },
+      });
+    } else {
+      throw new Error("You don't have permission to show admin careers");
+    }
+  } else if (role === "SUPER_ADMIN") {
+    if (permissions.canShowCareer) {
+      findCareerDatas = await prisma.career.findMany({
+        orderBy: {
+          title: "asc",
+        },
+        select: {
+          id: true,
+          title: true,
+          description: true,
+          type: true,
+          tags: true,
+          author: {
+            select: { name: true },
+          },
+        },
+      });
+    } else {
+      throw new Error("You don't have permission to show admin careers");
+    }
+  } else {
+    throw new Error("You don't have permission to show admin careers");
+  }
+
+  return findCareerDatas;
+};
+
+const getAdminCareerDetailService = async () => {};
+
+const createAdminCareerService = async (id, role, permissions, title, description, salary, requirements, type, linkedInInfo, jobStreetInfo, glintsInfo, tags) => {
+  let createData = null;
+
+  if (role === "ADMIN" || role === "SUPER_ADMIN") {
+    if (permissions.canCreateCareer) {
+      const tagEach = tags.map((tag) => tag.trim()).join(", ");
+
+      createData = await prisma.career.create({
+        data: {
+          title: title,
+          description: description,
+          salary: salary,
+          requirements: requirements,
+          type: type,
+          linkedInInfo: linkedInInfo,
+          jobStreetInfo: jobStreetInfo,
+          glintsInfo: glintsInfo,
+          tags: tagEach,
+          authorId: id,
+        },
+      });
+
+      if (!createData) throw new Error("Failed to create admin career");
+    } else {
+      throw new Error("You don't have permission to create admin");
+    }
+  } else {
+    throw new Error("You don't have permission to create admin");
+  }
+
+  return createData;
+};
+
+export {
+  loginAdminService,
+  dashboardAdminService,
+  getAdminBlogService,
+  getAdminBlogDetailService,
+  editAdminBlogDetailService,
+  createAdminBlogService,
+  deleteAdminBlogDetailService,
+  getAdminCareerService,
+  getAdminCareerDetailService,
+  createAdminCareerService,
+};
