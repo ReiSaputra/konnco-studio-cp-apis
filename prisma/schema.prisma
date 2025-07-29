@@ -115,7 +115,7 @@ model Career {
   description   String     @db.Text
   salary        String     @db.VarChar(255)
   tags          String     @db.Text
-  requirements  String     @db.Text
+  requirements  String?     @db.Text
   type          CareerType
   isVisible     Boolean    @default(true) @map("is_visible")
   linkedInInfo  String     @map("linkedin_info") @db.VarChar(255)
