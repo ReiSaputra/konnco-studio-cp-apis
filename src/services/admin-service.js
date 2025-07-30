@@ -367,7 +367,7 @@ const getAdminCareerDetailService = async (role, permissions, careerId) => {
   let findCareerData = null;
 
   if (role === "ADMIN") {
-    if (permissions.canShowCareer) {
+    if (permissions.canViewCareer) {
       findCareerData = await prisma.career.findUnique({
         where: { id: parseInt(careerId) },
         select: {
@@ -383,10 +383,10 @@ const getAdminCareerDetailService = async (role, permissions, careerId) => {
         },
       });
     } else {
-      throw new Error("You don't have permission to show admin careers");
+      throw new Error("You don't have permission to view admin careers");
     }
   } else if (role === "SUPER_ADMIN") {
-    if (permissions.canShowCareer) {
+    if (permissions.canViewCareer) {
       findCareerData = await prisma.career.findUnique({
         where: { id: parseInt(careerId) },
         select: {
@@ -405,11 +405,13 @@ const getAdminCareerDetailService = async (role, permissions, careerId) => {
         },
       });
     } else {
-      throw new Error("You don't have permission to show admin careers");
+      throw new Error("You don't have permission to view admin careers");
     }
   } else {
-    throw new Error("You don't have permission to show admin careers");
+    throw new Error("You don't have permission to view admin careers");
   }
+
+  if (!findCareerData) throw new Error("Career Detail Data is not found");
 
   return findCareerData;
 };
@@ -419,6 +421,10 @@ const editAdminCareerDetailService = async (id, role, permissions, careerId, tit
 
   if (role === "ADMIN" || role === "SUPER_ADMIN") {
     if (permissions.canUpdateCareer) {
+      const findData = await prisma.career.findUnique({ where: { id: parseInt(careerId) } });
+      
+      if (!findData) throw new Error("Career not found");
+
       const tagEach = tags.map((tag) => tag.trim()).join(", ");
       const requirementEach = requirements.map((requirement) => requirement.trim()).join(", ");
 

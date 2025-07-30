@@ -47,6 +47,6 @@ const careerSchema = joi.object({
   tags: joi.array().items(joi.string()).min(1).required(),
 });
 
-const careerIdSchema = joi.string().required();
+const careerIdSchema = joi.number().required();
 
 export { authSchema, getAdminBlogSchema, blogSlugSchema, blogSchema, careerSchema, careerIdSchema };
