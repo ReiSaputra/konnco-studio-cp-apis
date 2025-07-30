@@ -422,7 +422,7 @@ const editAdminCareerDetailService = async (id, role, permissions, careerId, tit
   if (role === "ADMIN" || role === "SUPER_ADMIN") {
     if (permissions.canUpdateCareer) {
       const findData = await prisma.career.findUnique({ where: { id: parseInt(careerId) } });
-      
+
       if (!findData) throw new Error("Career not found");
 
       const tagEach = tags.map((tag) => tag.trim()).join(", ");
@@ -515,6 +515,111 @@ const deleteAdminCareerDetailService = async (role, permissions, careerId) => {
   }
 };
 
+const getAdminCareerApplicationService = async (id, role, permissions, page, search, startDate, endDate) => {
+  let findCareerApplicationDatas = null;
+
+  const offset = (page - 1) * 10;
+
+  if (role === "ADMIN") {
+    if (permissions.canShowApplication) {
+      const where = {
+        authorId: id,
+      };
+
+      if (search || (startDate && endDate)) {
+        where.applications = {
+          some: {},
+        };
+
+        if (search) {
+          where.applications.some.applicantName = {
+            contains: search,
+            mode: "insensitive",
+          };
+        }
+
+        if (startDate && endDate) {
+          where.applications.some.createdAt = {
+            gte: new Date(startDate),
+            lte: new Date(endDate),
+          };
+        }
+      }
+
+      findCareerApplicationDatas = await prisma.career.findMany({
+        where,
+        skip: offset,
+        take: 10,
+        select: {
+          applications: {
+            where: {
+              ...(search && {
+                applicantName: {
+                  contains: search,
+                  mode: "insensitive",
+                },
+              }),
+              ...(startDate &&
+                endDate && {
+                  createdAt: {
+                    gte: new Date(startDate),
+                    lte: new Date(endDate),
+                  },
+                }),
+            },
+            select: {
+              id: true,
+              applicantName: true,
+              createdAt: true,
+              career: {
+                select: {
+                  title: true,
+                },
+              },
+            },
+          },
+        },
+      });
+    } else {
+      throw new Error("You don't have permission to show admin career applications");
+    }
+  } else if (role === "SUPER_ADMIN") {
+    if (permissions.canShowApplication) {
+      const where = {};
+      if (search) where.applicantName = { contains: search, mode: "insensitive" };
+      if (startDate && endDate) where.createdAt = { gte: startDate, lte: endDate };
+
+      findCareerApplicationDatas = await prisma.career.findMany({
+        where,
+        skip: offset,
+        take: 10,
+        select: {
+          applications: {
+            select: {
+              id: true,
+              applicantName: true,
+              createdAt: true,
+              career: {
+                select: {
+                  title: true,
+                },
+              },
+            },
+          },
+        },
+      });
+    } else {
+      throw new Error("You don't have permission to show admin career applications");
+    }
+  } else {
+    throw new Error("You don't have permission to show admin career applications");
+  }
+};
+
+const getAdminCareerApplicationDetailService = async () => {};
+
+const deleteAdminCareerApplicationDetailService = async () => {};
+
 export {
   loginAdminService,
   dashboardAdminService,
@@ -528,4 +633,7 @@ export {
   createAdminCareerService,
   editAdminCareerDetailService,
   deleteAdminCareerDetailService,
+  getAdminCareerApplicationService,
+  getAdminCareerApplicationDetailService,
+  deleteAdminCareerApplicationDetailService,
 };

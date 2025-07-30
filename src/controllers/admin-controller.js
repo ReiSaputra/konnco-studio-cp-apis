@@ -1,6 +1,6 @@
 import { FileUploadError } from "../helpers/class/file-upload-error.js";
 import { PropertyError } from "../helpers/class/property-error.js";
-import { authSchema, blogSchema, blogSlugSchema, careerSchema, getAdminBlogSchema } from "../helpers/validations/admin-validation.js";
+import { authSchema, blogSchema, blogSlugSchema, careerSchema, getAdminBlogSchema, getCareerApplicationSchema } from "../helpers/validations/admin-validation.js";
 import { careerIdSchema } from "../helpers/validations/admin-validation.js";
 import { validate } from "../helpers/validations/validate.js";
 import {
@@ -16,6 +16,7 @@ import {
   getAdminCareerDetailService,
   editAdminCareerDetailService,
   deleteAdminCareerDetailService,
+  getAdminCareerApplicationService,
 } from "../services/admin-service.js";
 
 const loginAdminController = async (req, res, next) => {
@@ -369,6 +370,48 @@ const deleteAdminCareerDetailController = async (req, res, next) => {
   }
 };
 
+const getAdminCareerApplicationController = async (req, res, next) => {
+  try {
+    const { id, name, role, permissions } = req.user;
+    const { page, search, startDate, endDate } = req.query;
+
+    validate(getCareerApplicationSchema, { page, search, startDate, endDate });
+
+    const data = await getAdminCareerApplicationService(id, role, permissions, page || 1, search, startDate, endDate);
+
+    return res.status(200).json({
+      message: "Successfully get admin career applications",
+      data: data,
+      user: {
+        id,
+        name,
+        role,
+        permissions: {
+          canShowApplication: permissions.canShowApplication,
+          canViewApplication: permissions.canViewApplication,
+          canDeleteApplication: permissions.canDeleteApplication,
+        },
+      },
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+const getAdminCareerApplicationDetailController = async (req, res, next) => {
+  try {
+  } catch (error) {
+    next(error);
+  }
+};
+
+const deleteAdminCareerApplicationDetailController = async (req, res, next) => {
+  try {
+  } catch (error) {
+    next(error);
+  }
+};
+
 export {
   loginAdminController,
   dashboardAdminController,
@@ -382,4 +425,7 @@ export {
   editAdminCareerDetailController,
   createAdminCareerController,
   deleteAdminCareerDetailController,
+  getAdminCareerApplicationController,
+  getAdminCareerApplicationDetailController,
+  deleteAdminCareerApplicationDetailController,
 };
