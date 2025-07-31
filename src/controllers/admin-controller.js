@@ -39,7 +39,9 @@ const loginAdminController = async (req, res, next) => {
     return res.status(200).json({
       message: "Successfully login to konnco studio admin panel",
       data: {
+        id: data.id,
         token: data.token,
+        name: data.name,
       },
     });
   } catch (error) {
@@ -53,10 +55,8 @@ const loginAdminController = async (req, res, next) => {
 
 const dashboardAdminController = async (req, res, next) => {
   const { id, name, role, permissions } = req.user;
-
   try {
     const data = await dashboardAdminService(id, role, permissions);
-
     return res.status(200).json({
       message: "Successfully get dashboard data",
       data: data,
@@ -153,20 +153,45 @@ const editAdminBlogDetailController = async (req, res, next) => {
     if (!title) throw new PropertyError("Title is required");
     if (!content) throw new PropertyError("Content is required");
     if (!type) throw new PropertyError("Type is required");
-    if (!authorId) throw new PropertyError("Author id is required");
+    if (!authorId) throw new PropertyError("Author ID is required");
     if (!slug) throw new PropertyError("Slug is required");
-    if (!photo) throw new FileUploadError("Either File is required or File Mime Type is not PDF");
 
-    const photoName = photo.filename;
+    // Validasi photo hanya jika ada file baru
+    let photoName = null;
+    if (photo) {
+      const allowedMimeTypes = ["image/jpeg", "image/png", "image/jpg", "image/webp"];
+      if (!allowedMimeTypes.includes(photo.mimetype)) {
+        throw new FileUploadError("Only image files (jpg, png, webp) are allowed");
+      }
+      photoName = photo.filename;
+    }
 
     validate(blogSlugSchema, blogSlug);
-    validate(blogSchema, { title, content, photo: photoName, type, authorId, slug });
 
-    const data = await editAdminBlogDetailService(role, permissions, blogSlug, title, content, photoName, type, authorId, slug);
+    validate(blogSchema, {
+      title,
+      content,
+      photo: photoName || "",
+      type,
+      authorId,
+      slug,
+    });
+
+    const updatedBlog = await editAdminBlogDetailService(
+      role,
+      permissions,
+      blogSlug,
+      title,
+      content,
+      photoName,
+      type,
+      authorId,
+      slug
+    );
 
     return res.status(200).json({
-      message: "Successfully update admin blog detail",
-      data: data,
+      message: "Successfully updated blog",
+      data: updatedBlog,
       user: {
         id,
         name,
