@@ -1,8 +1,6 @@
 import "dotenv/config";
 import express from "express";
 import cors from "cors";
-import path from "path";
-import { fileURLToPath } from "url";
 
 import { errorMiddleware } from "./middlewares/error-middleware.js";
 
@@ -11,9 +9,6 @@ import { inquiryRoute } from "./routes/inquiry-route.js";
 import { careerRoute } from "./routes/career-route.js";
 import { adminRoute } from "./routes/admin-route.js";
 import { productRoute } from "./routes/product-route.js";
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
 
 const app = express();
 
