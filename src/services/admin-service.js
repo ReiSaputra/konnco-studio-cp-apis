@@ -7,6 +7,10 @@ import "dotenv/config";
 import { prisma } from "../database.js";
 import { AuthError } from "../helpers/class/auth-error.js";
 
+/**
+ * Auth
+ */
+
 const loginAdminService = async (email, password) => {
   const findData = await prisma.admin.findUnique({
     where: {
@@ -41,6 +45,10 @@ const loginAdminService = async (email, password) => {
 
   return { token: tokenEncrypt };
 };
+
+/**
+ * Dashboard
+ */
 
 const dashboardAdminService = async (id, role, permissions) => {
   let countBlogData = null;
@@ -122,6 +130,10 @@ const dashboardAdminService = async (id, role, permissions) => {
     countApplicationData: countApplicationData,
   };
 };
+
+/**
+ * Blogs
+ */
 
 const getAdminBlogService = async (id, role, permissions, page, search, category, status) => {
   let findBlogDatas = null;
@@ -312,6 +324,10 @@ const deleteAdminBlogDetailService = async (role, permissions, blogSlug) => {
 
   return deleteBlogData;
 };
+
+/**
+ * Careers
+ */
 
 const getAdminCareerService = async (id, role, permissions) => {
   let findCareerDatas = null;
@@ -593,9 +609,89 @@ const getAdminCareerApplicationService = async (id, role, permissions, page, sea
   return findCareerApplicationDatas;
 };
 
-const getAdminCareerApplicationDetailService = async () => {};
+const getAdminCareerApplicationDetailService = async (role, permissions, careerId, applicationId) => {
+  let findCareerApplicationData = null;
 
-const deleteAdminCareerApplicationDetailService = async () => {};
+  if (role === "ADMIN" || role === "SUPER_ADMIN") {
+    if (permissions.canViewApplication) {
+      const findCareerData = await prisma.career.findUnique({
+        where: {
+          id: parseInt(careerId),
+        },
+      });
+
+      if (!findCareerData) throw new Error("Career not found");
+
+      findCareerApplicationData = await prisma.application.findUnique({
+        where: {
+          id: applicationId,
+          careerId: parseInt(careerId),
+        },
+        select: {
+          applicantName: true,
+          email: true,
+          phoneNumber: true,
+          letter: true,
+          educationType: true,
+          instituteName: true,
+          companyName: true,
+          position: true,
+          lengthOfService: true,
+          file: true,
+          skills: true,
+          career: {
+            select: {
+              title: true,
+            },
+          },
+        },
+      });
+    } else {
+      throw new Error("You don't have permission to view admin career applications");
+    }
+  } else {
+    throw new Error("You don't have permission to view admin career applications");
+  }
+
+  return findCareerApplicationData;
+};
+
+const deleteAdminCareerApplicationDetailService = async (role, permissions, careerId, applicationId) => {
+  let deleteData = null;
+
+  if (role === "ADMIN" || role === "SUPER_ADMIN") {
+    if (permissions.canDeleteApplication) {
+      const findCareerData = await prisma.career.findUnique({
+        where: {
+          id: parseInt(careerId),
+        },
+      });
+
+      if (!findCareerData) throw new Error("Career not found");
+
+      deleteData = await prisma.application.delete({
+        where: {
+          id: applicationId,
+          careerId: parseInt(careerId),
+        },
+      });
+    } else {
+      throw new Error("You don't have permission to delete admin career applications");
+    }
+  } else {
+    throw new Error("You don't have permission to delete admin career applications");
+  }
+
+  return deleteData;
+};
+
+/**
+ * Products
+ */
+
+/**
+ * Inquiries
+ */
 
 export {
   loginAdminService,

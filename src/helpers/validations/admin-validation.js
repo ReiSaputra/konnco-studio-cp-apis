@@ -48,6 +48,7 @@ const careerSchema = joi.object({
 });
 
 const careerIdSchema = joi.number().required();
+const applicationIdSchema = joi.string().required();
 
 const getCareerApplicationSchema = joi.object({
   page: joi.number().integer().min(1).default(1),
@@ -56,4 +57,4 @@ const getCareerApplicationSchema = joi.object({
   endDate: joi.date().optional(),
 });
 
-export { authSchema, getAdminBlogSchema, blogSlugSchema, blogSchema, careerSchema, careerIdSchema, getCareerApplicationSchema };
+export { authSchema, getAdminBlogSchema, blogSlugSchema, blogSchema, careerSchema, careerIdSchema, getCareerApplicationSchema, applicationIdSchema };

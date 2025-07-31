@@ -13,8 +13,8 @@ import {
   getAdminCareerDetailController,
   getAdminCareerController,
   getAdminCareerApplicationController,
-  // getAdminCareerApplicationDetailController,
-  // deleteAdminCareerApplicationDetailController,
+  getAdminCareerApplicationDetailController,
+  deleteAdminCareerApplicationDetailController,
 } from "../controllers/admin-controller.js";
 import { authMiddleware } from "../middlewares/auth-middleware.js";
 import fs from "fs";
@@ -30,31 +30,44 @@ const adminRoute = express.Router();
 
 const upload = createMulterUpload(path, 2, "image/jpeg");
 
-// Auth
+/**
+ * Auth
+ */
+
 adminRoute.post("/admins/auth/login", loginAdminController);
 
-// Dashboard
+/**
+ * Dashboard
+ */
+
 adminRoute.get("/admins/dashboard/overview", authMiddleware, dashboardAdminController);
 
-// Blogs
+/**
+ * Blogs
+ */
+
 adminRoute.get("/admins/blogs", authMiddleware, getAdminBlogController);
 adminRoute.get("/admins/blogs/:blogSlug", authMiddleware, getAdminBlogDetailController);
 adminRoute.put("/admins/blogs/:blogSlug", authMiddleware, upload.single("photo"), editAdminBlogDetailController);
 adminRoute.post("/admins/blogs", authMiddleware, upload.single("photo"), createAdminBlogController);
 adminRoute.delete("/admins/blogs/:blogSlug", authMiddleware, deleteAdminBlogDetailController);
 
-// Careers
+/**
+ * Careers
+ */
+
 adminRoute.get("/admins/careers", authMiddleware, getAdminCareerController);
 adminRoute.get("/admins/careers/applications", authMiddleware, getAdminCareerApplicationController);
-// adminRoute.get("/admins/careers/:careerId/applications/:applicationId", authMiddleware, getAdminCareerApplicationDetailController);
-// adminRoute.delete("/admins/careers/:careerId/applications/:applicationId", authMiddleware, deleteAdminCareerApplicationDetailController);
+adminRoute.get("/admins/careers/:careerId/applications/:applicationId", authMiddleware, getAdminCareerApplicationDetailController);
+adminRoute.delete("/admins/careers/:careerId/applications/:applicationId", authMiddleware, deleteAdminCareerApplicationDetailController);
 adminRoute.get("/admins/careers/:careerId", authMiddleware, getAdminCareerDetailController);
 adminRoute.put("/admins/careers/:careerId", authMiddleware, editAdminCareerDetailController);
 adminRoute.post("/admins/careers", authMiddleware, createAdminCareerController);
 adminRoute.delete("/admins/careers/:careerId", authMiddleware, deleteAdminCareerDetailController);
 
-
-// Products
+/**
+ * Products
+ */
 
 /**
  * adminRoute.get("/admins/products", authMiddleware);
@@ -64,7 +77,9 @@ adminRoute.delete("/admins/careers/:careerId", authMiddleware, deleteAdminCareer
  * adminRoute.delete("/admins/products/:productId", authMiddleware);
  */
 
-// Inquiries
+/**
+ * Inquiries
+ */
 
 /**
  * adminRoute.get("/admins/inquiries", authMiddleware);

@@ -1,7 +1,7 @@
 import { FileUploadError } from "../helpers/class/file-upload-error.js";
 import { PropertyError } from "../helpers/class/property-error.js";
 import { authSchema, blogSchema, blogSlugSchema, careerSchema, getAdminBlogSchema, getCareerApplicationSchema } from "../helpers/validations/admin-validation.js";
-import { careerIdSchema } from "../helpers/validations/admin-validation.js";
+import { careerIdSchema, applicationIdSchema } from "../helpers/validations/admin-validation.js";
 import { validate } from "../helpers/validations/validate.js";
 import {
   loginAdminService,
@@ -17,7 +17,13 @@ import {
   editAdminCareerDetailService,
   deleteAdminCareerDetailService,
   getAdminCareerApplicationService,
+  getAdminCareerApplicationDetailService,
+  deleteAdminCareerApplicationDetailService,
 } from "../services/admin-service.js";
+
+/**
+ * Auth
+ */
 
 const loginAdminController = async (req, res, next) => {
   try {
@@ -40,6 +46,10 @@ const loginAdminController = async (req, res, next) => {
     next(error);
   }
 };
+
+/**
+ * Dashboard
+ */
 
 const dashboardAdminController = async (req, res, next) => {
   const { id, name, role, permissions } = req.user;
@@ -72,6 +82,10 @@ const dashboardAdminController = async (req, res, next) => {
     next(error);
   }
 };
+
+/**
+ * Blogs
+ */
 
 const getAdminBlogController = async (req, res, next) => {
   try {
@@ -223,6 +237,10 @@ const deleteAdminBlogDetailController = async (req, res, next) => {
     next(error);
   }
 };
+
+/**
+ * Careers
+ */
 
 const getAdminCareerController = async (req, res, next) => {
   try {
@@ -398,19 +416,66 @@ const getAdminCareerApplicationController = async (req, res, next) => {
   }
 };
 
-// const getAdminCareerApplicationDetailController = async (req, res, next) => {
-//   try {
-//   } catch (error) {
-//     next(error);
-//   }
-// };
+const getAdminCareerApplicationDetailController = async (req, res, next) => {
+  try {
+    const { id, name, role, permissions } = req.user;
+    const { careerId, applicationId } = req.params;
 
-// const deleteAdminCareerApplicationDetailController = async (req, res, next) => {
-//   try {
-//   } catch (error) {
-//     next(error);
-//   }
-// };
+    validate(careerIdSchema, careerId);
+    validate(applicationIdSchema, applicationId);
+
+    const data = await getAdminCareerApplicationDetailService(role, permissions, careerId, applicationId);
+
+    return res.status(200).json({
+      message: "Successfully get admin career application detail",
+      data: data,
+      user: {
+        id,
+        name,
+        role,
+        permissions: {
+          canViewApplication: permissions.canViewApplication,
+        },
+      },
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+const deleteAdminCareerApplicationDetailController = async (req, res, next) => {
+  try {
+    const { id, name, role, permissions } = req.user;
+    const { careerId, applicationId } = req.params;
+
+    validate(careerIdSchema, careerId);
+    validate(applicationIdSchema, applicationId);
+
+    const data = await deleteAdminCareerApplicationDetailService(role, permissions, careerId, applicationId);
+
+    return res.status(200).json({
+      message: "Successfully delete admin career application detail",
+      user: {
+        id,
+        name,
+        role,
+        permissions: {
+          canDeleteApplication: permissions.canDeleteApplication,
+        },
+      },
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+/**
+ * Products
+ */
+
+/**
+ * Inquiries
+ */
 
 export {
   loginAdminController,
@@ -426,6 +491,6 @@ export {
   createAdminCareerController,
   deleteAdminCareerDetailController,
   getAdminCareerApplicationController,
-  // getAdminCareerApplicationDetailController,
-  // deleteAdminCareerApplicationDetailController,
+  getAdminCareerApplicationDetailController,
+  deleteAdminCareerApplicationDetailController,
 };
