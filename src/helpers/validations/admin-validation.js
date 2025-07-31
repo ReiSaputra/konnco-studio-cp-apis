@@ -47,4 +47,14 @@ const careerSchema = joi.object({
   tags: joi.array().items(joi.string()).min(1).required(),
 });
 
-export { authSchema, getAdminBlogSchema, blogSlugSchema, blogSchema, careerSchema };
+const careerIdSchema = joi.number().required();
+const applicationIdSchema = joi.string().required();
+
+const getCareerApplicationSchema = joi.object({
+  page: joi.number().integer().min(1).default(1),
+  search: joi.string().allow("").max(255).optional(),
+  startDate: joi.date().optional(),
+  endDate: joi.date().optional(),
+});
+
+export { authSchema, getAdminBlogSchema, blogSlugSchema, blogSchema, careerSchema, careerIdSchema, getCareerApplicationSchema, applicationIdSchema };

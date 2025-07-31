@@ -51,4 +51,4 @@ const run = async () => {
   console.log("Admin created");
 };
 
-run().catch(console.error);
+run();

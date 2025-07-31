@@ -1,6 +1,7 @@
 import { FileUploadError } from "../helpers/class/file-upload-error.js";
 import { PropertyError } from "../helpers/class/property-error.js";
-import { authSchema, blogSchema, blogSlugSchema, careerSchema, getAdminBlogSchema } from "../helpers/validations/admin-validation.js";
+import { authSchema, blogSchema, blogSlugSchema, careerSchema, getAdminBlogSchema, getCareerApplicationSchema } from "../helpers/validations/admin-validation.js";
+import { careerIdSchema, applicationIdSchema } from "../helpers/validations/admin-validation.js";
 import { validate } from "../helpers/validations/validate.js";
 import {
   loginAdminService,
@@ -12,7 +13,17 @@ import {
   deleteAdminBlogDetailService,
   createAdminCareerService,
   getAdminCareerService,
+  getAdminCareerDetailService,
+  editAdminCareerDetailService,
+  deleteAdminCareerDetailService,
+  getAdminCareerApplicationService,
+  getAdminCareerApplicationDetailService,
+  deleteAdminCareerApplicationDetailService,
 } from "../services/admin-service.js";
+
+/**
+ * Auth
+ */
 
 const loginAdminController = async (req, res, next) => {
   try {
@@ -37,6 +48,10 @@ const loginAdminController = async (req, res, next) => {
     next(error);
   }
 };
+
+/**
+ * Dashboard
+ */
 
 const dashboardAdminController = async (req, res, next) => {
   const { id, name, role, permissions } = req.user;
@@ -67,6 +82,10 @@ const dashboardAdminController = async (req, res, next) => {
     next(error);
   }
 };
+
+/**
+ * Blogs
+ */
 
 const getAdminBlogController = async (req, res, next) => {
   try {
@@ -244,6 +263,10 @@ const deleteAdminBlogDetailController = async (req, res, next) => {
   }
 };
 
+/**
+ * Careers
+ */
+
 const getAdminCareerController = async (req, res, next) => {
   try {
     const { id, name, role, permissions } = req.user;
@@ -265,7 +288,7 @@ const getAdminCareerController = async (req, res, next) => {
           canDeleteCareer: permissions.canDeleteCareer,
         },
       },
-    })
+    });
   } catch (error) {
     next(error);
   }
@@ -273,6 +296,25 @@ const getAdminCareerController = async (req, res, next) => {
 
 const getAdminCareerDetailController = async (req, res, next) => {
   try {
+    const { id, name, role, permissions } = req.user;
+    const { careerId } = req.params;
+
+    validate(careerIdSchema, careerId);
+
+    const data = await getAdminCareerDetailService(role, permissions, careerId);
+
+    return res.status(200).json({
+      message: "Successfully get admin career detail",
+      data: data,
+      user: {
+        id,
+        name,
+        role,
+        permissions: {
+          canViewCareer: permissions.canViewCareer,
+        },
+      },
+    });
   } catch (error) {
     next(error);
   }
@@ -280,6 +322,34 @@ const getAdminCareerDetailController = async (req, res, next) => {
 
 const editAdminCareerDetailController = async (req, res, next) => {
   try {
+    const { id, name, role, permissions } = req.user;
+    const { careerId } = req.params;
+
+    const { title, description, salary, requirements, type, linkedInInfo, jobStreetInfo, glintsInfo, tags } = req.body;
+
+    if (!title) throw new PropertyError("Title is required");
+    if (!description) throw new PropertyError("Description is required");
+    if (!salary) throw new PropertyError("Salary is required");
+    if (!requirements) throw new PropertyError("Requirements is required");
+    if (!type) throw new PropertyError("Type is required");
+    if (!tags) throw new PropertyError("Tags is required");
+
+    validate(careerSchema, { title, description, salary, requirements, type, linkedInInfo, jobStreetInfo, glintsInfo, tags });
+
+    const data = await editAdminCareerDetailService(id, role, permissions, careerId, title, description, salary, requirements, type, linkedInInfo, jobStreetInfo, glintsInfo, tags);
+
+    return res.status(200).json({
+      message: "Successfully update admin career detail",
+      data: data,
+      user: {
+        id,
+        name,
+        role,
+        permissions: {
+          canUpdateCareer: permissions.canUpdateCareer,
+        },
+      },
+    });
   } catch (error) {
     next(error);
   }
@@ -320,10 +390,117 @@ const createAdminCareerController = async (req, res, next) => {
 
 const deleteAdminCareerDetailController = async (req, res, next) => {
   try {
+    const { id, name, role, permissions } = req.user;
+    const { careerId } = req.params;
+
+    validate(careerIdSchema, careerId);
+
+    const data = await deleteAdminCareerDetailService(role, permissions, careerId);
+
+    return res.status(200).json({
+      message: "Successfully delete admin career detail",
+      user: {
+        id,
+        name,
+        role,
+        permissions: {
+          canDeleteCareer: permissions.canDeleteCareer,
+        },
+      },
+    });
   } catch (error) {
     next(error);
   }
 };
+
+const getAdminCareerApplicationController = async (req, res, next) => {
+  try {
+    const { id, name, role, permissions } = req.user;
+    const { page, search, startDate, endDate } = req.query;
+
+    validate(getCareerApplicationSchema, { page, search, startDate, endDate });
+
+    const data = await getAdminCareerApplicationService(id, role, permissions, page || 1, search, startDate, endDate);
+
+    return res.status(200).json({
+      message: "Successfully get admin career applications",
+      data: data,
+      user: {
+        id,
+        name,
+        role,
+        permissions: {
+          canShowApplication: permissions.canShowApplication,
+          canViewApplication: permissions.canViewApplication,
+          canDeleteApplication: permissions.canDeleteApplication,
+        },
+      },
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+const getAdminCareerApplicationDetailController = async (req, res, next) => {
+  try {
+    const { id, name, role, permissions } = req.user;
+    const { careerId, applicationId } = req.params;
+
+    validate(careerIdSchema, careerId);
+    validate(applicationIdSchema, applicationId);
+
+    const data = await getAdminCareerApplicationDetailService(role, permissions, careerId, applicationId);
+
+    return res.status(200).json({
+      message: "Successfully get admin career application detail",
+      data: data,
+      user: {
+        id,
+        name,
+        role,
+        permissions: {
+          canViewApplication: permissions.canViewApplication,
+        },
+      },
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+const deleteAdminCareerApplicationDetailController = async (req, res, next) => {
+  try {
+    const { id, name, role, permissions } = req.user;
+    const { careerId, applicationId } = req.params;
+
+    validate(careerIdSchema, careerId);
+    validate(applicationIdSchema, applicationId);
+
+    const data = await deleteAdminCareerApplicationDetailService(role, permissions, careerId, applicationId);
+
+    return res.status(200).json({
+      message: "Successfully delete admin career application detail",
+      user: {
+        id,
+        name,
+        role,
+        permissions: {
+          canDeleteApplication: permissions.canDeleteApplication,
+        },
+      },
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+/**
+ * Products
+ */
+
+/**
+ * Inquiries
+ */
 
 export {
   loginAdminController,
@@ -338,4 +515,7 @@ export {
   editAdminCareerDetailController,
   createAdminCareerController,
   deleteAdminCareerDetailController,
+  getAdminCareerApplicationController,
+  getAdminCareerApplicationDetailController,
+  deleteAdminCareerApplicationDetailController,
 };
