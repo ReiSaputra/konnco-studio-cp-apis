@@ -28,7 +28,7 @@ const adminRoute = express.Router();
 const upload = createMulterUpload(path, 2, "image/jpeg");
 
 // Auth
-adminRoute.post("/admins/auth/login", loginAdminController);
+adminRoute.post("/auth/admins/login", loginAdminController);
 
 // Dashboard
 adminRoute.get("/admins/dashboard/overview", authMiddleware, dashboardAdminController);

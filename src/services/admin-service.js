@@ -33,14 +33,17 @@ const loginAdminService = async (email, password) => {
     time: Date.now(),
   };
 
-  const tokenEncrypt = CryptoJS.AES.encrypt(JSON.stringify(payload), process.env.SECRET_KEY).toString();
+  const tokenEncrypt = CryptoJS.AES.encrypt(
+    JSON.stringify(payload),
+    process.env.SECRET_KEY
+  ).toString();
 
   await prisma.admin.update({
     where: { id: findData.id },
     data: { token: tokenEncrypt },
   });
 
-  return { token: tokenEncrypt, name: findData.name };
+  return { id: findData.id , token: tokenEncrypt, name: findData.name};
 };
 
 const dashboardAdminService = async (id, role, permissions) => {
@@ -124,7 +127,15 @@ const dashboardAdminService = async (id, role, permissions) => {
   };
 };
 
-const getAdminBlogService = async (id, role, permissions, page, search, category, status) => {
+const getAdminBlogService = async (
+  id,
+  role,
+  permissions,
+  page,
+  search,
+  category,
+  status
+) => {
   let findBlogDatas = null;
 
   const offset = (page - 1) * 10;
@@ -187,7 +198,10 @@ const getAdminBlogDetailService = async (role, permissions, blogSlug) => {
           photo: true,
           type: true,
           author: {
-            select: { name: true },
+            select: {
+              id: true,
+              name: true,
+            },
           },
           createdAt: true,
         },
@@ -202,53 +216,78 @@ const getAdminBlogDetailService = async (role, permissions, blogSlug) => {
   return findBlogData;
 };
 
-const editAdminBlogDetailService = async (role, permissions, blogSlug, title, content, photoName, type, authorId, slug) => {
-  let updateBlogData = null;
+const editAdminBlogDetailService = async (
+  role,
+  permissions,
+  blogSlug,
+  title,
+  content,
+  photoName,
+  type,
+  authorId,
+  slug
+) => {
+  if (role !== "ADMIN" && role !== "SUPER_ADMIN") {
+    throw new Error("Unauthorized role");
+  }
 
-  if (role === "ADMIN" || role === "SUPER_ADMIN") {
-    if (permissions.canUpdateBlog) {
-      const findBlogData = await prisma.blog.findUnique({
-        where: {
-          slug: blogSlug,
-        },
-        select: {
-          photo: true,
-        },
-      });
+  if (!permissions.canUpdateBlog) {
+    throw new Error("You don't have permission to update blog");
+  }
 
-      if (!findBlogData) throw new Error("Blog not found");
+  const existingBlog = await prisma.blog.findUnique({
+    where: { slug: blogSlug },
+    select: { slug: true, photo: true },
+  });
 
-      if (photoName && findBlogData.photo && photoName !== findBlogData.photo) {
-        const oldFilePath = path.join("public", "blogs", findBlogData.photo);
-        if (fs.existsSync(oldFilePath)) {
-          fs.unlinkSync(oldFilePath);
-        }
-      }
+  if (!existingBlog) {
+    throw new Error("Blog not found");
+  }
 
-      updateBlogData = await prisma.blog.update({
-        where: {
-          slug: blogSlug,
-        },
-        data: {
-          title: title,
-          content: content,
-          photo: photoName,
-          type: type,
-          authorId: authorId,
-          slug: slug,
-        },
-      });
+  if (slug !== blogSlug) {
+    const isSlugExist = await prisma.blog.findUnique({
+      where: { slug },
+      select: { slug: true },
+    });
 
-      if (!findBlogData) throw new Error("Blog not found");
-    } else {
-      throw new Error("You don't have permission to update blog");
+    if (isSlugExist) {
+      throw new Error("Slug already exists");
     }
   }
+
+  if (photoName && existingBlog.photo && photoName !== existingBlog.photo) {
+    const oldFilePath = path.join("public", "blogs", existingBlog.photo);
+    if (fs.existsSync(oldFilePath)) {
+      fs.unlinkSync(oldFilePath);
+    }
+  }
+
+  const updateBlogData = await prisma.blog.update({
+    where: { slug: blogSlug },
+    data: {
+      title,
+      content,
+      type,
+      authorId,
+      slug,
+      ...(photoName && { photo: photoName }), 
+    },
+  });
 
   return updateBlogData;
 };
 
-const createAdminBlogService = async (role, permissions, title, content, photoName, type, authorId, slug) => {
+
+const createAdminBlogService = async (
+  role,
+  permissions,
+  title,
+  content,
+  photoName,
+  type,
+  authorId,
+  slug
+) => {
   let createData = null;
 
   if (role === "ADMIN" || role === "SUPER_ADMIN") {
@@ -294,7 +333,7 @@ const deleteAdminBlogDetailService = async (role, permissions, blogSlug) => {
       });
 
       if (!findBlogData) throw new Error("Blog not found");
-      
+
       deleteBlogData = await prisma.blog.delete({
         where: {
           slug: blogSlug,
@@ -366,13 +405,28 @@ const getAdminCareerService = async (id, role, permissions) => {
 
 const getAdminCareerDetailService = async () => {};
 
-const createAdminCareerService = async (id, role, permissions, title, description, salary, requirements, type, linkedInInfo, jobStreetInfo, glintsInfo, tags) => {
+const createAdminCareerService = async (
+  id,
+  role,
+  permissions,
+  title,
+  description,
+  salary,
+  requirements,
+  type,
+  linkedInInfo,
+  jobStreetInfo,
+  glintsInfo,
+  tags
+) => {
   let createData = null;
 
   if (role === "ADMIN" || role === "SUPER_ADMIN") {
     if (permissions.canCreateCareer) {
       const tagEach = tags.map((tag) => tag.trim()).join(", ");
-      const requirementEach = requirements.map((requirement) => requirement.trim()).join(", ");
+      const requirementEach = requirements
+        .map((requirement) => requirement.trim())
+        .join(", ");
 
       createData = await prisma.career.create({
         data: {
