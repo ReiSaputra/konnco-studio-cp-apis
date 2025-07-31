@@ -22,8 +22,6 @@ app.use(express.json());
 
 app.use(express.static("public"));
 
-app.use("/blogs", express.static(path.join(__dirname, "public", "blogs")));
-
 // API routes
 app.use("/api/v1", adminRoute);
 app.use("/api/v1", blogRoute);

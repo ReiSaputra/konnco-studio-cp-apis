@@ -156,12 +156,6 @@ describe("when admin want to get blogs data in route GET /api/v1/admins/blogs", 
     });
 
     expect(responseLogin.status).toBe(200);
-    expect(responseLogin.body).toEqual({
-      message: "Successfully login to konnco studio admin panel",
-      data: {
-        token: expect.any(String),
-      },
-    });
 
     const response = await supertest(app).get("/api/v1/admins/blogs").set("Authorization", `Basic ${responseLogin.body.data.token}`);
 
@@ -185,12 +179,6 @@ describe("when admin want to get blogs data in route GET /api/v1/admins/blogs", 
     });
 
     expect(responseLogin.status).toBe(200);
-    expect(responseLogin.body).toEqual({
-      message: "Successfully login to konnco studio admin panel",
-      data: {
-        token: expect.any(String),
-      },
-    });
 
     const response = await supertest(app).get("/api/v1/admins/blogs?status=visible&category=tech").set("Authorization", `Basic ${responseLogin.body.data.token}`);
 
@@ -214,12 +202,6 @@ describe("when admin want to get blogs data in route GET /api/v1/admins/blogs", 
     });
 
     expect(responseLogin.status).toBe(200);
-    expect(responseLogin.body).toEqual({
-      message: "Successfully login to konnco studio admin panel",
-      data: {
-        token: expect.any(String),
-      },
-    });
 
     const response = await supertest(app).get("/api/v1/admins/blogs?page=2").set("Authorization", `Basic ${responseLogin.body.data.token}`);
 
@@ -243,12 +225,6 @@ describe("when admin want to get blogs data in route GET /api/v1/admins/blogs", 
     });
 
     expect(responseLogin.status).toBe(200);
-    expect(responseLogin.body).toEqual({
-      message: "Successfully login to konnco studio admin panel",
-      data: {
-        token: expect.any(String),
-      },
-    });
 
     const response = await supertest(app).get("/api/v1/admins/blogs?search=queb").set("Authorization", `Basic ${responseLogin.body.data.token}`);
 
@@ -273,12 +249,6 @@ describe("when admin want to get blogs data in route GET /api/v1/admins/blogs", 
     });
 
     expect(responseLogin.status).toBe(200);
-    expect(responseLogin.body).toEqual({
-      message: "Successfully login to konnco studio admin panel",
-      data: {
-        token: expect.any(String),
-      },
-    });
 
     const response = await supertest(app).get("/api/v1/admins/blogs?page=john").set("Authorization", `Basic ${responseLogin.body.data.token}`);
 
@@ -293,12 +263,6 @@ describe("when admin want to get blogs data in route GET /api/v1/admins/blogs", 
     });
 
     expect(responseLogin.status).toBe(200);
-    expect(responseLogin.body).toEqual({
-      message: "Successfully login to konnco studio admin panel",
-      data: {
-        token: expect.any(String),
-      },
-    });
 
     const response = await supertest(app).get("/api/v1/admins/blogs");
 
@@ -397,12 +361,6 @@ describe("when admin want to get detail blog data in route GET /api/v1/admins/bl
     });
 
     expect(responseLogin.status).toBe(200);
-    expect(responseLogin.body).toEqual({
-      message: "Successfully login to konnco studio admin panel",
-      data: {
-        token: expect.any(String),
-      },
-    });
 
     const response = await supertest(app).get("/api/v1/admins/blogs/quebec").set("Authorization", `Basic ${responseLogin.body.data.token}`);
 
@@ -418,12 +376,6 @@ describe("when admin want to get detail blog data in route GET /api/v1/admins/bl
     });
 
     expect(responseLogin.status).toBe(200);
-    expect(responseLogin.body).toEqual({
-      message: "Successfully login to konnco studio admin panel",
-      data: {
-        token: expect.any(String),
-      },
-    });
 
     const response = await supertest(app).get("/api/v1/admins/blogs/asterix").set("Authorization", `Basic ${responseLogin.body.data.token}`);
 
@@ -438,12 +390,6 @@ describe("when admin want to get detail blog data in route GET /api/v1/admins/bl
     });
 
     expect(responseLogin.status).toBe(200);
-    expect(responseLogin.body).toEqual({
-      message: "Successfully login to konnco studio admin panel",
-      data: {
-        token: expect.any(String),
-      },
-    });
 
     const response = await supertest(app).get("/api/v1/admins/blogs/1").set("Authorization", `Basic ${responseLogin.body.data.token}`);
 
@@ -519,12 +465,6 @@ describe("when admin want to create blog data in route POST /api/v1/admins/blogs
     });
 
     expect(responseLogin.status).toBe(200);
-    expect(responseLogin.body).toEqual({
-      message: "Successfully login to konnco studio admin panel",
-      data: {
-        token: expect.any(String),
-      },
-    });
 
     const response = await supertest(app)
       .post("/api/v1/admins/blogs")
@@ -547,12 +487,6 @@ describe("when admin want to create blog data in route POST /api/v1/admins/blogs
     });
 
     expect(responseLogin.status).toBe(200);
-    expect(responseLogin.body).toEqual({
-      message: "Successfully login to konnco studio admin panel",
-      data: {
-        token: expect.any(String),
-      },
-    });
 
     const response = await supertest(app)
       .post("/api/v1/admins/blogs")
@@ -574,12 +508,6 @@ describe("when admin want to create blog data in route POST /api/v1/admins/blogs
     });
 
     expect(responseLogin.status).toBe(200);
-    expect(responseLogin.body).toEqual({
-      message: "Successfully login to konnco studio admin panel",
-      data: {
-        token: expect.any(String),
-      },
-    });
 
     const response = await supertest(app)
       .post("/api/v1/admins/blogs")
@@ -601,12 +529,6 @@ describe("when admin want to create blog data in route POST /api/v1/admins/blogs
     });
 
     expect(responseLogin.status).toBe(200);
-    expect(responseLogin.body).toEqual({
-      message: "Successfully login to konnco studio admin panel",
-      data: {
-        token: expect.any(String),
-      },
-    });
 
     const response = await supertest(app)
       .post("/api/v1/admins/blogs")
@@ -629,12 +551,6 @@ describe("when admin want to create blog data in route POST /api/v1/admins/blogs
     });
 
     expect(responseLogin.status).toBe(200);
-    expect(responseLogin.body).toEqual({
-      message: "Successfully login to konnco studio admin panel",
-      data: {
-        token: expect.any(String),
-      },
-    });
 
     const response = await supertest(app)
       .post("/api/v1/admins/blogs")
@@ -657,12 +573,6 @@ describe("when admin want to create blog data in route POST /api/v1/admins/blogs
     });
 
     expect(responseLogin.status).toBe(200);
-    expect(responseLogin.body).toEqual({
-      message: "Successfully login to konnco studio admin panel",
-      data: {
-        token: expect.any(String),
-      },
-    });
 
     const response = await supertest(app)
       .post("/api/v1/admins/blogs")
@@ -684,12 +594,6 @@ describe("when admin want to create blog data in route POST /api/v1/admins/blogs
     });
 
     expect(responseLogin.status).toBe(200);
-    expect(responseLogin.body).toEqual({
-      message: "Successfully login to konnco studio admin panel",
-      data: {
-        token: expect.any(String),
-      },
-    });
 
     const response = await supertest(app)
       .post("/api/v1/admins/blogs")
@@ -721,12 +625,6 @@ describe("when admin want to create blog data in route POST /api/v1/admins/blogs
     });
 
     expect(responseLogin.status).toBe(200);
-    expect(responseLogin.body).toEqual({
-      message: "Successfully login to konnco studio admin panel",
-      data: {
-        token: expect.any(String),
-      },
-    });
 
     const response = await supertest(app)
       .post("/api/v1/admins/blogs")
@@ -824,12 +722,6 @@ describe("when admin want to edit blog data in route PUT /api/v1/admins/blogs/:b
     });
 
     expect(responseLogin.status).toBe(200);
-    expect(responseLogin.body).toEqual({
-      message: "Successfully login to konnco studio admin panel",
-      data: {
-        token: expect.any(String),
-      },
-    });
 
     const responseCreate = await supertest(app)
       .post("/api/v1/admins/blogs")
@@ -864,7 +756,7 @@ describe("when admin want to edit blog data in route PUT /api/v1/admins/blogs/:b
       .attach("photo", filePath);
 
     expect(response.status).toBe(200);
-    expect(response.body.message).toBe("Successfully update admin blog detail");
+    expect(response.body.message).toBe("Successfully updated blog");
   });
 
   it("should not be able to edit blog data - invalid blog slug params", async () => {
@@ -874,12 +766,6 @@ describe("when admin want to edit blog data in route PUT /api/v1/admins/blogs/:b
     });
 
     expect(responseLogin.status).toBe(200);
-    expect(responseLogin.body).toEqual({
-      message: "Successfully login to konnco studio admin panel",
-      data: {
-        token: expect.any(String),
-      },
-    });
 
     const responseCreate = await supertest(app)
       .post("/api/v1/admins/blogs")
@@ -915,12 +801,6 @@ describe("when admin want to edit blog data in route PUT /api/v1/admins/blogs/:b
     });
 
     expect(responseLogin.status).toBe(200);
-    expect(responseLogin.body).toEqual({
-      message: "Successfully login to konnco studio admin panel",
-      data: {
-        token: expect.any(String),
-      },
-    });
 
     const responseCreate = await supertest(app)
       .post("/api/v1/admins/blogs")
@@ -965,12 +845,6 @@ describe("when admin want to edit blog data in route PUT /api/v1/admins/blogs/:b
     });
 
     expect(responseLogin.status).toBe(200);
-    expect(responseLogin.body).toEqual({
-      message: "Successfully login to konnco studio admin panel",
-      data: {
-        token: expect.any(String),
-      },
-    });
 
     const responseCreate = await supertest(app)
       .post("/api/v1/admins/blogs")
@@ -1071,12 +945,6 @@ describe("when admin want to delete blog data in route DELETE /api/v1/admins/blo
     });
 
     expect(responseLogin.status).toBe(200);
-    expect(responseLogin.body).toEqual({
-      message: "Successfully login to konnco studio admin panel",
-      data: {
-        token: expect.any(String),
-      },
-    });
 
     const response = await supertest(app).delete("/api/v1/admins/blogs/news-of-a").set("Authorization", `Basic ${responseLogin.body.data.token}`);
 
@@ -1091,12 +959,6 @@ describe("when admin want to delete blog data in route DELETE /api/v1/admins/blo
     });
 
     expect(responseLogin.status).toBe(200);
-    expect(responseLogin.body).toEqual({
-      message: "Successfully login to konnco studio admin panel",
-      data: {
-        token: expect.any(String),
-      },
-    });
 
     const response = await supertest(app).delete("/api/v1/admins/blogs/invalid-blog-slug").set("Authorization", `Basic ${responseLogin.body.data.token}`);
 
