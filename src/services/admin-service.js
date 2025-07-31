@@ -669,6 +669,14 @@ const deleteAdminCareerApplicationDetailService = async (role, permissions, care
 
       if (!findCareerData) throw new Error("Career not found");
 
+      const findApplicationData = await prisma.application.findUnique({
+        where: {
+          id: applicationId,
+        },
+      });
+
+      if (!findApplicationData) throw new Error("Application not found");
+
       deleteData = await prisma.application.delete({
         where: {
           id: applicationId,
