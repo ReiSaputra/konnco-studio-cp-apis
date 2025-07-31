@@ -398,19 +398,19 @@ const getAdminCareerApplicationController = async (req, res, next) => {
   }
 };
 
-const getAdminCareerApplicationDetailController = async (req, res, next) => {
-  try {
-  } catch (error) {
-    next(error);
-  }
-};
+// const getAdminCareerApplicationDetailController = async (req, res, next) => {
+//   try {
+//   } catch (error) {
+//     next(error);
+//   }
+// };
 
-const deleteAdminCareerApplicationDetailController = async (req, res, next) => {
-  try {
-  } catch (error) {
-    next(error);
-  }
-};
+// const deleteAdminCareerApplicationDetailController = async (req, res, next) => {
+//   try {
+//   } catch (error) {
+//     next(error);
+//   }
+// };
 
 export {
   loginAdminController,
@@ -426,6 +426,6 @@ export {
   createAdminCareerController,
   deleteAdminCareerDetailController,
   getAdminCareerApplicationController,
-  getAdminCareerApplicationDetailController,
-  deleteAdminCareerApplicationDetailController,
+  // getAdminCareerApplicationDetailController,
+  // deleteAdminCareerApplicationDetailController,
 };

@@ -516,68 +516,43 @@ const deleteAdminCareerDetailService = async (role, permissions, careerId) => {
 };
 
 const getAdminCareerApplicationService = async (id, role, permissions, page, search, startDate, endDate) => {
-  let findCareerApplicationDatas = null;
+  let findCareerApplicationDatas;
 
   const offset = (page - 1) * 10;
 
   if (role === "ADMIN") {
     if (permissions.canShowApplication) {
       const where = {
-        authorId: id,
+        career: {
+          authorId: id,
+        },
       };
 
-      if (search || (startDate && endDate)) {
-        where.applications = {
-          some: {},
-        };
+      if (search) where.applicantName = { contains: search };
+      if (startDate && endDate) {
+        const parsedStartDate = new Date(startDate);
+        const parsedEndDate = new Date(endDate);
 
-        if (search) {
-          where.applications.some.applicantName = {
-            contains: search,
-            mode: "insensitive",
-          };
-        }
+        parsedEndDate.setUTCHours(23, 59, 59, 999);
 
-        if (startDate && endDate) {
-          where.applications.some.createdAt = {
-            gte: new Date(startDate),
-            lte: new Date(endDate),
-          };
-        }
+        where.createdAt = { gte: parsedStartDate, lte: parsedEndDate };
       }
 
-      findCareerApplicationDatas = await prisma.career.findMany({
+      findCareerApplicationDatas = await prisma.application.findMany({
         where,
         skip: offset,
         take: 10,
         select: {
-          applications: {
-            where: {
-              ...(search && {
-                applicantName: {
-                  contains: search,
-                  mode: "insensitive",
-                },
-              }),
-              ...(startDate &&
-                endDate && {
-                  createdAt: {
-                    gte: new Date(startDate),
-                    lte: new Date(endDate),
-                  },
-                }),
-            },
+          applicantName: true,
+          createdAt: true,
+          career: {
             select: {
-              id: true,
-              applicantName: true,
-              createdAt: true,
-              career: {
-                select: {
-                  title: true,
-                },
-              },
+              title: true,
             },
           },
+        },
+        orderBy: {
+          createdAt: "desc",
         },
       });
     } else {
@@ -614,6 +589,8 @@ const getAdminCareerApplicationService = async (id, role, permissions, page, sea
   } else {
     throw new Error("You don't have permission to show admin career applications");
   }
+
+  return findCareerApplicationDatas;
 };
 
 const getAdminCareerApplicationDetailService = async () => {};

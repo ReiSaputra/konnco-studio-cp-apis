@@ -13,8 +13,8 @@ import {
   getAdminCareerDetailController,
   getAdminCareerController,
   getAdminCareerApplicationController,
-  getAdminCareerApplicationDetailController,
-  deleteAdminCareerApplicationDetailController,
+  // getAdminCareerApplicationDetailController,
+  // deleteAdminCareerApplicationDetailController,
 } from "../controllers/admin-controller.js";
 import { authMiddleware } from "../middlewares/auth-middleware.js";
 import fs from "fs";
@@ -45,15 +45,14 @@ adminRoute.delete("/admins/blogs/:blogSlug", authMiddleware, deleteAdminBlogDeta
 
 // Careers
 adminRoute.get("/admins/careers", authMiddleware, getAdminCareerController);
+adminRoute.get("/admins/careers/applications", authMiddleware, getAdminCareerApplicationController);
+// adminRoute.get("/admins/careers/:careerId/applications/:applicationId", authMiddleware, getAdminCareerApplicationDetailController);
+// adminRoute.delete("/admins/careers/:careerId/applications/:applicationId", authMiddleware, deleteAdminCareerApplicationDetailController);
 adminRoute.get("/admins/careers/:careerId", authMiddleware, getAdminCareerDetailController);
 adminRoute.put("/admins/careers/:careerId", authMiddleware, editAdminCareerDetailController);
 adminRoute.post("/admins/careers", authMiddleware, createAdminCareerController);
 adminRoute.delete("/admins/careers/:careerId", authMiddleware, deleteAdminCareerDetailController);
 
-// Careers Applications
-adminRoute.get("/admins/careers/applications", authMiddleware, getAdminCareerApplicationController);
-// adminRoute.get("/admins/careers/:careerId/applications/:applicationId", authMiddleware, getAdminCareerApplicationDetailController);
-// adminRoute.delete("/admins/careers/:careerId/applications/:applicationId", authMiddleware, deleteAdminCareerApplicationDetailController);
 
 // Products
 
