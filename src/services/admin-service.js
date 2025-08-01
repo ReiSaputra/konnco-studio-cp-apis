@@ -550,6 +550,7 @@ const getAdminCareerApplicationService = async (id, role, permissions, page, sea
       };
 
       if (search) where.applicantName = { contains: search };
+
       if (startDate && endDate) {
         const parsedStartDate = new Date(startDate);
         const parsedEndDate = new Date(endDate);
@@ -792,19 +793,44 @@ const deleteAdminProductDetailService = async () => {
  * Inquiries
  */
 
-const getAdminInquiryService = async (role, permissions) => {
+const getAdminInquiryService = async (role, permissions, page, search, startDate, endDate) => {
   let findInquiryDatas = null;
+  let findInquiryTotalCountDatas = null;
+
+  const offset = (page - 1) * 10;
 
   if (role === "ADMIN" || role === "SUPER_ADMIN") {
     if (permissions.canShowInquiry) {
+      const where = {};
+
+      if (search) where.senderName = { contains: search };
+
+      if (startDate && endDate) {
+        const parsedStartDate = new Date(startDate);
+        const parsedEndDate = new Date(endDate);
+
+        parsedEndDate.setUTCHours(23, 59, 59, 999);
+
+        where.createdAt = { gte: parsedStartDate, lte: parsedEndDate };
+      }
+
       findInquiryDatas = await prisma.inquiry.findMany({
+        where,
+        skip: offset,
+        take: 10,
         select: {
           id: true,
           senderName: true,
           subject: true,
-          email: true,
-          message: true,
+          createdAt: true,
         },
+        orderBy: {
+          createdAt: "desc",
+        },
+      });
+
+      findInquiryTotalCountDatas = await prisma.inquiry.count({
+        where,
       });
     } else {
       throw new Error("You don't have permission to show admin inquiries");
@@ -813,7 +839,15 @@ const getAdminInquiryService = async (role, permissions) => {
     throw new Error("You don't have permission to show admin inquiries");
   }
 
-  return findInquiryDatas;
+  return {
+    data: findInquiryDatas,
+    pagination: {
+      totalData: findInquiryTotalCountDatas,
+      currentPage: page,
+      perPage: 10,
+      totalPage: Math.ceil(findInquiryTotalCountDatas / 10),
+    },
+  };
 };
 
 const getAdminInquiryDetailService = async (role, permissions, inquiryId) => {

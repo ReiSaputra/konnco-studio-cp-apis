@@ -1,7 +1,8 @@
-import { afterAll, afterEach, beforeAll, beforeEach, describe, it } from "@jest/globals";
+import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, it } from "@jest/globals";
 import supertest from "supertest";
 import app from "../../../../src/app.js";
 import { prisma } from "../../../../src/database.js";
+import bcrypt from "bcrypt";
 
 describe("when admin want to get inquiries data in route GET /api/v1/admins/inquiries", () => {
   beforeAll(async () => {
@@ -14,11 +15,13 @@ describe("when admin want to get inquiries data in route GET /api/v1/admins/inqu
   });
 
   beforeEach(async () => {
+    const hash = await bcrypt.hash("dontknowityet", 10);
+
     await prisma.admin.create({
       data: {
         name: "Admin A",
         email: "konnco@konnco.com",
-        password: "dontknowityet",
+        password: hash,
         phoneNumber: "087843202523",
         role: "ADMIN",
         permissions: {
@@ -242,15 +245,426 @@ describe("when admin want to get inquiries data in route GET /api/v1/admins/inqu
   });
 
   it("should be able to get inquiries data successfully", async () => {
-    const loginResponse = await supertest(app).get("/api/v1/admins/auth/login").send({
+    const loginResponse = await supertest(app).post("/api/v1/admins/auth/login").send({
       email: "konnco@konnco.com",
       password: "dontknowityet",
     });
 
-    const response = await supertest(app).get("/api/v1/admins/admins/inquiries?page=1").set("Authorization", `Bearer ${loginResponse.body.data.token}`);
+    const response = await supertest(app).get("/api/v1/admins/inquiries?page=1").set("Authorization", `Bearer ${loginResponse.body.data.token}`);
 
-    console.info(response.body);
+    const responsePage2 = await supertest(app).get("/api/v1/admins/inquiries?page=2").set("Authorization", `Bearer ${loginResponse.body.data.token}`);
+
+    const responsePage3 = await supertest(app).get("/api/v1/admins/inquiries?page=3").set("Authorization", `Bearer ${loginResponse.body.data.token}`);
+
+    const responsePage4 = await supertest(app).get("/api/v1/admins/inquiries?page=4").set("Authorization", `Bearer ${loginResponse.body.data.token}`);
 
     expect(response.status).toBe(200);
+    expect(response.body.data).toHaveLength(10);
+
+    expect(responsePage2.status).toBe(200);
+    expect(responsePage2.body.data).toHaveLength(10);
+
+    expect(responsePage3.status).toBe(200);
+    expect(responsePage3.body.data).toHaveLength(10);
+
+    expect(responsePage4.status).toBe(200);
+    expect(responsePage4.body.data).toHaveLength(1);
+  });
+
+  it("should be able to get inquiries data successfully - search by senderName", async () => {
+    const loginResponse = await supertest(app).post("/api/v1/admins/auth/login").send({
+      email: "konnco@konnco.com",
+      password: "dontknowityet",
+    });
+
+    const response = await supertest(app).get("/api/v1/admins/inquiries?search=Yulia").set("Authorization", `Bearer ${loginResponse.body.data.token}`);
+
+    expect(response.status).toBe(200);
+    expect(response.body.data).toHaveLength(1);
+  });
+
+  it("should be able to get inquiries data successfully - use startDate and endDate", async () => {
+    await prisma.inquiry.createMany({
+      data: [
+        {
+          senderName: "Yulia Wulandari",
+          subject: "Subject AA",
+          email: "naufal.r@example.com",
+          message: "Lorem ipsum dolor sit amet consectetur adipisicing elit. Quisquam, quae.",
+          createdAt: new Date("2022-01-01"),
+        },
+        {
+          senderName: "Yulia Wulandari",
+          subject: "Subject AB",
+          email: "tania.w@example.com",
+          message: "Lorem ipsum dolor sit amet consectetur adipisicing elit. Quisquam, quae.",
+          createdAt: new Date("2022-01-25"),
+        },
+      ],
+    });
+
+    const loginResponse = await supertest(app).post("/api/v1/admins/auth/login").send({
+      email: "konnco@konnco.com",
+      password: "dontknowityet",
+    });
+
+    const response = await supertest(app).get("/api/v1/admins/inquiries?startDate=2022-01-01&endDate=2022-01-31").set("Authorization", `Bearer ${loginResponse.body.data.token}`);
+    const response2 = await supertest(app).get("/api/v1/admins/inquiries?startDate=2022-01-01&endDate=2022-01-10").set("Authorization", `Bearer ${loginResponse.body.data.token}`);
+    const response3 = await supertest(app).get("/api/v1/admins/inquiries?startDate=2021-01-01&endDate=2021-01-10").set("Authorization", `Bearer ${loginResponse.body.data.token}`);
+
+    expect(response.status).toBe(200);
+    expect(response.body.data).toHaveLength(2);
+
+    expect(response.status).toBe(200);
+    expect(response2.body.data).toHaveLength(1);
+
+    expect(response3.status).toBe(200);
+    expect(response3.body.data).toHaveLength(0);
+  });
+
+  it("should be able to get inquiries data successfully but did not change the filter request - use just startEnd", async () => {
+    const loginResponse = await supertest(app).post("/api/v1/admins/auth/login").send({
+      email: "konnco@konnco.com",
+      password: "dontknowityet",
+    });
+
+    const response = await supertest(app).get("/api/v1/admins/inquiries?startDate=2022-01-01").set("Authorization", `Bearer ${loginResponse.body.data.token}`);
+
+    expect(response.status).toBe(200);
+    expect(response.body.data).toHaveLength(10);
+  });
+
+  it("should not be able to get inquiries data successfully - startDate is right format but endDate is wrong", async () => {
+    const loginResponse = await supertest(app).post("/api/v1/admins/auth/login").send({
+      email: "konnco@konnco.com",
+      password: "dontknowityet",
+    });
+
+    const response = await supertest(app).get(`/api/v1/admins/inquiries?startDate=2022-01-01&endDate=invalid`).set("Authorization", `Bearer ${loginResponse.body.data.token}`);
+
+    expect(response.status).toBe(400);
+    expect(response.body.message).toContain("ValidationError:");
+  });
+
+  it("should not be able to get inquiries data successfully - no authorized", async () => {
+    const response = await supertest(app).get("/api/v1/admins/inquiries");
+
+    expect(response.status).toBe(401);
+    expect(response.body.message).toBe("TokenError: Unauthorized");
+  });
+
+  it("should not be able to get inquiries data successfully - no permission", async () => {
+    await prisma.admin.update({
+      where: {
+        email: "konnco@konnco.com",
+      },
+      data: {
+        permissions: {
+          update: {
+            canShowInquiry: false,
+          },
+        },
+      },
+    });
+
+    const loginResponse = await supertest(app).post("/api/v1/admins/auth/login").send({
+      email: "konnco@konnco.com",
+      password: "dontknowityet",
+    });
+
+    const response = await supertest(app).get("/api/v1/admins/inquiries?page=1").set("Authorization", `Bearer ${loginResponse.body.data.token}`);
+
+    expect(response.status).toBe(400);
+    expect(response.body.message).toBe("Error: You don't have permission to show admin inquiries");
+  });
+});
+
+describe("when admin want to get inquiries data in route GET /api/v1/admins/inquiries/:inquiryId", () => {
+  beforeAll(async () => {
+    await prisma.inquiry.deleteMany();
+    await prisma.blog.deleteMany();
+    await prisma.application.deleteMany();
+    await prisma.career.deleteMany();
+    await prisma.adminPermission.deleteMany();
+    await prisma.admin.deleteMany();
+  });
+
+  let inquiryId = null;
+
+  beforeEach(async () => {
+    const hash = await bcrypt.hash("dontknowityet", 10);
+
+    await prisma.admin.create({
+      data: {
+        name: "Admin A",
+        phoneNumber: "087843202523",
+        role: "ADMIN",
+        email: "konnco@konnco.com",
+        password: hash,
+        permissions: {
+          create: {
+            canShowInquiry: true,
+            canViewInquiry: true,
+            canDeleteInquiry: true,
+          },
+        },
+      },
+    });
+
+    inquiryId = await prisma.inquiry.create({
+      data: {
+        senderName: "Surya Firmansyah",
+        email: "xL5d5@example.com",
+        subject: "Subject A",
+        message: "Lorem ipsum dolor sit amet consectetur adipisicing elit. Quisquam, quae.",
+      },
+      select: {
+        id: true,
+      },
+    });
+  });
+
+  afterEach(async () => {
+    await prisma.inquiry.deleteMany();
+    await prisma.blog.deleteMany();
+    await prisma.application.deleteMany();
+    await prisma.career.deleteMany();
+    await prisma.adminPermission.deleteMany();
+    await prisma.admin.deleteMany();
+  });
+
+  afterAll(async () => {
+    await prisma.inquiry.deleteMany();
+    await prisma.blog.deleteMany();
+    await prisma.application.deleteMany();
+    await prisma.career.deleteMany();
+    await prisma.adminPermission.deleteMany();
+    await prisma.admin.deleteMany();
+  });
+
+  it("should be able to get inquiry detail data successfully", async () => {
+    const loginResponse = await supertest(app).post("/api/v1/admins/auth/login").send({
+      email: "konnco@konnco.com",
+      password: "dontknowityet",
+    });
+
+    const response = await supertest(app).get(`/api/v1/admins/inquiries/${inquiryId.id}`).set("Authorization", `Bearer ${loginResponse.body.data.token}`);
+
+    expect(response.status).toBe(200);
+    expect(response.body.data.senderName).toBe("Surya Firmansyah");
+  });
+
+  it("should not be able to get inquiry detail data successfully - no authorized", async () => {
+    const response = await supertest(app).get(`/api/v1/admins/inquiries/${inquiryId.id}`);
+
+    expect(response.status).toBe(401);
+    expect(response.body.message).toBe("TokenError: Unauthorized");
+  });
+
+  it("should not be able to get inquiry detail data successfully - no permission", async () => {
+    await prisma.admin.update({
+      where: {
+        email: "konnco@konnco.com",
+      },
+      data: {
+        permissions: {
+          update: {
+            canViewInquiry: false,
+          },
+        },
+      },
+    });
+
+    const loginResponse = await supertest(app).post("/api/v1/admins/auth/login").send({
+      email: "konnco@konnco.com",
+      password: "dontknowityet",
+    });
+
+    const response = await supertest(app).get(`/api/v1/admins/inquiries/${inquiryId.id}`).set("Authorization", `Bearer ${loginResponse.body.data.token}`);
+
+    expect(response.status).toBe(400);
+    expect(response.body.message).toBe("Error: You don't have permission to view admin inquiries");
+  });
+
+  it("should not be able to get inquiry detail data successfully- inquiry not found", async () => {
+    const loginResponse = await supertest(app).post("/api/v1/admins/auth/login").send({
+      email: "konnco@konnco.com",
+      password: "dontknowityet",
+    });
+
+    const response = await supertest(app)
+      .get(`/api/v1/admins/inquiries/${inquiryId.id + 1}`)
+      .set("Authorization", `Bearer ${loginResponse.body.data.token}`);
+
+    expect(response.status).toBe(400);
+    expect(response.body.message).toBe("Error: Inquiry not found");
+  });
+
+  it("should not be able to get inquiry detail data successfully - string validation inquiryId", async () => {
+    const loginResponse = await supertest(app).post("/api/v1/admins/auth/login").send({
+      email: "konnco@konnco.com",
+      password: "dontknowityet",
+    });
+
+    const response = await supertest(app).get(`/api/v1/admins/inquiries/asparagus`).set("Authorization", `Bearer ${loginResponse.body.data.token}`);
+
+    expect(response.status).toBe(400);
+    expect(response.body.message).toContain("Error: Inquiry not found");
+  });
+
+  it("should not be able to get inquiry detail data successfully - number validation inquiryId", async () => {
+    const loginResponse = await supertest(app).post("/api/v1/admins/auth/login").send({
+      email: "konnco@konnco.com",
+      password: "dontknowityet",
+    });
+
+    const response = await supertest(app).get(`/api/v1/admins/inquiries/0`).set("Authorization", `Bearer ${loginResponse.body.data.token}`);
+
+    expect(response.status).toBe(400);
+    expect(response.body.message).toContain("Error: Inquiry not found");
+  });
+});
+
+describe("when admin want to delete data in route DELETE /api/v1/admins/inquiries/:inquiryId", () => {
+  beforeAll(async () => {
+    await prisma.inquiry.deleteMany();
+    await prisma.blog.deleteMany();
+    await prisma.application.deleteMany();
+    await prisma.career.deleteMany();
+    await prisma.adminPermission.deleteMany();
+    await prisma.admin.deleteMany();
+  });
+
+  let inquiryId = null;
+
+  beforeEach(async () => {
+    const hash = await bcrypt.hash("dontknowityet", 10);
+
+    await prisma.admin.create({
+      data: {
+        name: "Admin A",
+        phoneNumber: "087843202523",
+        role: "ADMIN",
+        email: "konnco@konnco.com",
+        password: hash,
+        permissions: {
+          create: {
+            canShowInquiry: true,
+            canViewInquiry: true,
+            canDeleteInquiry: true,
+          },
+        },
+      },
+    });
+
+    inquiryId = await prisma.inquiry.create({
+      data: {
+        senderName: "Surya Firmansyah",
+        email: "xL5d5@example.com",
+        subject: "Subject A",
+        message: "Lorem ipsum dolor sit amet consectetur adipisicing elit. Quisquam, quae.",
+      },
+      select: {
+        id: true,
+      },
+    });
+  });
+
+  afterEach(async () => {
+    await prisma.inquiry.deleteMany();
+    await prisma.blog.deleteMany();
+    await prisma.application.deleteMany();
+    await prisma.career.deleteMany();
+    await prisma.adminPermission.deleteMany();
+    await prisma.admin.deleteMany();
+  });
+
+  afterAll(async () => {
+    await prisma.inquiry.deleteMany();
+    await prisma.blog.deleteMany();
+    await prisma.application.deleteMany();
+    await prisma.career.deleteMany();
+    await prisma.adminPermission.deleteMany();
+    await prisma.admin.deleteMany();
+  });
+
+  it("should be able to delete inquiry data successfully", async () => {
+    const loginResponse = await supertest(app).post("/api/v1/admins/auth/login").send({
+      email: "konnco@konnco.com",
+      password: "dontknowityet",
+    });
+
+    const response = await supertest(app).delete(`/api/v1/admins/inquiries/${inquiryId.id}`).set("Authorization", `Bearer ${loginResponse.body.data.token}`);
+
+    expect(response.status).toBe(200);
+    expect(response.body.message).toBe("Successfully delete admin inquiry detail");
+  });
+
+  it("should not be able to delete inquiry data successfully - no authorized", async () => {
+    const response = await supertest(app).delete(`/api/v1/admins/inquiries/${inquiryId.id}`);
+
+    expect(response.status).toBe(401);
+    expect(response.body.message).toBe("TokenError: Unauthorized");
+  });
+
+  it("should not be able to delete inquiry data successfully - no permission", async () => {
+    await prisma.admin.update({
+      where: {
+        email: "konnco@konnco.com",
+      },
+      data: {
+        permissions: {
+          update: {
+            canDeleteInquiry: false,
+          },
+        },
+      },
+    });
+
+    const loginResponse = await supertest(app).post("/api/v1/admins/auth/login").send({
+      email: "konnco@konnco.com",
+      password: "dontknowityet",
+    });
+
+    const response = await supertest(app).delete(`/api/v1/admins/inquiries/${inquiryId.id}`).set("Authorization", `Bearer ${loginResponse.body.data.token}`);
+
+    expect(response.status).toBe(400);
+    expect(response.body.message).toBe("Error: You don't have permission to delete admin inquiries");
+  });
+
+  it("should not be able to delete inquiry data successfully - inquiry not found", async () => {
+    const loginResponse = await supertest(app).post("/api/v1/admins/auth/login").send({
+      email: "konnco@konnco.com",
+      password: "dontknowityet",
+    });
+
+    const response = await supertest(app).delete(`/api/v1/admins/inquiries/0`).set("Authorization", `Bearer ${loginResponse.body.data.token}`);
+
+    expect(response.status).toBe(400);
+    expect(response.body.message).toBe("Error: Inquiry not found");
+  });
+
+  it("should not be able to delete inquiry data successfully - string validation inquiryId", async () => {
+    const loginResponse = await supertest(app).post("/api/v1/admins/auth/login").send({
+      email: "konnco@konnco.com",
+      password: "dontknowityet",
+    });
+
+    const response = await supertest(app).delete(`/api/v1/admins/inquiries/invalid-inquiry-id`).set("Authorization", `Bearer ${loginResponse.body.data.token}`);
+
+    expect(response.status).toBe(400);
+    expect(response.body.message).toContain("Error: Inquiry not found");
+  });
+
+  it("should not be able to delete inquiry data successfully - number validation inquiryId", async () => {
+    const loginResponse = await supertest(app).post("/api/v1/admins/auth/login").send({
+      email: "konnco@konnco.com",
+      password: "dontknowityet",
+    });
+
+    const response = await supertest(app).delete(`/api/v1/admins/inquiries/invalid-inquiry-id`).set("Authorization", `Bearer ${loginResponse.body.data.token}`);
+
+    expect(response.status).toBe(400);
+    expect(response.body.message).toContain("Error: Inquiry not found");
   });
 });

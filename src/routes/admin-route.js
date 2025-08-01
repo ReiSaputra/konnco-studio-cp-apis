@@ -95,6 +95,6 @@ adminRoute.delete("/admins/products/:productId", authMiddleware, deleteAdminProd
 
 adminRoute.get("/admins/inquiries", authMiddleware, getAdminInquiryController);
 adminRoute.get("/admins/inquiries/:inquiryId", authMiddleware, getAdminInquiryDetailController);
-adminRoute.delete("admin/inquiries/:inquiryId", authMiddleware, deleteAdminInquiryDetailController);
+adminRoute.delete("/admins/inquiries/:inquiryId", authMiddleware, deleteAdminInquiryDetailController);
 
 export { adminRoute };

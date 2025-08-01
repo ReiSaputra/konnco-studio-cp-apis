@@ -69,4 +69,11 @@ const productSchema = joi
 
 const inquiryIdSchema = joi.string().required();
 
-export { authSchema, getAdminBlogSchema, blogSlugSchema, blogSchema, careerSchema, careerIdSchema, getCareerApplicationSchema, applicationIdSchema, productSchema, inquiryIdSchema };
+const getInquirySchema = joi.object({
+  page: joi.number().integer().min(1).default(1),
+  search: joi.string().allow("").max(255).optional(),
+  startDate: joi.date().optional(),
+  endDate: joi.date().optional(),
+});
+
+export { authSchema, getAdminBlogSchema, blogSlugSchema, blogSchema, careerSchema, careerIdSchema, getCareerApplicationSchema, applicationIdSchema, productSchema, inquiryIdSchema, getInquirySchema };

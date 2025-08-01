@@ -1,6 +1,6 @@
 import { FileUploadError } from "../helpers/class/file-upload-error.js";
 import { PropertyError } from "../helpers/class/property-error.js";
-import { authSchema, blogSchema, blogSlugSchema, careerSchema, getAdminBlogSchema, getCareerApplicationSchema, inquiryIdSchema, productSchema } from "../helpers/validations/admin-validation.js";
+import { authSchema, blogSchema, blogSlugSchema, careerSchema, getAdminBlogSchema, getCareerApplicationSchema, getInquirySchema, inquiryIdSchema, productSchema } from "../helpers/validations/admin-validation.js";
 import { careerIdSchema, applicationIdSchema } from "../helpers/validations/admin-validation.js";
 import { productIdSchema } from "../helpers/validations/product-validation.js";
 import { validate } from "../helpers/validations/validate.js";
@@ -603,12 +603,15 @@ const deleteAdminProductDetailController = async (req, res, next) => {
 const getAdminInquiryController = async (req, res, next) => {
   try {
     const { id, name, role, permissions } = req.user;
+    const { page, search, startDate, endDate } = req.query;
 
-    const data = await getAdminInquiryService(role, permissions);
+    validate(getInquirySchema, { page, search, startDate, endDate });
 
+    const { data, pagination } = await getAdminInquiryService(role, permissions, page || 1, search, startDate, endDate);
     return res.status(200).json({
       message: "Successfully get admin inquiries",
-      data: data,
+      data,
+      pagination,
       user: {
         id,
         name,
@@ -656,7 +659,7 @@ const deleteAdminInquiryDetailController = async (req, res, next) => {
     const { id, name, role, permissions } = req.user;
     const { inquiryId } = req.params;
 
-    validate(inquiryIdSchema, inquiryId)
+    validate(inquiryIdSchema, inquiryId);
 
     const data = await deleteAdminInquiryDetailService(role, permissions, inquiryId);
 
