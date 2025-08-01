@@ -1,7 +1,17 @@
 import { FileUploadError } from "../helpers/class/file-upload-error.js";
 import { PropertyError } from "../helpers/class/property-error.js";
-import { authSchema, blogSchema, blogSlugSchema, careerSchema, getAdminBlogSchema, getCareerApplicationSchema } from "../helpers/validations/admin-validation.js";
-import { careerIdSchema, applicationIdSchema } from "../helpers/validations/admin-validation.js";
+import {
+  authSchema,
+  blogSchema,
+  blogSlugSchema,
+  careerSchema,
+  getAdminBlogSchema,
+  getCareerApplicationSchema,
+} from "../helpers/validations/admin-validation.js";
+import {
+  careerIdSchema,
+  applicationIdSchema,
+} from "../helpers/validations/admin-validation.js";
 import { validate } from "../helpers/validations/validate.js";
 import {
   loginAdminService,
@@ -94,7 +104,15 @@ const getAdminBlogController = async (req, res, next) => {
 
     validate(getAdminBlogSchema, { page, search, category, status });
 
-    const data = await getAdminBlogService(id, role, permissions, parseInt(page) || 1, search, category, status);
+    const data = await getAdminBlogService(
+      id,
+      role,
+      permissions,
+      parseInt(page) || 1,
+      search,
+      category,
+      status
+    );
 
     return res.status(200).json({
       message: "Successfully get admin blogs",
@@ -159,9 +177,16 @@ const editAdminBlogDetailController = async (req, res, next) => {
     // Validasi photo hanya jika ada file baru
     let photoName = null;
     if (photo) {
-      const allowedMimeTypes = ["image/jpeg", "image/png", "image/jpg", "image/webp"];
+      const allowedMimeTypes = [
+        "image/jpeg",
+        "image/png",
+        "image/jpg",
+        "image/webp",
+      ];
       if (!allowedMimeTypes.includes(photo.mimetype)) {
-        throw new FileUploadError("Only image files (jpg, png, webp) are allowed");
+        throw new FileUploadError(
+          "Only image files (jpg, png, webp) are allowed"
+        );
       }
       photoName = photo.filename;
     }
@@ -216,13 +241,32 @@ const createAdminBlogController = async (req, res, next) => {
   if (!type) throw new PropertyError("Type is required");
   if (!authorId) throw new PropertyError("Author id is required");
   if (!slug) throw new PropertyError("Slug is required");
-  if (!photo) throw new FileUploadError("Either Photo is required or File Mime Type is not JPG/JPEG");
+  if (!photo)
+    throw new FileUploadError(
+      "Either Photo is required or File Mime Type is not JPG/JPEG"
+    );
 
   const photoName = photo.filename;
 
-  validate(blogSchema, { title, content, photo: photoName, type, authorId, slug });
+  validate(blogSchema, {
+    title,
+    content,
+    photo: photoName,
+    type,
+    authorId,
+    slug,
+  });
 
-  const data = await createAdminBlogService(role, permissions, title, content, photoName, type, authorId, slug);
+  const data = await createAdminBlogService(
+    role,
+    permissions,
+    title,
+    content,
+    photoName,
+    type,
+    authorId,
+    slug
+  );
 
   return res.status(200).json({
     message: "Successfully create admin blog",
@@ -245,7 +289,11 @@ const deleteAdminBlogDetailController = async (req, res, next) => {
 
     validate(blogSlugSchema, blogSlug);
 
-    const data = await deleteAdminBlogDetailService(role, permissions, blogSlug);
+    const data = await deleteAdminBlogDetailService(
+      role,
+      permissions,
+      blogSlug
+    );
 
     return res.status(200).json({
       message: "Successfully delete admin blog detail",
@@ -325,7 +373,17 @@ const editAdminCareerDetailController = async (req, res, next) => {
     const { id, name, role, permissions } = req.user;
     const { careerId } = req.params;
 
-    const { title, description, salary, requirements, type, linkedInInfo, jobStreetInfo, glintsInfo, tags } = req.body;
+    const {
+      title,
+      description,
+      salary,
+      requirements,
+      type,
+      linkedInInfo,
+      jobStreetInfo,
+      glintsInfo,
+      tags,
+    } = req.body;
 
     if (!title) throw new PropertyError("Title is required");
     if (!description) throw new PropertyError("Description is required");
@@ -334,9 +392,33 @@ const editAdminCareerDetailController = async (req, res, next) => {
     if (!type) throw new PropertyError("Type is required");
     if (!tags) throw new PropertyError("Tags is required");
 
-    validate(careerSchema, { title, description, salary, requirements, type, linkedInInfo, jobStreetInfo, glintsInfo, tags });
+    validate(careerSchema, {
+      title,
+      description,
+      salary,
+      requirements,
+      type,
+      linkedInInfo,
+      jobStreetInfo,
+      glintsInfo,
+      tags,
+    });
 
-    const data = await editAdminCareerDetailService(id, role, permissions, careerId, title, description, salary, requirements, type, linkedInInfo, jobStreetInfo, glintsInfo, tags);
+    const data = await editAdminCareerDetailService(
+      id,
+      role,
+      permissions,
+      careerId,
+      title,
+      description,
+      salary,
+      requirements,
+      type,
+      linkedInInfo,
+      jobStreetInfo,
+      glintsInfo,
+      tags
+    );
 
     return res.status(200).json({
       message: "Successfully update admin career detail",
@@ -358,7 +440,17 @@ const editAdminCareerDetailController = async (req, res, next) => {
 const createAdminCareerController = async (req, res, next) => {
   try {
     const { id, name, role, permissions } = req.user;
-    const { title, description, salary, requirements, type, linkedInInfo, jobStreetInfo, glintsInfo, tags } = req.body;
+    const {
+      title,
+      description,
+      salary,
+      requirements,
+      type,
+      linkedInInfo,
+      jobStreetInfo,
+      glintsInfo,
+      tags,
+    } = req.body;
 
     if (!title) throw new PropertyError("Title is required");
     if (!description) throw new PropertyError("Description is required");
@@ -367,9 +459,32 @@ const createAdminCareerController = async (req, res, next) => {
     if (!type) throw new PropertyError("Type is required");
     if (!tags) throw new PropertyError("Tags is required");
 
-    validate(careerSchema, { title, description, salary, requirements, type, linkedInInfo, jobStreetInfo, glintsInfo, tags });
+    validate(careerSchema, {
+      title,
+      description,
+      salary,
+      requirements,
+      type,
+      linkedInInfo,
+      jobStreetInfo,
+      glintsInfo,
+      tags,
+    });
 
-    const data = await createAdminCareerService(id, role, permissions, title, description, salary, requirements, type, linkedInInfo, jobStreetInfo, glintsInfo, tags);
+    const data = await createAdminCareerService(
+      id,
+      role,
+      permissions,
+      title,
+      description,
+      salary,
+      requirements,
+      type,
+      linkedInInfo,
+      jobStreetInfo,
+      glintsInfo,
+      tags
+    );
 
     return res.status(200).json({
       message: "Successfully create admin career",
@@ -395,7 +510,11 @@ const deleteAdminCareerDetailController = async (req, res, next) => {
 
     validate(careerIdSchema, careerId);
 
-    const data = await deleteAdminCareerDetailService(role, permissions, careerId);
+    const data = await deleteAdminCareerDetailService(
+      role,
+      permissions,
+      careerId
+    );
 
     return res.status(200).json({
       message: "Successfully delete admin career detail",
@@ -420,7 +539,15 @@ const getAdminCareerApplicationController = async (req, res, next) => {
 
     validate(getCareerApplicationSchema, { page, search, startDate, endDate });
 
-    const data = await getAdminCareerApplicationService(id, role, permissions, page || 1, search, startDate, endDate);
+    const data = await getAdminCareerApplicationService(
+      id,
+      role,
+      permissions,
+      page || 1,
+      search,
+      startDate,
+      endDate
+    );
 
     return res.status(200).json({
       message: "Successfully get admin career applications",
@@ -449,7 +576,12 @@ const getAdminCareerApplicationDetailController = async (req, res, next) => {
     validate(careerIdSchema, careerId);
     validate(applicationIdSchema, applicationId);
 
-    const data = await getAdminCareerApplicationDetailService(role, permissions, careerId, applicationId);
+    const data = await getAdminCareerApplicationDetailService(
+      role,
+      permissions,
+      careerId,
+      applicationId
+    );
 
     return res.status(200).json({
       message: "Successfully get admin career application detail",
@@ -476,7 +608,12 @@ const deleteAdminCareerApplicationDetailController = async (req, res, next) => {
     validate(careerIdSchema, careerId);
     validate(applicationIdSchema, applicationId);
 
-    const data = await deleteAdminCareerApplicationDetailService(role, permissions, careerId, applicationId);
+    const data = await deleteAdminCareerApplicationDetailService(
+      role,
+      permissions,
+      careerId,
+      applicationId
+    );
 
     return res.status(200).json({
       message: "Successfully delete admin career application detail",
