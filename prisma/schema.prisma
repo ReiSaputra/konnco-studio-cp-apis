@@ -55,9 +55,7 @@ model AdminPermission {
 
   canShowApplication Boolean @default(false) @map("can_show_application")
 
-  canCreateApplication Boolean @default(false) @map("can_create_application")
   canViewApplication   Boolean @default(false) @map("can_view_application")
-  canUpdateApplication Boolean @default(false) @map("can_update_application")
   canDeleteApplication Boolean @default(false) @map("can_delete_application")
 
   canShowProduct Boolean @default(false) @map("can_show_product")
@@ -73,6 +71,14 @@ model AdminPermission {
   canViewAdmin   Boolean @default(false) @map("can_view_admin")
   canUpdateAdmin Boolean @default(false) @map("can_update_admin")
   canDeleteAdmin Boolean @default(false) @map("can_delete_admin")
+
+  canShowInquiry Boolean @default(false) @map("can_show_inquiry")
+
+  canViewInquiry   Boolean @default(false) @map("can_view_inquiry")
+  canDeleteInquiry Boolean @default(false) @map("can_delete_inquiry")
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
 
   @@map("admin_permissions")
 }
