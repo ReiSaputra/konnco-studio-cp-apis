@@ -67,4 +67,6 @@ const productSchema = joi
   })
   .required();
 
-export { authSchema, getAdminBlogSchema, blogSlugSchema, blogSchema, careerSchema, careerIdSchema, getCareerApplicationSchema, applicationIdSchema, productSchema };
+const inquiryIdSchema = joi.string().required();
+
+export { authSchema, getAdminBlogSchema, blogSlugSchema, blogSchema, careerSchema, careerIdSchema, getCareerApplicationSchema, applicationIdSchema, productSchema, inquiryIdSchema };

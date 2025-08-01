@@ -792,6 +792,86 @@ const deleteAdminProductDetailService = async () => {
  * Inquiries
  */
 
+const getAdminInquiryService = async (role, permissions) => {
+  let findInquiryDatas = null;
+
+  if (role === "ADMIN" || role === "SUPER_ADMIN") {
+    if (permissions.canShowInquiry) {
+      findInquiryDatas = await prisma.inquiry.findMany({
+        select: {
+          id: true,
+          senderName: true,
+          subject: true,
+          email: true,
+          message: true,
+        },
+      });
+    } else {
+      throw new Error("You don't have permission to show admin inquiries");
+    }
+  } else {
+    throw new Error("You don't have permission to show admin inquiries");
+  }
+
+  return findInquiryDatas;
+};
+
+const getAdminInquiryDetailService = async (role, permissions, inquiryId) => {
+  let findInquiryData = null;
+
+  if (role === "ADMIN" || role === "SUPER_ADMIN") {
+    if (permissions.canViewInquiry) {
+      findInquiryData = await prisma.inquiry.findUnique({
+        where: {
+          id: inquiryId,
+        },
+        select: {
+          senderName: true,
+          subject: true,
+          email: true,
+          message: true,
+        },
+      });
+
+      if (!findInquiryData) throw new Error("Inquiry not found");
+    } else {
+      throw new Error("You don't have permission to view admin inquiries");
+    }
+  } else {
+    throw new Error("You don't have permission to view admin inquiries");
+  }
+
+  return findInquiryData;
+};
+
+const deleteAdminInquiryDetailService = async (role, permissions, inquiryId) => {
+  let deleteInquiryData = null;
+
+  if (role === "ADMIN" || role === "SUPER_ADMIN") {
+    if (permissions.canDeleteInquiry) {
+      const findInquiryData = await prisma.inquiry.findUnique({
+        where: {
+          id: inquiryId,
+        },
+      });
+
+      if (!findInquiryData) throw new Error("Inquiry not found");
+
+      deleteInquiryData = await prisma.inquiry.delete({
+        where: {
+          id: inquiryId,
+        },
+      });
+    } else {
+      throw new Error("You don't have permission to delete admin inquiries");
+    }
+  } else {
+    throw new Error("You don't have permission to delete admin inquiries");
+  }
+
+  return deleteInquiryData;
+};
+
 export {
   loginAdminService,
   dashboardAdminService,
@@ -813,4 +893,7 @@ export {
   editAdminProductDetailService,
   createAdminProductService,
   deleteAdminProductDetailService,
+  getAdminInquiryService,
+  getAdminInquiryDetailService,
+  deleteAdminInquiryDetailService,
 };

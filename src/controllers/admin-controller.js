@@ -1,6 +1,6 @@
 import { FileUploadError } from "../helpers/class/file-upload-error.js";
 import { PropertyError } from "../helpers/class/property-error.js";
-import { authSchema, blogSchema, blogSlugSchema, careerSchema, getAdminBlogSchema, getCareerApplicationSchema, productSchema } from "../helpers/validations/admin-validation.js";
+import { authSchema, blogSchema, blogSlugSchema, careerSchema, getAdminBlogSchema, getCareerApplicationSchema, inquiryIdSchema, productSchema } from "../helpers/validations/admin-validation.js";
 import { careerIdSchema, applicationIdSchema } from "../helpers/validations/admin-validation.js";
 import { productIdSchema } from "../helpers/validations/product-validation.js";
 import { validate } from "../helpers/validations/validate.js";
@@ -23,6 +23,9 @@ import {
   getAdminProductService,
   getAdminProductDetailService,
   createAdminProductService,
+  getAdminInquiryService,
+  getAdminInquiryDetailService,
+  deleteAdminInquiryDetailService,
 } from "../services/admin-service.js";
 
 /**
@@ -599,6 +602,24 @@ const deleteAdminProductDetailController = async (req, res, next) => {
 
 const getAdminInquiryController = async (req, res, next) => {
   try {
+    const { id, name, role, permissions } = req.user;
+
+    const data = await getAdminInquiryService(role, permissions);
+
+    return res.status(200).json({
+      message: "Successfully get admin inquiries",
+      data: data,
+      user: {
+        id,
+        name,
+        role,
+        permissions: {
+          canShowInquiry: permissions.canShowInquiry,
+          canViewInquiry: permissions.canViewInquiry,
+          canDeleteInquiry: permissions.canDeleteInquiry,
+        },
+      },
+    });
   } catch (error) {
     next(error);
   }
@@ -606,6 +627,25 @@ const getAdminInquiryController = async (req, res, next) => {
 
 const getAdminInquiryDetailController = async (req, res, next) => {
   try {
+    const { id, name, role, permissions } = req.user;
+    const { inquiryId } = req.params;
+
+    validate(inquiryIdSchema, inquiryId);
+
+    const data = await getAdminInquiryDetailService(role, permissions, inquiryId);
+
+    return res.status(200).json({
+      message: "Successfully get admin inquiry detail",
+      data: data,
+      user: {
+        id,
+        name,
+        role,
+        permissions: {
+          canViewInquiry: permissions.canViewInquiry,
+        },
+      },
+    });
   } catch (error) {
     next(error);
   }
@@ -613,6 +653,25 @@ const getAdminInquiryDetailController = async (req, res, next) => {
 
 const deleteAdminInquiryDetailController = async (req, res, next) => {
   try {
+    const { id, name, role, permissions } = req.user;
+    const { inquiryId } = req.params;
+
+    validate(inquiryIdSchema, inquiryId)
+
+    const data = await deleteAdminInquiryDetailService(role, permissions, inquiryId);
+
+    return res.status(200).json({
+      message: "Successfully delete admin inquiry detail",
+      data: data,
+      user: {
+        id,
+        name,
+        role,
+        permissions: {
+          canDeleteInquiry: permissions.canDeleteInquiry,
+        },
+      },
+    });
   } catch (error) {
     next(error);
   }
