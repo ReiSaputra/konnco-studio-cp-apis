@@ -15,20 +15,34 @@ import {
   getAdminCareerApplicationController,
   getAdminCareerApplicationDetailController,
   deleteAdminCareerApplicationDetailController,
+  getAdminProductController,
+  getAdminProductDetailController,
+  editAdminProductDetailController,
+  createAdminProductController,
+  deleteAdminProductDetailController,
+  getAdminInquiryController,
+  getAdminInquiryDetailController,
+  deleteAdminInquiryDetailController,
 } from "../controllers/admin-controller.js";
 import { authMiddleware } from "../middlewares/auth-middleware.js";
 import fs from "fs";
 import { createMulterUpload } from "../middlewares/upload-middleware.js";
 
-const path = "public/blogs";
+const pathBlogs = "public/blogs";
+const pathProducts = "public/products";
 
-if (!fs.existsSync(path)) {
-  fs.mkdirSync(path, { recursive: true });
+if (!fs.existsSync(pathBlogs)) {
+  fs.mkdirSync(pathBlogs, { recursive: true });
+}
+
+if (!fs.existsSync(pathProducts)) {
+  fs.mkdirSync(pathProducts, { recursive: true });
 }
 
 const adminRoute = express.Router();
 
-const upload = createMulterUpload(path, 2, "image/jpeg");
+const uploadBlog = createMulterUpload(pathBlogs, 2, "image/jpeg");
+const uploadProduct = createMulterUpload(pathProducts, 2, "image/jpeg");
 
 /**
  * Auth
@@ -48,8 +62,8 @@ adminRoute.get("/admins/dashboard/overview", authMiddleware, dashboardAdminContr
 
 adminRoute.get("/admins/blogs", authMiddleware, getAdminBlogController);
 adminRoute.get("/admins/blogs/:blogSlug", authMiddleware, getAdminBlogDetailController);
-adminRoute.put("/admins/blogs/:blogSlug", authMiddleware, upload.single("photo"), editAdminBlogDetailController);
-adminRoute.post("/admins/blogs", authMiddleware, upload.single("photo"), createAdminBlogController);
+adminRoute.put("/admins/blogs/:blogSlug", authMiddleware, uploadBlog.single("photo"), editAdminBlogDetailController);
+adminRoute.post("/admins/blogs", authMiddleware, uploadBlog.single("photo"), createAdminBlogController);
 adminRoute.delete("/admins/blogs/:blogSlug", authMiddleware, deleteAdminBlogDetailController);
 
 /**
@@ -69,22 +83,18 @@ adminRoute.delete("/admins/careers/:careerId", authMiddleware, deleteAdminCareer
  * Products
  */
 
-/**
- * adminRoute.get("/admins/products", authMiddleware);
- * adminRoute.get("/admins/products/:productId", authMiddleware);
- * adminRoute.put("/admins/products/:productId", authMiddleware);
- * adminRoute.post("/admins/products", authMiddleware);
- * adminRoute.delete("/admins/products/:productId", authMiddleware);
- */
+adminRoute.get("/admins/products", authMiddleware, getAdminProductController);
+adminRoute.get("/admins/products/:productId", authMiddleware, getAdminProductDetailController);
+adminRoute.put("/admins/products/:productId", authMiddleware, uploadProduct.array("photos"), editAdminProductDetailController);
+adminRoute.post("/admins/products", authMiddleware, uploadProduct.array("photos"), createAdminProductController);
+adminRoute.delete("/admins/products/:productId", authMiddleware, deleteAdminProductDetailController);
 
 /**
  * Inquiries
  */
 
-/**
- * adminRoute.get("/admins/inquiries", authMiddleware);
- * adminRoute.get("/admins/inquiries/:inquiryId", authMiddleware);
- * adminRoute.delete("admin/inquiries/:inquiryId", authMiddleware);
- */
+adminRoute.get("/admins/inquiries", authMiddleware, getAdminInquiryController);
+adminRoute.get("/admins/inquiries/:inquiryId", authMiddleware, getAdminInquiryDetailController);
+adminRoute.delete("admin/inquiries/:inquiryId", authMiddleware, deleteAdminInquiryDetailController);
 
 export { adminRoute };

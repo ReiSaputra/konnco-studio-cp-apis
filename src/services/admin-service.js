@@ -37,17 +37,14 @@ const loginAdminService = async (email, password) => {
     time: Date.now(),
   };
 
-  const tokenEncrypt = CryptoJS.AES.encrypt(
-    JSON.stringify(payload),
-    process.env.SECRET_KEY
-  ).toString();
+  const tokenEncrypt = CryptoJS.AES.encrypt(JSON.stringify(payload), process.env.SECRET_KEY).toString();
 
   await prisma.admin.update({
     where: { id: findData.id },
     data: { token: tokenEncrypt },
   });
 
-  return { id: findData.id , token: tokenEncrypt, name: findData.name};
+  return { id: findData.id, token: tokenEncrypt, name: findData.name };
 };
 
 /**
@@ -216,17 +213,7 @@ const getAdminBlogDetailService = async (role, permissions, blogSlug) => {
   return findBlogData;
 };
 
-const editAdminBlogDetailService = async (
-  role,
-  permissions,
-  blogSlug,
-  title,
-  content,
-  photoName,
-  type,
-  authorId,
-  slug
-) => {
+const editAdminBlogDetailService = async (role, permissions, blogSlug, title, content, photoName, type, authorId, slug) => {
   if (role !== "ADMIN" && role !== "SUPER_ADMIN") {
     throw new Error("Unauthorized role");
   }
@@ -270,24 +257,14 @@ const editAdminBlogDetailService = async (
       type,
       authorId,
       slug,
-      ...(photoName && { photo: photoName }), 
+      ...(photoName && { photo: photoName }),
     },
   });
 
   return updateBlogData;
 };
 
-
-const createAdminBlogService = async (
-  role,
-  permissions,
-  title,
-  content,
-  photoName,
-  type,
-  authorId,
-  slug
-) => {
+const createAdminBlogService = async (role, permissions, title, content, photoName, type, authorId, slug) => {
   let createData = null;
 
   if (role === "ADMIN" || role === "SUPER_ADMIN") {
@@ -499,28 +476,13 @@ const editAdminCareerDetailService = async (id, role, permissions, careerId, tit
   return editData;
 };
 
-const createAdminCareerService = async (
-  id,
-  role,
-  permissions,
-  title,
-  description,
-  salary,
-  requirements,
-  type,
-  linkedInInfo,
-  jobStreetInfo,
-  glintsInfo,
-  tags
-) => {
+const createAdminCareerService = async (id, role, permissions, title, description, salary, requirements, type, linkedInInfo, jobStreetInfo, glintsInfo, tags) => {
   let createData = null;
 
   if (role === "ADMIN" || role === "SUPER_ADMIN") {
     if (permissions.canCreateCareer) {
       const tagEach = tags.map((tag) => tag.trim()).join(", ");
-      const requirementEach = requirements
-        .map((requirement) => requirement.trim())
-        .join(", ");
+      const requirementEach = requirements.map((requirement) => requirement.trim()).join(", ");
 
       createData = await prisma.career.create({
         data: {
@@ -712,6 +674,14 @@ const deleteAdminCareerApplicationDetailService = async (role, permissions, care
 
       if (!findCareerData) throw new Error("Career not found");
 
+      const findApplicationData = await prisma.application.findUnique({
+        where: {
+          id: applicationId,
+        },
+      });
+
+      if (!findApplicationData) throw new Error("Application not found");
+
       deleteData = await prisma.application.delete({
         where: {
           id: applicationId,
@@ -731,6 +701,89 @@ const deleteAdminCareerApplicationDetailService = async (role, permissions, care
 /**
  * Products
  */
+
+const getAdminProductService = async (role, permissions) => {
+  let findProductDatas;
+
+  if (role === "ADMIN" || role === "SUPER_ADMIN") {
+    if (permissions.canShowProduct) {
+      findProductDatas = await prisma.product.findMany({
+        select: {
+          id: true,
+          title: true,
+          description: true,
+        },
+      });
+    } else {
+      throw new Error("You don't have permission to show admin products");
+    }
+  } else {
+    throw new Error("You don't have permission to show admin products");
+  }
+
+  return findProductDatas;
+};
+
+const getAdminProductDetailService = async (role, permissions, productId) => {
+  let findProductData = null;
+
+  if (role === "ADMIN" || role === "SUPER_ADMIN") {
+    if (permissions.canViewProduct) {
+      findProductData = await prisma.product.findUnique({
+        where: {
+          id: parseInt(productId),
+        },
+        select: {
+          title: true,
+          description: true,
+          mainPhoto: true,
+          mainFeature: true,
+          advantage: true,
+          secondPhoto: true,
+          thirdPhoto: true,
+        },
+      });
+    } else {
+      throw new Error("You don't have permission to view admin products");
+    }
+  } else {
+    throw new Error("You don't have permission to view admin products");
+  }
+
+  return findProductData;
+};
+
+const editAdminProductDetailService = async () => {};
+
+const createAdminProductService = async (role, permissions, title, description, mainFeature, advantage, mainPhoto, secondPhoto, thirdPhoto) => {
+  let createProductData = null;
+
+  if (role === "ADMIN" || role === "SUPER_ADMIN") {
+    if (permissions.canCreateProduct) {
+      createProductData = await prisma.product.create({
+        data: {
+          title: title,
+          description: description,
+          mainFeature: mainFeature,
+          advantage: advantage,
+          mainPhoto: mainPhoto,
+          secondPhoto: secondPhoto,
+          thirdPhoto: thirdPhoto,
+        },
+      });
+    } else {
+      throw new Error("You don't have permission to create admin products");
+    }
+  } else {
+    throw new Error("You don't have permission to create admin products");
+  }
+
+  return createProductData;
+};
+
+const deleteAdminProductDetailService = async () => {
+  let deleteProductData = null;
+};
 
 /**
  * Inquiries
@@ -752,4 +805,9 @@ export {
   getAdminCareerApplicationService,
   getAdminCareerApplicationDetailService,
   deleteAdminCareerApplicationDetailService,
+  getAdminProductService,
+  getAdminProductDetailService,
+  editAdminProductDetailService,
+  createAdminProductService,
+  deleteAdminProductDetailService,
 };

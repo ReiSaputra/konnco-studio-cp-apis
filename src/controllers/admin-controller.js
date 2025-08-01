@@ -1,17 +1,8 @@
 import { FileUploadError } from "../helpers/class/file-upload-error.js";
 import { PropertyError } from "../helpers/class/property-error.js";
-import {
-  authSchema,
-  blogSchema,
-  blogSlugSchema,
-  careerSchema,
-  getAdminBlogSchema,
-  getCareerApplicationSchema,
-} from "../helpers/validations/admin-validation.js";
-import {
-  careerIdSchema,
-  applicationIdSchema,
-} from "../helpers/validations/admin-validation.js";
+import { authSchema, blogSchema, blogSlugSchema, careerSchema, getAdminBlogSchema, getCareerApplicationSchema, productSchema } from "../helpers/validations/admin-validation.js";
+import { careerIdSchema, applicationIdSchema } from "../helpers/validations/admin-validation.js";
+import { productIdSchema } from "../helpers/validations/product-validation.js";
 import { validate } from "../helpers/validations/validate.js";
 import {
   loginAdminService,
@@ -29,6 +20,9 @@ import {
   getAdminCareerApplicationService,
   getAdminCareerApplicationDetailService,
   deleteAdminCareerApplicationDetailService,
+  getAdminProductService,
+  getAdminProductDetailService,
+  createAdminProductService,
 } from "../services/admin-service.js";
 
 /**
@@ -202,17 +196,7 @@ const editAdminBlogDetailController = async (req, res, next) => {
       slug,
     });
 
-    const updatedBlog = await editAdminBlogDetailService(
-      role,
-      permissions,
-      blogSlug,
-      title,
-      content,
-      photoName,
-      type,
-      authorId,
-      slug
-    );
+    const updatedBlog = await editAdminBlogDetailService(role, permissions, blogSlug, title, content, photoName, type, authorId, slug);
 
     return res.status(200).json({
       message: "Successfully updated blog",
@@ -635,9 +619,131 @@ const deleteAdminCareerApplicationDetailController = async (req, res, next) => {
  * Products
  */
 
+const getAdminProductController = async (req, res, next) => {
+  try {
+    const { id, name, role, permissions } = req.user;
+
+    const data = await getAdminProductService(role, permissions);
+
+    return res.status(200).json({
+      message: "Successfully get admin products",
+      data: data,
+      user: {
+        id,
+        name,
+        role,
+        permissions: {
+          canShowProduct: permissions.canShowProduct,
+          canViewProduct: permissions.canViewProduct,
+          canCreateProduct: permissions.canCreateProduct,
+          canUpdateProduct: permissions.canUpdateProduct,
+          canDeleteProduct: permissions.canDeleteProduct,
+        },
+      },
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+const getAdminProductDetailController = async (req, res, next) => {
+  try {
+    const { id, name, role, permissions } = req.user;
+    const { productId } = req.params;
+
+    validate(productIdSchema, productId);
+
+    const data = await getAdminProductDetailService(role, permissions, productId);
+
+    return res.status(200).json({
+      message: "Successfully get admin product detail",
+      data: data,
+      user: {
+        id,
+        name,
+        role,
+        permissions: {
+          canViewProduct: permissions.canViewProduct,
+        },
+      },
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+const editAdminProductDetailController = async (req, res, next) => {
+  try {
+  } catch (error) {
+    next(error);
+  }
+};
+
+const createAdminProductController = async (req, res, next) => {
+  try {
+    const { id, name, role, permissions } = req.user;
+
+    const { title, description, mainFeature, advantage } = req.body;
+    const [mainPhoto, secondPhoto, thirdPhoto] = req.files;
+
+    if (!title) throw new PropertyError("Title is required");
+    if (!description) throw new PropertyError("Description is required");
+    if (!mainFeature) throw new PropertyError("Main Feature is required");
+    if (!advantage) throw new PropertyError("Advantage is required");
+    if (!mainPhoto) throw new PropertyError("Image is required");
+
+    validate(productSchema, { title, description, mainFeature, advantage, mainPhoto: mainPhoto.filename, secondPhoto: secondPhoto ? secondPhoto.filename : null, thirdPhoto: thirdPhoto ? thirdPhoto.filename : null });
+
+    const data = await createAdminProductService(role, permissions, title, description, mainFeature, advantage, mainPhoto?.filename, secondPhoto?.filename, thirdPhoto?.filename);
+
+    return res.status(200).json({
+      message: "Successfully create admin product",
+      data: data,
+      user: {
+        id,
+        name,
+        role,
+        permissions: {
+          canCreateProduct: permissions.canCreateProduct,
+        },
+      },
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+const deleteAdminProductDetailController = async (req, res, next) => {
+  try {
+  } catch (error) {
+    next(error);
+  }
+};
+
 /**
  * Inquiries
  */
+
+const getAdminInquiryController = async (req, res, next) => {
+  try {
+  } catch (error) {
+    next(error);
+  }
+};
+
+const getAdminInquiryDetailController = async (req, res, next) => {
+  try {
+  } catch (error) {
+    next(error);
+  }
+};
+
+const deleteAdminInquiryDetailController = async (req, res, next) => {
+  try {
+  } catch (error) {
+    next(error);
+  }
+};
 
 export {
   loginAdminController,
@@ -655,4 +761,12 @@ export {
   getAdminCareerApplicationController,
   getAdminCareerApplicationDetailController,
   deleteAdminCareerApplicationDetailController,
+  getAdminProductController,
+  getAdminProductDetailController,
+  editAdminProductDetailController,
+  createAdminProductController,
+  deleteAdminProductDetailController,
+  getAdminInquiryController,
+  getAdminInquiryDetailController,
+  deleteAdminInquiryDetailController,
 };

@@ -1,4 +1,4 @@
-import { afterEach, describe, expect, it } from "@jest/globals";
+import { afterEach, beforeAll, describe, expect, it } from "@jest/globals";
 import supertest from "supertest";
 import app from "../../../../src/app.js";
 import { prisma } from "../../../../src/database.js";
@@ -424,6 +424,285 @@ describe("when admin want to get career applications data in route GET /api/v1/a
     expect(response.status).toBe(200);
     expect(response.body.data).toHaveLength(10);
   });
+});
 
+describe("when admin want to get career applications detail data in route GET /api/v1/admins/careers/:careerId/applications/:applicationId", () => {
+  let careerId = null;
+  let applicationId = null;
+  let admin = null;
 
+  beforeAll(async () => {
+    await prisma.application.deleteMany();
+    await prisma.career.deleteMany();
+    await prisma.adminPermission.deleteMany();
+    await prisma.admin.deleteMany();
+  });
+
+  beforeEach(async () => {
+    const hash = await bcrypt.hash("dontknowityet", 10);
+
+    admin = await prisma.admin.create({
+      data: {
+        email: "xl5d5@konnco.com",
+        password: hash,
+        name: "Admin A",
+        phoneNumber: "087823322523",
+        role: "ADMIN",
+        permissions: {
+          create: {
+            canViewApplication: true,
+          },
+        },
+      },
+      select: {
+        id: true,
+      },
+    });
+
+    careerId = await prisma.career.create({
+      data: {
+        title: "Web Developer",
+        description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
+        requirements: "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
+        salary: "Rp. 1.000.000",
+        type: "WEB",
+        tags: "Tag A, Tag B, Tag C",
+        authorId: admin.id,
+      },
+      select: {
+        id: true,
+      },
+    });
+
+    applicationId = await prisma.application.create({
+      data: {
+        applicantName: "Mamat Gunshop",
+        educationType: "S1",
+        instituteName: "Institut Teknologi Sepuluh Nopember",
+        phoneNumber: "087823322523",
+        skills: "Skill A, Skill B, Skill C",
+        email: `mamat@gmail.com`,
+        file: "FORMULIR PERMOHONAN EMAIL.docx",
+        letter: "Lorem ipsum dolor sit amet consectetur adipisicing elit. Quisquam, quae.",
+        careerId: careerId.id,
+      },
+      select: {
+        id: true,
+      },
+    });
+  });
+
+  afterEach(async () => {
+    await prisma.application.deleteMany();
+    await prisma.career.deleteMany();
+    await prisma.adminPermission.deleteMany();
+    await prisma.admin.deleteMany();
+  });
+
+  it("should be able to get career applications detail data successfully", async () => {
+    const loginResponse = await supertest(app).post("/api/v1/admins/auth/login").send({
+      email: "xl5d5@konnco.com",
+      password: "dontknowityet",
+    });
+
+    const response = await supertest(app).get(`/api/v1/admins/careers/${careerId.id}/applications/${applicationId.id}`).set("Authorization", `Bearer ${loginResponse.body.data.token}`);
+
+    expect(response.status).toBe(200);
+    expect(response.body.data.applicantName).toBe("Mamat Gunshop");
+  });
+
+  it("should not be able to get career application detail data successfully - no permission", async () => {
+    await prisma.adminPermission.update({
+      where: {
+        adminId: admin.id,
+      },
+      data: {
+        canViewApplication: false,
+      },
+    });
+    const loginResponse = await supertest(app).post("/api/v1/admins/auth/login").send({
+      email: "xl5d5@konnco.com",
+      password: "dontknowityet",
+    });
+
+    const response = await supertest(app).get(`/api/v1/admins/careers/${careerId.id}/applications/${applicationId.id}`).set("Authorization", `Bearer ${loginResponse.body.data.token}`);
+
+    expect(response.status).toBe(400);
+    expect(response.body.message).toBe("Error: You don't have permission to view admin career applications");
+  });
+
+  it("should not be able to get career application detail data successfully - authorization not provided", async () => {
+    const response = await supertest(app).get(`/api/v1/admins/careers/${careerId.id}/applications/${applicationId.id}`);
+
+    expect(response.status).toBe(401);
+    expect(response.body.message).toContain("TokenError:");
+  });
+
+  it("should not be able to get career application detail data successfully - validation error", async () => {
+    const loginResponse = await supertest(app).post("/api/v1/admins/auth/login").send({
+      email: "xl5d5@konnco.com",
+      password: "dontknowityet",
+    });
+
+    const response = await supertest(app).get(`/api/v1/admins/careers/string/applications/0`).set("Authorization", `Bearer ${loginResponse.body.data.token}`);
+
+    expect(response.status).toBe(400);
+    expect(response.body.message).toContain("ValidationError:");
+
+    const response2 = await supertest(app).get(`/api/v1/admins/careers/0/applications/string`).set("Authorization", `Bearer ${loginResponse.body.data.token}`);
+
+    expect(response2.status).toBe(400);
+    expect(response2.body.message).toContain("Career not found");
+  });
+
+  it("should not be able to get career application detail data successfully - correct career id but not found application id", async () => {
+    const loginResponse = await supertest(app).post("/api/v1/admins/auth/login").send({
+      email: "xl5d5@konnco.com",
+      password: "dontknowityet",
+    });
+
+    const response = await supertest(app).get(`/api/v1/admins/careers/5/applications/${applicationId.id}`).set("Authorization", `Bearer ${loginResponse.body.data.token}`);
+
+    expect(response.status).toBe(400);
+    expect(response.body.message).toContain("Career not found");
+  });
+});
+
+describe("when admin want to delete career applications detail data in route DELETE /api/v1/admins/careers/:careerId/applications/:applicationId", () => {
+  let careerId = null;
+  let applicationId = null;
+  let admin = null;
+
+  beforeAll(async () => {
+    await prisma.application.deleteMany();
+    await prisma.career.deleteMany();
+    await prisma.adminPermission.deleteMany();
+    await prisma.admin.deleteMany();
+  });
+
+  beforeEach(async () => {
+    const hash = await bcrypt.hash("dontknowityet", 10);
+
+    admin = await prisma.admin.create({
+      data: {
+        email: "xl5d5@konnco.com",
+        password: hash,
+        name: "Admin A",
+        phoneNumber: "087823322523",
+        role: "ADMIN",
+        permissions: {
+          create: {
+            canDeleteApplication: true,
+          },
+        },
+      },
+      select: {
+        id: true,
+      },
+    });
+
+    careerId = await prisma.career.create({
+      data: {
+        title: "Web Developer",
+        description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
+        requirements: "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
+        salary: "Rp. 1.000.000",
+        type: "WEB",
+        tags: "Tag A, Tag B, Tag C",
+        authorId: admin.id,
+      },
+      select: {
+        id: true,
+      },
+    });
+
+    applicationId = await prisma.application.create({
+      data: {
+        applicantName: "Mamat Gunshop",
+        educationType: "S1",
+        instituteName: "Institut Teknologi Sepuluh Nopember",
+        phoneNumber: "087823322523",
+        skills: "Skill A, Skill B, Skill C",
+        email: `mamat@gmail.com`,
+        file: "FORMULIR PERMOHONAN EMAIL.docx",
+        letter: "Lorem ipsum dolor sit amet consectetur adipisicing elit. Quisquam, quae.",
+        careerId: careerId.id,
+      },
+      select: {
+        id: true,
+      },
+    });
+  });
+
+  afterEach(async () => {
+    await prisma.application.deleteMany();
+    await prisma.career.deleteMany();
+    await prisma.adminPermission.deleteMany();
+    await prisma.admin.deleteMany();
+  });
+
+  it("should be able to delete career applications detail data successfully", async () => {
+    const loginResponse = await supertest(app).post("/api/v1/admins/auth/login").send({
+      email: "xl5d5@konnco.com",
+      password: "dontknowityet",
+    });
+
+    const response = await supertest(app).delete(`/api/v1/admins/careers/${careerId.id}/applications/${applicationId.id}`).set("Authorization", `Bearer ${loginResponse.body.data.token}`);
+
+    expect(response.status).toBe(200);
+    expect(response.body.message).toBe("Successfully delete admin career application detail");
+  });
+
+  it("should not be able to delete career applications detail data successfully - no authorization provided", async () => {
+    const response = await supertest(app).delete(`/api/v1/admins/careers/${careerId.id}/applications/${applicationId.id}`);
+
+    console.info(response.body);
+
+    expect(response.status).toBe(401);
+    expect(response.body.message).toBe("TokenError: Unauthorized");
+  });
+
+  it("should not be able to delete career applications detail data successfully - no permission", async () => {
+    await prisma.adminPermission.update({
+      where: {
+        adminId: admin.id,
+      },
+      data: {
+        canDeleteApplication: false,
+      },
+    });
+    const loginResponse = await supertest(app).post("/api/v1/admins/auth/login").send({
+      email: "xl5d5@konnco.com",
+      password: "dontknowityet",
+    });
+
+    const response = await supertest(app).delete(`/api/v1/admins/careers/${careerId.id}/applications/${applicationId.id}`).set("Authorization", `Bearer ${loginResponse.body.data.token}`);
+
+    expect(response.status).toBe(400);
+    expect(response.body.message).toBe("Error: You don't have permission to delete admin career applications");
+  });
+
+  it("should not be able to delete career applications detail data successfully - invalid application id", async () => {
+    const loginResponse = await supertest(app).post("/api/v1/admins/auth/login").send({
+      email: "xl5d5@konnco.com",
+      password: "dontknowityet",
+    });
+
+    const response = await supertest(app).delete(`/api/v1/admins/careers/${careerId.id}/applications/invalid-application-id`).set("Authorization", `Bearer ${loginResponse.body.data.token}`);
+
+    expect(response.status).toBe(400);
+    expect(response.body.message).toBe("Error: Application not found");
+  });
+
+  it("should not be able to delete career applications detail data successfully - invalid career id", async () => {
+    const loginResponse = await supertest(app).post("/api/v1/admins/auth/login").send({
+      email: "xl5d5@konnco.com",
+      password: "dontknowityet",
+    });
+
+    const response = await supertest(app).delete(`/api/v1/admins/careers/invalid-career-id/applications/${applicationId.id}`).set("Authorization", `Bearer ${loginResponse.body.data.token}`);
+
+    expect(response.status).toBe(400);
+    expect(response.body.message).toContain("ValidationError:");
+  });
 });

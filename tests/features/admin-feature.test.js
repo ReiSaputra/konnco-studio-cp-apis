@@ -58,6 +58,8 @@ describe("when admin wants to login on GET /api/v1/admins/auth/login", () => {
     expect(response.body).toEqual({
       message: "Successfully login to konnco studio admin panel",
       data: {
+        id: expect.any(String),
+        name: "Admin A",
         token: expect.any(String),
       },
     });

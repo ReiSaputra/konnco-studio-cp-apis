@@ -45,12 +45,6 @@ describe("when admin want to create careers data in route POST /api/v1/admins/ca
     });
 
     expect(loginResponse.status).toBe(200);
-    expect(loginResponse.body).toEqual({
-      message: "Successfully login to konnco studio admin panel",
-      data: {
-        token: expect.any(String),
-      },
-    });
 
     const response = await supertest(app)
       .post("/api/v1/admins/careers")
