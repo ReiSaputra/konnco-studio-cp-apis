@@ -656,8 +656,6 @@ describe("when admin want to delete career applications detail data in route DEL
   it("should not be able to delete career applications detail data successfully - no authorization provided", async () => {
     const response = await supertest(app).delete(`/api/v1/admins/careers/${careerId.id}/applications/${applicationId.id}`);
 
-    console.info(response.body);
-
     expect(response.status).toBe(401);
     expect(response.body.message).toBe("TokenError: Unauthorized");
   });

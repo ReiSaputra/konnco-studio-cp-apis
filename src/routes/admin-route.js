@@ -85,8 +85,8 @@ adminRoute.delete("/admins/careers/:careerId", authMiddleware, deleteAdminCareer
 
 adminRoute.get("/admins/products", authMiddleware, getAdminProductController);
 adminRoute.get("/admins/products/:productId", authMiddleware, getAdminProductDetailController);
-adminRoute.put("/admins/products/:productId", authMiddleware, uploadProduct.array("photos"), editAdminProductDetailController);
-adminRoute.post("/admins/products", authMiddleware, uploadProduct.array("photos"), createAdminProductController);
+adminRoute.put("/admins/products/:productId", authMiddleware, uploadProduct.array("photos", 3), editAdminProductDetailController);
+adminRoute.post("/admins/products", authMiddleware, uploadProduct.array("photos", 3), createAdminProductController);
 adminRoute.delete("/admins/products/:productId", authMiddleware, deleteAdminProductDetailController);
 
 /**

@@ -61,11 +61,9 @@ const productSchema = joi
   .object({
     title: joi.string().max(255).required(),
     description: joi.string().min(100).required(),
-    mainFeature: joi.array().items(joi.string()).min(1).required(),
-    advantage: joi.array().items(joi.string()).min(1).required(),
+    mainFeature: joi.string().required(),
+    advantage: joi.string().required(),
     mainPhoto: joi.string().required(),
-    secondPhoto: joi.string().optional(),
-    thirdPhoto: joi.string().optional(),
   })
   .required();
 

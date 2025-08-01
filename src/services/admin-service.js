@@ -630,7 +630,6 @@ const getAdminCareerApplicationDetailService = async (role, permissions, careerI
       findCareerApplicationData = await prisma.application.findUnique({
         where: {
           id: applicationId,
-          careerId: parseInt(careerId),
         },
         select: {
           applicantName: true,
@@ -651,6 +650,8 @@ const getAdminCareerApplicationDetailService = async (role, permissions, careerI
           },
         },
       });
+
+      if (!findCareerApplicationData) throw new Error("Application not found");
     } else {
       throw new Error("You don't have permission to view admin career applications");
     }
@@ -743,6 +744,8 @@ const getAdminProductDetailService = async (role, permissions, productId) => {
           thirdPhoto: true,
         },
       });
+
+      if (!findProductData) throw new Error("Product not found");
     } else {
       throw new Error("You don't have permission to view admin products");
     }

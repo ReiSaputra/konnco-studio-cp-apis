@@ -563,9 +563,9 @@ const createAdminProductController = async (req, res, next) => {
     if (!description) throw new PropertyError("Description is required");
     if (!mainFeature) throw new PropertyError("Main Feature is required");
     if (!advantage) throw new PropertyError("Advantage is required");
-    if (!mainPhoto) throw new PropertyError("Image is required");
+    if (!mainPhoto) throw new FileUploadError("Either Main Photo is required or File Mime Type is not JPG/JPEG");
 
-    validate(productSchema, { title, description, mainFeature, advantage, mainPhoto: mainPhoto.filename, secondPhoto: secondPhoto ? secondPhoto.filename : null, thirdPhoto: thirdPhoto ? thirdPhoto.filename : null });
+    validate(productSchema, { title, description, mainFeature, advantage, mainPhoto: mainPhoto.filename });
 
     const data = await createAdminProductService(role, permissions, title, description, mainFeature, advantage, mainPhoto?.filename, secondPhoto?.filename, thirdPhoto?.filename);
 
