@@ -80,9 +80,7 @@ describe("when admin want to get data in dashboard route GET /api/v1/admins/dash
         permissions: {
           create: {
             canShowApplication: true,
-            canCreateApplication: true,
             canViewApplication: true,
-            canUpdateApplication: true,
             canDeleteApplication: true,
 
             canShowCareer: true,

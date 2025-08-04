@@ -4,6 +4,7 @@ import supertest from "supertest";
 import app from "../../../../src/app.js";
 import bcrypt from "bcrypt";
 import path from "path";
+import fs from "fs";
 
 describe("when admin want to get products data in route GET /api/v1/admins/products", () => {
   beforeAll(async () => {
@@ -401,8 +402,6 @@ describe("when admin want to create product data in route POST /api/v1/admins/pr
       .attach("photos", photosPath)
       .attach("photos", photosPathWrongMime);
 
-    console.info(response.body);
-
     expect(response.status).toBe(200);
     expect(response.body.message).toContain("Successfully create admin product");
   });
@@ -494,6 +493,395 @@ describe("when admin want to create product data in route POST /api/v1/admins/pr
   });
 });
 
-describe("when admin want to update product data in route PUT /api/v1/admins/products/:productId", () => {});
+describe("when admin want to update product data in route PUT /api/v1/admins/products/:productId", () => {
+  const photosPath = path.resolve(__dirname, "../../../samples/img/download.jpg");
 
-describe("when admin want to delete product data in route DELETE /api/v1/admins/products/:productId", () => {});
+  beforeAll(async () => {
+    await prisma.product.deleteMany();
+    await prisma.adminPermission.deleteMany();
+    await prisma.application.deleteMany();
+    await prisma.career.deleteMany();
+    await prisma.admin.deleteMany();
+  });
+
+  beforeEach(async () => {
+    await prisma.admin.create({
+      data: {
+        email: "xl5d5@konnco.com",
+        password: await bcrypt.hash("dontknowityet", 10),
+        name: "Admin A",
+        role: "ADMIN",
+        phoneNumber: "087823322523",
+        permissions: {
+          create: {
+            canCreateProduct: true,
+            canUpdateProduct: true,
+          },
+        },
+      },
+    });
+  });
+
+  afterEach(async () => {
+    await prisma.product.deleteMany();
+    await prisma.adminPermission.deleteMany();
+    await prisma.application.deleteMany();
+    await prisma.career.deleteMany();
+    await prisma.admin.deleteMany();
+  });
+
+  afterAll(async () => {
+    await prisma.product.deleteMany();
+    await prisma.adminPermission.deleteMany();
+    await prisma.application.deleteMany();
+    await prisma.career.deleteMany();
+    await prisma.admin.deleteMany();
+  });
+
+  it("should be able to update product data", async () => {
+    const loginResponse = await supertest(app).post("/api/v1/admins/auth/login").send({
+      email: "xl5d5@konnco.com",
+      password: "dontknowityet",
+    });
+
+    const createResponse = await supertest(app)
+      .post("/api/v1/admins/products")
+      .set("Authorization", `Bearer ${loginResponse.body.data.token}`)
+      .field("title", "Product A")
+      .field("description", "Product A description lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed nec augue ex. Nulla condimentum tempus ultrices. Donec sed sagittis dolor. Duis a lectus eu justo scelerisque vestibulum.")
+      .field("mainFeature", "Product A main feature")
+      .field("advantage", "Product A advantage")
+      .attach("photos", photosPath);
+
+    const response = await supertest(app)
+      .put(`/api/v1/admins/products/${createResponse.body.data.id}`)
+      .set("Authorization", `Bearer ${loginResponse.body.data.token}`)
+      .field("title", "Product B")
+      .field("description", "Product B description lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed nec augue ex. Nulla condimentum tempus ultrices. Donec sed sagittis dolor. Duis a lectus eu justo scelerisque vestibulum.")
+      .field("mainFeature", "Product B main feature")
+      .field("advantage", "Product B advantage")
+      .attach("photos", photosPath);
+
+    expect(response.status).toBe(200);
+    expect(response.body.message).toBe("Successfully edit admin product detail");
+  });
+
+  it("should not be able to update product data - no title", async () => {
+    const loginResponse = await supertest(app).post("/api/v1/admins/auth/login").send({
+      email: "xl5d5@konnco.com",
+      password: "dontknowityet",
+    });
+
+    const createResponse = await supertest(app)
+      .post("/api/v1/admins/products")
+      .set("Authorization", `Bearer ${loginResponse.body.data.token}`)
+      .field("title", "Product A")
+      .field("description", "Product A description lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed nec augue ex. Nulla condimentum tempus ultrices. Donec sed sagittis dolor. Duis a lectus eu justo scelerisque vestibulum.")
+      .field("mainFeature", "Product A main feature")
+      .field("advantage", "Product A advantage")
+      .attach("photos", photosPath);
+
+    const response = await supertest(app)
+      .put(`/api/v1/admins/products/${createResponse.body.data.id}`)
+      .set("Authorization", `Bearer ${loginResponse.body.data.token}`)
+      .field("description", "Product B description lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed nec augue ex. Nulla condimentum tempus ultrices. Donec sed sagittis dolor. Duis a lectus eu justo scelerisque vestibulum.")
+      .field("mainFeature", "Product B main feature")
+      .field("advantage", "Product B advantage")
+      .attach("photos", photosPath);
+
+    expect(response.status).toBe(400);
+    expect(response.body.message).toContain("Title is required");
+  });
+
+  it("should not be able to update product data - no description", async () => {
+    const loginResponse = await supertest(app).post("/api/v1/admins/auth/login").send({
+      email: "xl5d5@konnco.com",
+      password: "dontknowityet",
+    });
+
+    const createResponse = await supertest(app)
+      .post("/api/v1/admins/products")
+      .set("Authorization", `Bearer ${loginResponse.body.data.token}`)
+      .field("title", "Product A")
+      .field("description", "Product A description lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed nec augue ex. Nulla condimentum tempus ultrices. Donec sed sagittis dolor. Duis a lectus eu justo scelerisque vestibulum.")
+      .field("mainFeature", "Product A main feature")
+      .field("advantage", "Product A advantage")
+      .attach("photos", photosPath);
+
+    const response = await supertest(app)
+      .put(`/api/v1/admins/products/${createResponse.body.data.id}`)
+      .set("Authorization", `Bearer ${loginResponse.body.data.token}`)
+      .field("title", "Product B")
+      .field("mainFeature", "Product B main feature")
+      .field("advantage", "Product B advantage")
+      .attach("photos", photosPath);
+
+    expect(response.status).toBe(400);
+    expect(response.body.message).toContain("Description is required");
+  });
+
+  it("should not be able to update product data - no mainFeature", async () => {
+    const loginResponse = await supertest(app).post("/api/v1/admins/auth/login").send({
+      email: "xl5d5@konnco.com",
+      password: "dontknowityet",
+    });
+
+    const createResponse = await supertest(app)
+      .post("/api/v1/admins/products")
+      .set("Authorization", `Bearer ${loginResponse.body.data.token}`)
+      .field("title", "Product A")
+      .field("description", "Product A description lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed nec augue ex. Nulla condimentum tempus ultrices. Donec sed sagittis dolor. Duis a lectus eu justo scelerisque vestibulum.")
+      .field("mainFeature", "Product A main feature")
+      .field("advantage", "Product A advantage")
+      .attach("photos", photosPath);
+
+    const response = await supertest(app)
+      .put(`/api/v1/admins/products/${createResponse.body.data.id}`)
+      .set("Authorization", `Bearer ${loginResponse.body.data.token}`)
+      .field("title", "Product B")
+      .field("description", "Product B description lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed nec augue ex. Nulla condimentum tempus ultrices. Donec sed sagittis dolor. Duis a lectus eu justo scelerisque vestibulum.")
+      .field("advantage", "Product B advantage")
+      .attach("photos", photosPath);
+
+    expect(response.status).toBe(400);
+    expect(response.body.message).toContain("Main Feature is required");
+  });
+
+  it("should not be able to update product data - no advantage", async () => {
+    const loginResponse = await supertest(app).post("/api/v1/admins/auth/login").send({
+      email: "xl5d5@konnco.com",
+      password: "dontknowityet",
+    });
+
+    const createResponse = await supertest(app)
+      .post("/api/v1/admins/products")
+      .set("Authorization", `Bearer ${loginResponse.body.data.token}`)
+      .field("title", "Product A")
+      .field("description", "Product A description lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed nec augue ex. Nulla condimentum tempus ultrices. Donec sed sagittis dolor. Duis a lectus eu justo scelerisque vestibulum.")
+      .field("mainFeature", "Product A main feature")
+      .field("advantage", "Product A advantage")
+      .attach("photos", photosPath);
+
+    const response = await supertest(app)
+      .put(`/api/v1/admins/products/${createResponse.body.data.id}`)
+      .set("Authorization", `Bearer ${loginResponse.body.data.token}`)
+      .field("title", "Product B")
+      .field("description", "Product B description lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed nec augue ex. Nulla condimentum tempus ultrices. Donec sed sagittis dolor. Duis a lectus eu justo scelerisque vestibulum.")
+      .field("mainFeature", "Product B main feature")
+      .attach("photos", photosPath);
+
+    expect(response.status).toBe(400);
+    expect(response.body.message).toContain("Advantage is required");
+  });
+
+  it("should not be able to update product data - no photos", async () => {
+    const loginResponse = await supertest(app).post("/api/v1/admins/auth/login").send({
+      email: "xl5d5@konnco.com",
+      password: "dontknowityet",
+    });
+
+    const createResponse = await supertest(app)
+      .post("/api/v1/admins/products")
+      .set("Authorization", `Bearer ${loginResponse.body.data.token}`)
+      .field("title", "Product A")
+      .field("description", "Product A description lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed nec augue ex. Nulla condimentum tempus ultrices. Donec sed sagittis dolor. Duis a lectus eu justo scelerisque vestibulum.")
+      .field("mainFeature", "Product A main feature")
+      .field("advantage", "Product A advantage")
+      .attach("photos", photosPath);
+
+    const response = await supertest(app)
+      .put(`/api/v1/admins/products/${createResponse.body.data.id}`)
+      .set("Authorization", `Bearer ${loginResponse.body.data.token}`)
+      .field("title", "Product B")
+      .field("description", "Product B description lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed nec augue ex. Nulla condimentum tempus ultrices. Donec sed sagittis dolor. Duis a lectus eu justo scelerisque vestibulum.")
+      .field("mainFeature", "Product B main feature")
+      .field("advantage", "Product B advantage");
+
+    expect(response.status).toBe(400);
+    expect(response.body.message).toContain("Main Photo is required");
+  });
+
+  it("should not be able to update product data - params is a string", async () => {
+    const loginResponse = await supertest(app).post("/api/v1/admins/auth/login").send({
+      email: "xl5d5@konnco.com",
+      password: "dontknowityet",
+    });
+
+    const createResponse = await supertest(app)
+      .post("/api/v1/admins/products")
+      .set("Authorization", `Bearer ${loginResponse.body.data.token}`)
+      .field("title", "Product A")
+      .field("description", "Product A description lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed nec augue ex. Nulla condimentum tempus ultrices. Donec sed sagittis dolor. Duis a lectus eu justo scelerisque vestibulum.")
+      .field("mainFeature", "Product A main feature")
+      .field("advantage", "Product A advantage")
+      .attach("photos", photosPath);
+
+    const response = await supertest(app)
+      .put(`/api/v1/admins/products/not-found`)
+      .set("Authorization", `Bearer ${loginResponse.body.data.token}`)
+      .field("title", "Product B")
+      .field("description", "Product B description lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed nec augue ex. Nulla condimentum tempus ultrices. Donec sed sagittis dolor. Duis a lectus eu justo scelerisque vestibulum.")
+      .field("mainFeature", "Product B main feature")
+      .field("advantage", "Product B advantage")
+      .attach("photos", photosPath);
+
+    expect(response.status).toBe(400);
+    expect(response.body.message).toContain("ValidationError:");
+  });
+
+  it("should not be able to update product data - params is a number but random", async () => {
+    const loginResponse = await supertest(app).post("/api/v1/admins/auth/login").send({
+      email: "xl5d5@konnco.com",
+      password: "dontknowityet",
+    });
+
+    const createResponse = await supertest(app)
+      .post("/api/v1/admins/products")
+      .set("Authorization", `Bearer ${loginResponse.body.data.token}`)
+      .field("title", "Product A")
+      .field("description", "Product A description lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed nec augue ex. Nulla condimentum tempus ultrices. Donec sed sagittis dolor. Duis a lectus eu justo scelerisque vestibulum.")
+      .field("mainFeature", "Product A main feature")
+      .field("advantage", "Product A advantage")
+      .attach("photos", photosPath);
+
+    const response = await supertest(app)
+      .put(`/api/v1/admins/products/8432`)
+      .set("Authorization", `Bearer ${loginResponse.body.data.token}`)
+      .field("title", "Product B")
+      .field("description", "Product B description lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed nec augue ex. Nulla condimentum tempus ultrices. Donec sed sagittis dolor. Duis a lectus eu justo scelerisque vestibulum.")
+      .field("mainFeature", "Product B main feature")
+      .field("advantage", "Product B advantage")
+      .attach("photos", photosPath);
+
+    expect(response.status).toBe(400);
+    expect(response.body.message).toContain("Error: Product not found");
+  });
+});
+
+describe("when admin want to delete product data in route DELETE /api/v1/admins/products/:productId", () => {
+  const photosPath = path.resolve(__dirname, "../../../samples/img/download.jpg");
+
+  beforeAll(async () => {
+    await prisma.product.deleteMany();
+    await prisma.adminPermission.deleteMany();
+    await prisma.application.deleteMany();
+    await prisma.career.deleteMany();
+    await prisma.admin.deleteMany();
+  });
+
+  beforeEach(async () => {
+    await prisma.admin.create({
+      data: {
+        email: "xl5d5@konnco.com",
+        password: await bcrypt.hash("dontknowityet", 10),
+        name: "Admin A",
+        role: "ADMIN",
+        phoneNumber: "087823322523",
+        permissions: {
+          create: {
+            canCreateProduct: true,
+            canUpdateProduct: true,
+            canDeleteProduct: true,
+          },
+        },
+      },
+    });
+  });
+
+  afterEach(async () => {
+    await prisma.product.deleteMany();
+    await prisma.adminPermission.deleteMany();
+    await prisma.application.deleteMany();
+    await prisma.career.deleteMany();
+    await prisma.admin.deleteMany();
+  });
+
+  afterAll(async () => {
+    await prisma.product.deleteMany();
+    await prisma.adminPermission.deleteMany();
+    await prisma.application.deleteMany();
+    await prisma.career.deleteMany();
+    await prisma.admin.deleteMany();
+  });
+
+  it("should be able to delete product data", async () => {
+    const loginResponse = await supertest(app).post("/api/v1/admins/auth/login").send({
+      email: "xl5d5@konnco.com",
+      password: "dontknowityet",
+    });
+
+    const createResponse = await supertest(app)
+      .post("/api/v1/admins/products")
+      .set("Authorization", `Bearer ${loginResponse.body.data.token}`)
+      .field("title", "Product A")
+      .field("description", "Product A description lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed nec augue ex. Nulla condimentum tempus ultrices. Donec sed sagittis dolor. Duis a lectus eu justo scelerisque vestibulum.")
+      .field("mainFeature", "Product A main feature")
+      .field("advantage", "Product A advantage")
+      .attach("photos", photosPath);
+
+    const productId = createResponse.body.data.id;
+
+    const response = await supertest(app).delete(`/api/v1/admins/products/${productId}`).set("Authorization", `Bearer ${loginResponse.body.data.token}`);
+
+    expect(response.status).toBe(200);
+    expect(response.body.message).toContain("Successfully delete admin product detail");
+  });
+
+  it("should not be able to delete product data - params is a number but random", async () => {
+    const loginResponse = await supertest(app).post("/api/v1/admins/auth/login").send({
+      email: "xl5d5@konnco.com",
+      password: "dontknowityet",
+    });
+
+    const createResponse = await supertest(app)
+      .post("/api/v1/admins/products")
+      .set("Authorization", `Bearer ${loginResponse.body.data.token}`)
+      .field("title", "Product A")
+      .field("description", "Product A description lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed nec augue ex. Nulla condimentum tempus ultrices. Donec sed sagittis dolor. Duis a lectus eu justo scelerisque vestibulum.")
+      .field("mainFeature", "Product A main feature")
+      .field("advantage", "Product A advantage")
+      .attach("photos", photosPath);
+
+    const productId = createResponse.body.data.id;
+
+    const response = await supertest(app).delete(`/api/v1/admins/products/213123`).set("Authorization", `Bearer ${loginResponse.body.data.token}`);
+
+    expect(response.status).toBe(400);
+    expect(response.body.message).toContain("Error: Product not found");
+  });
+
+  it("should not be able to delete product data - params is a string", async () => {
+    const loginResponse = await supertest(app).post("/api/v1/admins/auth/login").send({
+      email: "xl5d5@konnco.com",
+      password: "dontknowityet",
+    });
+
+    const createResponse = await supertest(app)
+      .post("/api/v1/admins/products")
+      .set("Authorization", `Bearer ${loginResponse.body.data.token}`)
+      .field("title", "Product A")
+      .field("description", "Product A description lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed nec augue ex. Nulla condimentum tempus ultrices. Donec sed sagittis dolor. Duis a lectus eu justo scelerisque vestibulum.")
+      .field("mainFeature", "Product A main feature")
+      .field("advantage", "Product A advantage")
+      .attach("photos", photosPath);
+
+    const productId = createResponse.body.data.id;
+
+    const response = await supertest(app).delete(`/api/v1/admins/products/asparagus`).set("Authorization", `Bearer ${loginResponse.body.data.token}`);
+
+    expect(response.status).toBe(400);
+    expect(response.body.message).toContain("ValidationError:");
+  });
+});
+
+afterAll(async () => {
+  await prisma.product.deleteMany();
+  await prisma.adminPermission.deleteMany();
+  await prisma.application.deleteMany();
+  await prisma.career.deleteMany();
+  await prisma.admin.deleteMany();
+
+  const deletePath = "public/products";
+
+  fs.rmSync(deletePath, { recursive: true, force: true });
+});

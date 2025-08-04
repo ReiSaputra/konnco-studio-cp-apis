@@ -684,6 +684,13 @@ const deleteAdminCareerApplicationDetailService = async (role, permissions, care
 
       if (!findApplicationData) throw new Error("Application not found");
 
+      if (findApplicationData.file) {
+        const oldFilePath = path.join(__dirname, "../../assets/files/cv", findApplicationData.file);
+        if (fs.existsSync(oldFilePath)) {
+          fs.unlinkSync(oldFilePath);
+        }
+      }
+
       deleteData = await prisma.application.delete({
         where: {
           id: applicationId,
@@ -762,6 +769,33 @@ const editAdminProductDetailService = async (role, permissions, productId, title
 
   if (role === "ADMIN" || role === "SUPER_ADMIN") {
     if (permissions.canUpdateProduct) {
+      const oldProduct = await prisma.product.findUnique({
+        where: { id: parseInt(productId) },
+      });
+
+      if (!oldProduct) throw new Error("Product not found");
+
+      if (oldProduct.mainPhoto && oldProduct.mainPhoto !== mainPhoto) {
+        const oldPhotoPath = path.join(__dirname, "../../public/products", oldProduct.mainPhoto);
+        if (fs.existsSync(oldPhotoPath)) {
+          fs.unlinkSync(oldPhotoPath);
+        }
+      }
+
+      if (oldProduct.secondPhoto && oldProduct.secondPhoto !== secondPhoto) {
+        const oldPhotoPath = path.join(__dirname, "../../public/products", oldProduct.mainPhoto);
+        if (fs.existsSync(oldPhotoPath)) {
+          fs.unlinkSync(oldPhotoPath);
+        }
+      }
+
+      if (oldProduct.thirdPhoto && oldProduct.thirdPhoto !== thirdPhoto) {
+        const oldPhotoPath = path.join(__dirname, "../../public/products", oldProduct.mainPhoto);
+        if (fs.existsSync(oldPhotoPath)) {
+          fs.unlinkSync(oldPhotoPath);
+        }
+      }
+
       editProductData = await prisma.product.update({
         where: {
           id: parseInt(productId),
@@ -824,6 +858,27 @@ const deleteAdminProductDetailService = async (role, permissions, productId) => 
       });
 
       if (!findProductData) throw new Error("Product not found");
+
+      if (findProductData.mainPhoto) {
+        const photoPath = path.join(__dirname, "../../public/products", findProductData.mainPhoto);
+        if (fs.existsSync(photoPath)) {
+          fs.unlinkSync(photoPath);
+        }
+      }
+
+      if (findProductData.secondPhoto) {
+        const photoPath = path.join(__dirname, "../../public/products", findProductData.secondPhoto);
+        if (fs.existsSync(photoPath)) {
+          fs.unlinkSync(photoPath);
+        }
+      }
+
+      if (findProductData.thirdPhoto) {
+        const photoPath = path.join(__dirname, "../../public/products", findProductData.thirdPhoto);
+        if (fs.existsSync(photoPath)) {
+          fs.unlinkSync(photoPath);
+        }
+      }
 
       deleteProductData = await prisma.product.delete({
         where: {
