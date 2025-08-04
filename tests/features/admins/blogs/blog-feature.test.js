@@ -155,6 +155,8 @@ describe("when admin want to get blogs data in route GET /api/v1/admins/blogs", 
     expect(responseLogin.status).toBe(200);
 
     const response = await supertest(app).get("/api/v1/admins/blogs").set("Authorization", `Basic ${responseLogin.body.data.token}`);
+    const response2 = await supertest(app).get("/api/v1/admins/blogs?page=2").set("Authorization", `Basic ${responseLogin.body.data.token}`);
+    const response3 = await supertest(app).get("/api/v1/admins/blogs?page=3").set("Authorization", `Basic ${responseLogin.body.data.token}`);
 
     expect(response.status).toBe(200);
     expect(response.body.message).toBe("Successfully get admin blogs");
@@ -224,6 +226,8 @@ describe("when admin want to get blogs data in route GET /api/v1/admins/blogs", 
     expect(responseLogin.status).toBe(200);
 
     const response = await supertest(app).get("/api/v1/admins/blogs?search=queb").set("Authorization", `Basic ${responseLogin.body.data.token}`);
+
+    console.info(response.body);
 
     expect(response.status).toBe(200);
     expect(response.body.message).toBe("Successfully get admin blogs");

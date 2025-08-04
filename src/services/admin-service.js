@@ -66,7 +66,14 @@ const dashboardAdminService = async (id, role, permissions) => {
       },
     });
 
-    countApplicationData = await prisma.application.count();
+    countApplicationData = await prisma.application.count({
+      where: {
+        career: {
+          authorId: id,
+        },
+      },
+    });
+
     if (permissions.canShowBlog) {
       findBlogDatas = await prisma.blog.findMany({
         where: {
@@ -121,6 +128,8 @@ const dashboardAdminService = async (id, role, permissions) => {
         },
       });
     }
+  } else {
+    
   }
 
   return {
@@ -134,6 +143,7 @@ const dashboardAdminService = async (id, role, permissions) => {
 
 const getAdminBlogService = async (id, role, permissions, page, search, category, status) => {
   let findBlogDatas = null;
+  let countData = null;
 
   const offset = (page - 1) * 10;
 
@@ -174,12 +184,68 @@ const getAdminBlogService = async (id, role, permissions, page, search, category
           createdAt: "desc",
         },
       });
+
+      countData = await prisma.blog.count({
+        where,
+      });
+    } else {
+      throw new Error("You don't have permission to show blog");
+    }
+  } else if (role === "SUPER_ADMIN") {
+    if (permissions.canShowBlog) {
+      const where = {};
+
+      if (search) {
+        where.title = {
+          contains: search,
+        };
+      }
+
+      if (category) {
+        where.type = category.toUpperCase();
+      }
+
+      if (status === "visible") {
+        where.isVisible = true;
+      } else if (status === "not-visible") {
+        where.isVisible = false;
+      }
+
+      findBlogDatas = await prisma.blog.findMany({
+        where,
+        skip: offset,
+        take: 10,
+        select: {
+          title: true,
+          content: true,
+          slug: true,
+          type: true,
+          createdAt: true,
+        },
+        orderBy: {
+          createdAt: "desc",
+        },
+      });
+
+      countData = await prisma.blog.count({
+        where,
+      });
+    } else {
+      throw new Error("You don't have permission to show blog");
     }
   } else {
     throw new Error("You don't have permission to show blog");
   }
 
-  return findBlogDatas;
+  return {
+    data: findBlogDatas,
+    pagination: {
+      totalData: countData,
+      currentPage: page,
+      perPage: 10,
+      totalPage: Math.ceil(countData / 10),
+    },
+  };
 };
 
 const getAdminBlogDetailService = async (role, permissions, blogSlug) => {
@@ -538,6 +604,7 @@ const deleteAdminCareerDetailService = async (role, permissions, careerId) => {
 
 const getAdminCareerApplicationService = async (id, role, permissions, page, search, startDate, endDate) => {
   let findCareerApplicationDatas;
+  let countData;
 
   const offset = (page - 1) * 10;
 
@@ -577,6 +644,8 @@ const getAdminCareerApplicationService = async (id, role, permissions, page, sea
           createdAt: "desc",
         },
       });
+
+      countData = await prisma.application.count({ where });
     } else {
       throw new Error("You don't have permission to show admin career applications");
     }
@@ -605,6 +674,8 @@ const getAdminCareerApplicationService = async (id, role, permissions, page, sea
           },
         },
       });
+
+      countData = await prisma.career.count({ where });
     } else {
       throw new Error("You don't have permission to show admin career applications");
     }
@@ -612,7 +683,15 @@ const getAdminCareerApplicationService = async (id, role, permissions, page, sea
     throw new Error("You don't have permission to show admin career applications");
   }
 
-  return findCareerApplicationDatas;
+  return {
+    findCareerApplicationDatas,
+    pagination: {
+      totalData: countData,
+      currentPage: page,
+      perPage: 10,
+      totalPage: Math.ceil(countData / 10),
+    },
+  };
 };
 
 const getAdminCareerApplicationDetailService = async (role, permissions, careerId, applicationId) => {

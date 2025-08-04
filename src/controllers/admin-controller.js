@@ -81,6 +81,9 @@ const dashboardAdminController = async (req, res, next) => {
 
           canShowAdmin: permissions.canShowAdmin,
           canViewAdmin: permissions.canViewAdmin,
+          canCreateAdmin: permissions.canCreateAdmin,
+          canUpdateAdmin: permissions.canUpdateAdmin,
+          canDeleteAdmin: permissions.canDeleteAdmin,
 
           canShowApplication: permissions.canShowApplication,
           canViewApplication: permissions.canViewApplication,
@@ -103,11 +106,12 @@ const getAdminBlogController = async (req, res, next) => {
 
     validate(getAdminBlogSchema, { page, search, category, status });
 
-    const data = await getAdminBlogService(id, role, permissions, parseInt(page) || 1, search, category, status);
+    const { data, pagination } = await getAdminBlogService(id, role, permissions, parseInt(page) || 1, search, category, status);
 
     return res.status(200).json({
       message: "Successfully get admin blogs",
-      data: data,
+      data,
+      pagination,
       user: {
         id,
         name,
@@ -419,11 +423,12 @@ const getAdminCareerApplicationController = async (req, res, next) => {
 
     validate(getCareerApplicationSchema, { page, search, startDate, endDate });
 
-    const data = await getAdminCareerApplicationService(id, role, permissions, page || 1, search, startDate, endDate);
+    const { findCareerApplicationDatas, pagination } = await getAdminCareerApplicationService(id, role, permissions, page || 1, search, startDate, endDate);
 
     return res.status(200).json({
       message: "Successfully get admin career applications",
-      data: data,
+      data: findCareerApplicationDatas,
+      pagination,
       user: {
         id,
         name,
