@@ -26,6 +26,8 @@ import {
   getAdminInquiryService,
   getAdminInquiryDetailService,
   deleteAdminInquiryDetailService,
+  editAdminProductDetailService,
+  deleteAdminProductDetailService,
 } from "../services/admin-service.js";
 
 /**
@@ -550,6 +552,36 @@ const getAdminProductDetailController = async (req, res, next) => {
 
 const editAdminProductDetailController = async (req, res, next) => {
   try {
+    const { id, name, role, permissions } = req.user;
+
+    const { productId } = req.params;
+
+    const { title, description, mainFeature, advantage } = req.body;
+    const [mainPhoto, secondPhoto, thirdPhoto] = req.files;
+
+    if (!title) throw new PropertyError("Title is required");
+    if (!description) throw new PropertyError("Description is required");
+    if (!mainFeature) throw new PropertyError("Main Feature is required");
+    if (!advantage) throw new PropertyError("Advantage is required");
+    if (!mainPhoto) throw new FileUploadError("Either Main Photo is required or File Mime Type is not JPG/JPEG");
+
+    validate(productIdSchema, productId);
+    validate(productSchema, { title, description, mainFeature, advantage, mainPhoto: mainPhoto.filename });
+
+    const data = await editAdminProductDetailService(role, permissions, productId, title, description, mainFeature, advantage, mainPhoto?.filename, secondPhoto?.filename, thirdPhoto?.filename);
+
+    return res.status(200).json({
+      message: "Successfully edit admin product detail",
+      data: data,
+      user: {
+        id,
+        name,
+        role,
+        permissions: {
+          canUpdateProduct: permissions.canUpdateProduct,
+        },
+      },
+    });
   } catch (error) {
     next(error);
   }
@@ -591,6 +623,25 @@ const createAdminProductController = async (req, res, next) => {
 
 const deleteAdminProductDetailController = async (req, res, next) => {
   try {
+    const { id, name, role, permissions } = req.user;
+    const { productId } = req.params;
+
+    validate(productIdSchema, productId);
+
+    const data = await deleteAdminProductDetailService(role, permissions, productId);
+
+    return res.status(200).json({
+      message: "Successfully delete admin product detail",
+      data: data,
+      user: {
+        id,
+        name,
+        role,
+        permissions: {
+          canDeleteProduct: permissions.canDeleteProduct,
+        },
+      },
+    });
   } catch (error) {
     next(error);
   }

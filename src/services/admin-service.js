@@ -757,7 +757,34 @@ const getAdminProductDetailService = async (role, permissions, productId) => {
   return findProductData;
 };
 
-const editAdminProductDetailService = async () => {};
+const editAdminProductDetailService = async (role, permissions, productId, title, description, mainFeature, advantage, mainPhoto, secondPhoto, thirdPhoto) => {
+  let editProductData = null;
+
+  if (role === "ADMIN" || role === "SUPER_ADMIN") {
+    if (permissions.canUpdateProduct) {
+      editProductData = await prisma.product.update({
+        where: {
+          id: parseInt(productId),
+        },
+        data: {
+          title: title,
+          description: description,
+          mainFeature: mainFeature,
+          advantage: advantage,
+          mainPhoto: mainPhoto,
+          secondPhoto: secondPhoto,
+          thirdPhoto: thirdPhoto,
+        },
+      });
+    } else {
+      throw new Error("You don't have permission to edit admin products");
+    }
+  } else {
+    throw new Error("You don't have permission to edit admin products");
+  }
+
+  return editProductData;
+};
 
 const createAdminProductService = async (role, permissions, title, description, mainFeature, advantage, mainPhoto, secondPhoto, thirdPhoto) => {
   let createProductData = null;
@@ -785,8 +812,32 @@ const createAdminProductService = async (role, permissions, title, description, 
   return createProductData;
 };
 
-const deleteAdminProductDetailService = async () => {
+const deleteAdminProductDetailService = async (role, permissions, productId) => {
   let deleteProductData = null;
+
+  if (role === "ADMIN" || role === "SUPER_ADMIN") {
+    if (permissions.canDeleteProduct) {
+      const findProductData = await prisma.product.findUnique({
+        where: {
+          id: parseInt(productId),
+        },
+      });
+
+      if (!findProductData) throw new Error("Product not found");
+
+      deleteProductData = await prisma.product.delete({
+        where: {
+          id: parseInt(productId),
+        },
+      });
+    } else {
+      throw new Error("You don't have permission to delete admin products");
+    }
+  } else {
+    throw new Error("You don't have permission to delete admin products");
+  }
+
+  return deleteProductData;
 };
 
 /**
