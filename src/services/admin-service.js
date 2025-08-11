@@ -69,7 +69,14 @@ const dashboardAdminService = async (id, role, permissions) => {
       },
     });
 
-    countApplicationData = await prisma.application.count();
+    countApplicationData = await prisma.application.count({
+      where: {
+        career: {
+          authorId: id,
+        },
+      },
+    });
+
     if (permissions.canShowBlog) {
       findBlogDatas = await prisma.blog.findMany({
         where: {
@@ -124,6 +131,8 @@ const dashboardAdminService = async (id, role, permissions) => {
         },
       });
     }
+  } else {
+    
   }
 
   return {
@@ -145,6 +154,7 @@ const getAdminBlogService = async (
   status
 ) => {
   let findBlogDatas = null;
+  let countData = null;
 
   const offset = (page - 1) * 10;
 
@@ -185,12 +195,68 @@ const getAdminBlogService = async (
           createdAt: "desc",
         },
       });
+
+      countData = await prisma.blog.count({
+        where,
+      });
+    } else {
+      throw new Error("You don't have permission to show blog");
+    }
+  } else if (role === "SUPER_ADMIN") {
+    if (permissions.canShowBlog) {
+      const where = {};
+
+      if (search) {
+        where.title = {
+          contains: search,
+        };
+      }
+
+      if (category) {
+        where.type = category.toUpperCase();
+      }
+
+      if (status === "visible") {
+        where.isVisible = true;
+      } else if (status === "not-visible") {
+        where.isVisible = false;
+      }
+
+      findBlogDatas = await prisma.blog.findMany({
+        where,
+        skip: offset,
+        take: 10,
+        select: {
+          title: true,
+          content: true,
+          slug: true,
+          type: true,
+          createdAt: true,
+        },
+        orderBy: {
+          createdAt: "desc",
+        },
+      });
+
+      countData = await prisma.blog.count({
+        where,
+      });
+    } else {
+      throw new Error("You don't have permission to show blog");
     }
   } else {
     throw new Error("You don't have permission to show blog");
   }
 
-  return findBlogDatas;
+  return {
+    data: findBlogDatas,
+    pagination: {
+      totalData: countData,
+      currentPage: page,
+      perPage: 10,
+      totalPage: Math.ceil(countData / 10),
+    },
+  };
 };
 
 const getAdminBlogDetailService = async (role, permissions, blogSlug) => {
@@ -609,6 +675,7 @@ const getAdminCareerApplicationService = async (
   endDate
 ) => {
   let findCareerApplicationDatas;
+  let countData;
 
   const offset = (page - 1) * 10;
 
@@ -621,6 +688,7 @@ const getAdminCareerApplicationService = async (
       };
 
       if (search) where.applicantName = { contains: search };
+
       if (startDate && endDate) {
         const parsedStartDate = new Date(startDate);
         const parsedEndDate = new Date(endDate);
@@ -650,6 +718,8 @@ const getAdminCareerApplicationService = async (
           createdAt: "desc",
         },
       });
+
+      countData = await prisma.application.count({ where });
     } else {
       throw new Error(
         "You don't have permission to show admin career applications"
@@ -682,6 +752,8 @@ const getAdminCareerApplicationService = async (
           },
         },
       });
+
+      countData = await prisma.career.count({ where });
     } else {
       throw new Error(
         "You don't have permission to show admin career applications"
@@ -693,7 +765,15 @@ const getAdminCareerApplicationService = async (
     );
   }
 
-  return findCareerApplicationDatas;
+  return {
+    findCareerApplicationDatas,
+    pagination: {
+      totalData: countData,
+      currentPage: page,
+      perPage: 10,
+      totalPage: Math.ceil(countData / 10),
+    },
+  };
 };
 
 const getAdminCareerApplicationDetailService = async (
@@ -717,7 +797,6 @@ const getAdminCareerApplicationDetailService = async (
       findCareerApplicationData = await prisma.application.findUnique({
         where: {
           id: applicationId,
-          careerId: parseInt(careerId),
         },
         select: {
           id: true,
@@ -740,6 +819,8 @@ const getAdminCareerApplicationDetailService = async (
           },
         },
       });
+
+      if (!findCareerApplicationData) throw new Error("Application not found");
     } else {
       throw new Error(
         "You don't have permission to view admin career applications"
@@ -779,6 +860,13 @@ const deleteAdminCareerApplicationDetailService = async (
       });
 
       if (!findApplicationData) throw new Error("Application not found");
+
+      if (findApplicationData.file) {
+        const oldFilePath = path.join(__dirname, "../../assets/files/cv", findApplicationData.file);
+        if (fs.existsSync(oldFilePath)) {
+          fs.unlinkSync(oldFilePath);
+        }
+      }
 
       deleteData = await prisma.application.delete({
         where: {
@@ -845,6 +933,8 @@ const getAdminProductDetailService = async (role, permissions, productId) => {
           thirdPhoto: true,
         },
       });
+
+      if (!findProductData) throw new Error("Product not found");
     } else {
       throw new Error("You don't have permission to view admin products");
     }
@@ -855,7 +945,61 @@ const getAdminProductDetailService = async (role, permissions, productId) => {
   return findProductData;
 };
 
-const editAdminProductDetailService = async () => {};
+const editAdminProductDetailService = async (role, permissions, productId, title, description, mainFeature, advantage, mainPhoto, secondPhoto, thirdPhoto) => {
+  let editProductData = null;
+
+  if (role === "ADMIN" || role === "SUPER_ADMIN") {
+    if (permissions.canUpdateProduct) {
+      const oldProduct = await prisma.product.findUnique({
+        where: { id: parseInt(productId) },
+      });
+
+      if (!oldProduct) throw new Error("Product not found");
+
+      if (oldProduct.mainPhoto && oldProduct.mainPhoto !== mainPhoto) {
+        const oldPhotoPath = path.join(__dirname, "../../public/products", oldProduct.mainPhoto);
+        if (fs.existsSync(oldPhotoPath)) {
+          fs.unlinkSync(oldPhotoPath);
+        }
+      }
+
+      if (oldProduct.secondPhoto && oldProduct.secondPhoto !== secondPhoto) {
+        const oldPhotoPath = path.join(__dirname, "../../public/products", oldProduct.mainPhoto);
+        if (fs.existsSync(oldPhotoPath)) {
+          fs.unlinkSync(oldPhotoPath);
+        }
+      }
+
+      if (oldProduct.thirdPhoto && oldProduct.thirdPhoto !== thirdPhoto) {
+        const oldPhotoPath = path.join(__dirname, "../../public/products", oldProduct.mainPhoto);
+        if (fs.existsSync(oldPhotoPath)) {
+          fs.unlinkSync(oldPhotoPath);
+        }
+      }
+
+      editProductData = await prisma.product.update({
+        where: {
+          id: parseInt(productId),
+        },
+        data: {
+          title: title,
+          description: description,
+          mainFeature: mainFeature,
+          advantage: advantage,
+          mainPhoto: mainPhoto,
+          secondPhoto: secondPhoto,
+          thirdPhoto: thirdPhoto,
+        },
+      });
+    } else {
+      throw new Error("You don't have permission to edit admin products");
+    }
+  } else {
+    throw new Error("You don't have permission to edit admin products");
+  }
+
+  return editProductData;
+};
 
 const createAdminProductService = async (
   role,
@@ -893,13 +1037,171 @@ const createAdminProductService = async (
   return createProductData;
 };
 
-const deleteAdminProductDetailService = async () => {
+const deleteAdminProductDetailService = async (role, permissions, productId) => {
   let deleteProductData = null;
+
+  if (role === "ADMIN" || role === "SUPER_ADMIN") {
+    if (permissions.canDeleteProduct) {
+      const findProductData = await prisma.product.findUnique({
+        where: {
+          id: parseInt(productId),
+        },
+      });
+
+      if (!findProductData) throw new Error("Product not found");
+
+      if (findProductData.mainPhoto) {
+        const photoPath = path.join(__dirname, "../../public/products", findProductData.mainPhoto);
+        if (fs.existsSync(photoPath)) {
+          fs.unlinkSync(photoPath);
+        }
+      }
+
+      if (findProductData.secondPhoto) {
+        const photoPath = path.join(__dirname, "../../public/products", findProductData.secondPhoto);
+        if (fs.existsSync(photoPath)) {
+          fs.unlinkSync(photoPath);
+        }
+      }
+
+      if (findProductData.thirdPhoto) {
+        const photoPath = path.join(__dirname, "../../public/products", findProductData.thirdPhoto);
+        if (fs.existsSync(photoPath)) {
+          fs.unlinkSync(photoPath);
+        }
+      }
+
+      deleteProductData = await prisma.product.delete({
+        where: {
+          id: parseInt(productId),
+        },
+      });
+    } else {
+      throw new Error("You don't have permission to delete admin products");
+    }
+  } else {
+    throw new Error("You don't have permission to delete admin products");
+  }
+
+  return deleteProductData;
 };
 
 /**
  * Inquiries
  */
+
+const getAdminInquiryService = async (role, permissions, page, search, startDate, endDate) => {
+  let findInquiryDatas = null;
+  let findInquiryTotalCountDatas = null;
+
+  const offset = (page - 1) * 10;
+
+  if (role === "ADMIN" || role === "SUPER_ADMIN") {
+    if (permissions.canShowInquiry) {
+      const where = {};
+
+      if (search) where.senderName = { contains: search };
+
+      if (startDate && endDate) {
+        const parsedStartDate = new Date(startDate);
+        const parsedEndDate = new Date(endDate);
+
+        parsedEndDate.setUTCHours(23, 59, 59, 999);
+
+        where.createdAt = { gte: parsedStartDate, lte: parsedEndDate };
+      }
+
+      findInquiryDatas = await prisma.inquiry.findMany({
+        where,
+        skip: offset,
+        take: 10,
+        select: {
+          id: true,
+          senderName: true,
+          subject: true,
+          createdAt: true,
+        },
+        orderBy: {
+          createdAt: "desc",
+        },
+      });
+
+      findInquiryTotalCountDatas = await prisma.inquiry.count({
+        where,
+      });
+    } else {
+      throw new Error("You don't have permission to show admin inquiries");
+    }
+  } else {
+    throw new Error("You don't have permission to show admin inquiries");
+  }
+
+  return {
+    data: findInquiryDatas,
+    pagination: {
+      totalData: findInquiryTotalCountDatas,
+      currentPage: page,
+      perPage: 10,
+      totalPage: Math.ceil(findInquiryTotalCountDatas / 10),
+    },
+  };
+};
+
+const getAdminInquiryDetailService = async (role, permissions, inquiryId) => {
+  let findInquiryData = null;
+
+  if (role === "ADMIN" || role === "SUPER_ADMIN") {
+    if (permissions.canViewInquiry) {
+      findInquiryData = await prisma.inquiry.findUnique({
+        where: {
+          id: inquiryId,
+        },
+        select: {
+          senderName: true,
+          subject: true,
+          email: true,
+          message: true,
+        },
+      });
+
+      if (!findInquiryData) throw new Error("Inquiry not found");
+    } else {
+      throw new Error("You don't have permission to view admin inquiries");
+    }
+  } else {
+    throw new Error("You don't have permission to view admin inquiries");
+  }
+
+  return findInquiryData;
+};
+
+const deleteAdminInquiryDetailService = async (role, permissions, inquiryId) => {
+  let deleteInquiryData = null;
+
+  if (role === "ADMIN" || role === "SUPER_ADMIN") {
+    if (permissions.canDeleteInquiry) {
+      const findInquiryData = await prisma.inquiry.findUnique({
+        where: {
+          id: inquiryId,
+        },
+      });
+
+      if (!findInquiryData) throw new Error("Inquiry not found");
+
+      deleteInquiryData = await prisma.inquiry.delete({
+        where: {
+          id: inquiryId,
+        },
+      });
+    } else {
+      throw new Error("You don't have permission to delete admin inquiries");
+    }
+  } else {
+    throw new Error("You don't have permission to delete admin inquiries");
+  }
+
+  return deleteInquiryData;
+};
 
 export {
   loginAdminService,
@@ -922,4 +1224,7 @@ export {
   editAdminProductDetailService,
   createAdminProductService,
   deleteAdminProductDetailService,
+  getAdminInquiryService,
+  getAdminInquiryDetailService,
+  deleteAdminInquiryDetailService,
 };

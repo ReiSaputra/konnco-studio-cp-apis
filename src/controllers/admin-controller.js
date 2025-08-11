@@ -1,6 +1,6 @@
 import { FileUploadError } from "../helpers/class/file-upload-error.js";
 import { PropertyError } from "../helpers/class/property-error.js";
-import { authSchema, blogSchema, blogSlugSchema, careerSchema, getAdminBlogSchema, getCareerApplicationSchema, productSchema } from "../helpers/validations/admin-validation.js";
+import { authSchema, blogSchema, blogSlugSchema, careerSchema, getAdminBlogSchema, getCareerApplicationSchema, getInquirySchema, inquiryIdSchema, productSchema } from "../helpers/validations/admin-validation.js";
 import { careerIdSchema, applicationIdSchema } from "../helpers/validations/admin-validation.js";
 import { productIdSchema } from "../helpers/validations/product-validation.js";
 import { validate } from "../helpers/validations/validate.js";
@@ -23,6 +23,11 @@ import {
   getAdminProductService,
   getAdminProductDetailService,
   createAdminProductService,
+  getAdminInquiryService,
+  getAdminInquiryDetailService,
+  deleteAdminInquiryDetailService,
+  editAdminProductDetailService,
+  deleteAdminProductDetailService,
 } from "../services/admin-service.js";
 
 /**
@@ -76,6 +81,9 @@ const dashboardAdminController = async (req, res, next) => {
 
           canShowAdmin: permissions.canShowAdmin,
           canViewAdmin: permissions.canViewAdmin,
+          canCreateAdmin: permissions.canCreateAdmin,
+          canUpdateAdmin: permissions.canUpdateAdmin,
+          canDeleteAdmin: permissions.canDeleteAdmin,
 
           canShowApplication: permissions.canShowApplication,
           canViewApplication: permissions.canViewApplication,
@@ -98,19 +106,12 @@ const getAdminBlogController = async (req, res, next) => {
 
     validate(getAdminBlogSchema, { page, search, category, status });
 
-    const data = await getAdminBlogService(
-      id,
-      role,
-      permissions,
-      parseInt(page) || 1,
-      search,
-      category,
-      status
-    );
+    const { data, pagination } = await getAdminBlogService(id, role, permissions, parseInt(page) || 1, search, category, status);
 
     return res.status(200).json({
       message: "Successfully get admin blogs",
-      data: data,
+      data,
+      pagination,
       user: {
         id,
         name,
@@ -523,19 +524,12 @@ const getAdminCareerApplicationController = async (req, res, next) => {
 
     validate(getCareerApplicationSchema, { page, search, startDate, endDate });
 
-    const data = await getAdminCareerApplicationService(
-      id,
-      role,
-      permissions,
-      page || 1,
-      search,
-      startDate,
-      endDate
-    );
+    const { findCareerApplicationDatas, pagination } = await getAdminCareerApplicationService(id, role, permissions, page || 1, search, startDate, endDate);
 
     return res.status(200).json({
       message: "Successfully get admin career applications",
-      data: data,
+      data: findCareerApplicationDatas,
+      pagination,
       user: {
         id,
         name,
@@ -674,6 +668,36 @@ const getAdminProductDetailController = async (req, res, next) => {
 
 const editAdminProductDetailController = async (req, res, next) => {
   try {
+    const { id, name, role, permissions } = req.user;
+
+    const { productId } = req.params;
+
+    const { title, description, mainFeature, advantage } = req.body;
+    const [mainPhoto, secondPhoto, thirdPhoto] = req.files;
+
+    if (!title) throw new PropertyError("Title is required");
+    if (!description) throw new PropertyError("Description is required");
+    if (!mainFeature) throw new PropertyError("Main Feature is required");
+    if (!advantage) throw new PropertyError("Advantage is required");
+    if (!mainPhoto) throw new FileUploadError("Either Main Photo is required or File Mime Type is not JPG/JPEG");
+
+    validate(productIdSchema, productId);
+    validate(productSchema, { title, description, mainFeature, advantage, mainPhoto: mainPhoto.filename });
+
+    const data = await editAdminProductDetailService(role, permissions, productId, title, description, mainFeature, advantage, mainPhoto?.filename, secondPhoto?.filename, thirdPhoto?.filename);
+
+    return res.status(200).json({
+      message: "Successfully edit admin product detail",
+      data: data,
+      user: {
+        id,
+        name,
+        role,
+        permissions: {
+          canUpdateProduct: permissions.canUpdateProduct,
+        },
+      },
+    });
   } catch (error) {
     next(error);
   }
@@ -690,9 +714,9 @@ const createAdminProductController = async (req, res, next) => {
     if (!description) throw new PropertyError("Description is required");
     if (!mainFeature) throw new PropertyError("Main Feature is required");
     if (!advantage) throw new PropertyError("Advantage is required");
-    if (!mainPhoto) throw new PropertyError("Image is required");
+    if (!mainPhoto) throw new FileUploadError("Either Main Photo is required or File Mime Type is not JPG/JPEG");
 
-    validate(productSchema, { title, description, mainFeature, advantage, mainPhoto: mainPhoto.filename, secondPhoto: secondPhoto ? secondPhoto.filename : null, thirdPhoto: thirdPhoto ? thirdPhoto.filename : null });
+    validate(productSchema, { title, description, mainFeature, advantage, mainPhoto: mainPhoto.filename });
 
     const data = await createAdminProductService(role, permissions, title, description, mainFeature, advantage, mainPhoto?.filename, secondPhoto?.filename, thirdPhoto?.filename);
 
@@ -715,6 +739,25 @@ const createAdminProductController = async (req, res, next) => {
 
 const deleteAdminProductDetailController = async (req, res, next) => {
   try {
+    const { id, name, role, permissions } = req.user;
+    const { productId } = req.params;
+
+    validate(productIdSchema, productId);
+
+    const data = await deleteAdminProductDetailService(role, permissions, productId);
+
+    return res.status(200).json({
+      message: "Successfully delete admin product detail",
+      data: data,
+      user: {
+        id,
+        name,
+        role,
+        permissions: {
+          canDeleteProduct: permissions.canDeleteProduct,
+        },
+      },
+    });
   } catch (error) {
     next(error);
   }
@@ -726,6 +769,27 @@ const deleteAdminProductDetailController = async (req, res, next) => {
 
 const getAdminInquiryController = async (req, res, next) => {
   try {
+    const { id, name, role, permissions } = req.user;
+    const { page, search, startDate, endDate } = req.query;
+
+    validate(getInquirySchema, { page, search, startDate, endDate });
+
+    const { data, pagination } = await getAdminInquiryService(role, permissions, page || 1, search, startDate, endDate);
+    return res.status(200).json({
+      message: "Successfully get admin inquiries",
+      data,
+      pagination,
+      user: {
+        id,
+        name,
+        role,
+        permissions: {
+          canShowInquiry: permissions.canShowInquiry,
+          canViewInquiry: permissions.canViewInquiry,
+          canDeleteInquiry: permissions.canDeleteInquiry,
+        },
+      },
+    });
   } catch (error) {
     next(error);
   }
@@ -733,6 +797,25 @@ const getAdminInquiryController = async (req, res, next) => {
 
 const getAdminInquiryDetailController = async (req, res, next) => {
   try {
+    const { id, name, role, permissions } = req.user;
+    const { inquiryId } = req.params;
+
+    validate(inquiryIdSchema, inquiryId);
+
+    const data = await getAdminInquiryDetailService(role, permissions, inquiryId);
+
+    return res.status(200).json({
+      message: "Successfully get admin inquiry detail",
+      data: data,
+      user: {
+        id,
+        name,
+        role,
+        permissions: {
+          canViewInquiry: permissions.canViewInquiry,
+        },
+      },
+    });
   } catch (error) {
     next(error);
   }
@@ -740,6 +823,25 @@ const getAdminInquiryDetailController = async (req, res, next) => {
 
 const deleteAdminInquiryDetailController = async (req, res, next) => {
   try {
+    const { id, name, role, permissions } = req.user;
+    const { inquiryId } = req.params;
+
+    validate(inquiryIdSchema, inquiryId);
+
+    const data = await deleteAdminInquiryDetailService(role, permissions, inquiryId);
+
+    return res.status(200).json({
+      message: "Successfully delete admin inquiry detail",
+      data: data,
+      user: {
+        id,
+        name,
+        role,
+        permissions: {
+          canDeleteInquiry: permissions.canDeleteInquiry,
+        },
+      },
+    });
   } catch (error) {
     next(error);
   }

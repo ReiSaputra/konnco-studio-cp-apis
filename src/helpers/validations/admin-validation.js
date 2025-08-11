@@ -61,12 +61,19 @@ const productSchema = joi
   .object({
     title: joi.string().max(255).required(),
     description: joi.string().min(100).required(),
-    mainFeature: joi.array().items(joi.string()).min(1).required(),
-    advantage: joi.array().items(joi.string()).min(1).required(),
+    mainFeature: joi.string().required(),
+    advantage: joi.string().required(),
     mainPhoto: joi.string().required(),
-    secondPhoto: joi.string().optional(),
-    thirdPhoto: joi.string().optional(),
   })
   .required();
 
-export { authSchema, getAdminBlogSchema, blogSlugSchema, blogSchema, careerSchema, careerIdSchema, getCareerApplicationSchema, applicationIdSchema, productSchema };
+const inquiryIdSchema = joi.string().required();
+
+const getInquirySchema = joi.object({
+  page: joi.number().integer().min(1).default(1),
+  search: joi.string().allow("").max(255).optional(),
+  startDate: joi.date().optional(),
+  endDate: joi.date().optional(),
+});
+
+export { authSchema, getAdminBlogSchema, blogSlugSchema, blogSchema, careerSchema, careerIdSchema, getCareerApplicationSchema, applicationIdSchema, productSchema, inquiryIdSchema, getInquirySchema };
