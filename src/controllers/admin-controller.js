@@ -481,7 +481,7 @@ const createAdminCareerController = async (req, res, next) => {
           canCreateCareer: permissions.canCreateCareer,
         },
       },
-    });
+    }); 
   } catch (error) {
     next(error);
   }
