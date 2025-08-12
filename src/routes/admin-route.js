@@ -85,8 +85,8 @@ adminRoute.delete("/admins/careers/:careerId", authMiddleware, deleteAdminCareer
 
 adminRoute.get("/admins/products", authMiddleware, getAdminProductController);
 adminRoute.get("/admins/products/:productId", authMiddleware, getAdminProductDetailController);
-adminRoute.put("/admins/products/:productId", authMiddleware, uploadProduct.array("photos", 3), editAdminProductDetailController);
-adminRoute.post("/admins/products", authMiddleware, uploadProduct.array("photos", 3), createAdminProductController);
+adminRoute.post("/admins/products", authMiddleware, uploadProduct.fields([{ name: "mainPhoto", maxCount: 1 }, { name: "secondPhoto", maxCount: 1 }, { name: "thirdPhoto", maxCount: 1 }]), createAdminProductController);
+adminRoute.put("/admins/products/:productId", authMiddleware, uploadProduct.fields([{ name: "mainPhoto", maxCount: 1 }, { name: "secondPhoto", maxCount: 1 }, { name: "thirdPhoto", maxCount: 1 }]), editAdminProductDetailController);
 adminRoute.delete("/admins/products/:productId", authMiddleware, deleteAdminProductDetailController);
 
 /**

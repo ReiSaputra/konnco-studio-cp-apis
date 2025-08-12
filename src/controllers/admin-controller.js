@@ -1,7 +1,21 @@
+import { prisma } from "../database.js";
 import { FileUploadError } from "../helpers/class/file-upload-error.js";
 import { PropertyError } from "../helpers/class/property-error.js";
-import { authSchema, blogSchema, blogSlugSchema, careerSchema, getAdminBlogSchema, getCareerApplicationSchema, getInquirySchema, inquiryIdSchema, productSchema } from "../helpers/validations/admin-validation.js";
-import { careerIdSchema, applicationIdSchema } from "../helpers/validations/admin-validation.js";
+import {
+  authSchema,
+  blogSchema,
+  blogSlugSchema,
+  careerSchema,
+  getAdminBlogSchema,
+  getCareerApplicationSchema,
+  getInquirySchema,
+  inquiryIdSchema,
+  productSchema,
+} from "../helpers/validations/admin-validation.js";
+import {
+  careerIdSchema,
+  applicationIdSchema,
+} from "../helpers/validations/admin-validation.js";
 import { productIdSchema } from "../helpers/validations/product-validation.js";
 import { validate } from "../helpers/validations/validate.js";
 import {
@@ -106,7 +120,15 @@ const getAdminBlogController = async (req, res, next) => {
 
     validate(getAdminBlogSchema, { page, search, category, status });
 
-    const { data, pagination } = await getAdminBlogService(id, role, permissions, parseInt(page) || 1, search, category, status);
+    const { data, pagination } = await getAdminBlogService(
+      id,
+      role,
+      permissions,
+      parseInt(page) || 1,
+      search,
+      category,
+      status
+    );
 
     return res.status(200).json({
       message: "Successfully get admin blogs",
@@ -163,6 +185,16 @@ const editAdminBlogDetailController = async (req, res, next) => {
     const photo = req.file;
     const { blogSlug } = req.params;
 
+    const existingBlog = await prisma.blog.findUnique({
+      where: {
+        slug: blogSlug,
+      },
+    });
+
+    if (!existingBlog) {
+      throw new NotFoundError("Blog not found");
+    }
+
     if (!title) throw new PropertyError("Title is required");
     if (!content) throw new PropertyError("Content is required");
     if (!type) throw new PropertyError("Type is required");
@@ -188,16 +220,18 @@ const editAdminBlogDetailController = async (req, res, next) => {
 
     validate(blogSlugSchema, blogSlug);
 
-    validate(blogSchema, {
-      title,
-      content,
-      photo: photoName || "",
-      type,
-      authorId,
-      slug,
-    });
 
-    const updatedBlog = await editAdminBlogDetailService(role, permissions, blogSlug, title, content, photoName, type, authorId, slug);
+    const updatedBlog = await editAdminBlogDetailService(
+      role,
+      permissions,
+      blogSlug,
+      title || existingBlog.title,
+      content || existingBlog.content,
+      photoName || existingBlog.photo,
+      type || existingBlog.type,
+      authorId || existingBlog.authorId,
+      slug || existingBlog.slug
+    );
 
     return res.status(200).json({
       message: "Successfully updated blog",
@@ -482,7 +516,7 @@ const createAdminCareerController = async (req, res, next) => {
           canCreateCareer: permissions.canCreateCareer,
         },
       },
-    }); 
+    });
   } catch (error) {
     next(error);
   }
@@ -524,7 +558,16 @@ const getAdminCareerApplicationController = async (req, res, next) => {
 
     validate(getCareerApplicationSchema, { page, search, startDate, endDate });
 
-    const { findCareerApplicationDatas, pagination } = await getAdminCareerApplicationService(id, role, permissions, page || 1, search, startDate, endDate);
+    const { findCareerApplicationDatas, pagination } =
+      await getAdminCareerApplicationService(
+        id,
+        role,
+        permissions,
+        page || 1,
+        search,
+        startDate,
+        endDate
+      );
 
     return res.status(200).json({
       message: "Successfully get admin career applications",
@@ -647,7 +690,11 @@ const getAdminProductDetailController = async (req, res, next) => {
 
     validate(productIdSchema, productId);
 
-    const data = await getAdminProductDetailService(role, permissions, productId);
+    const data = await getAdminProductDetailService(
+      role,
+      permissions,
+      productId
+    );
 
     return res.status(200).json({
       message: "Successfully get admin product detail",
@@ -679,12 +726,32 @@ const editAdminProductDetailController = async (req, res, next) => {
     if (!description) throw new PropertyError("Description is required");
     if (!mainFeature) throw new PropertyError("Main Feature is required");
     if (!advantage) throw new PropertyError("Advantage is required");
-    if (!mainPhoto) throw new FileUploadError("Either Main Photo is required or File Mime Type is not JPG/JPEG");
+    if (!mainPhoto)
+      throw new FileUploadError(
+        "Either Main Photo is required or File Mime Type is not JPG/JPEG"
+      );
 
     validate(productIdSchema, productId);
-    validate(productSchema, { title, description, mainFeature, advantage, mainPhoto: mainPhoto.filename });
+    validate(productSchema, {
+      title,
+      description,
+      mainFeature,
+      advantage,
+      mainPhoto: mainPhoto.filename,
+    });
 
-    const data = await editAdminProductDetailService(role, permissions, productId, title, description, mainFeature, advantage, mainPhoto?.filename, secondPhoto?.filename, thirdPhoto?.filename);
+    const data = await editAdminProductDetailService(
+      role,
+      permissions,
+      productId,
+      title,
+      description,
+      mainFeature,
+      advantage,
+      mainPhoto?.filename,
+      secondPhoto?.filename,
+      thirdPhoto?.filename
+    );
 
     return res.status(200).json({
       message: "Successfully edit admin product detail",
@@ -708,17 +775,38 @@ const createAdminProductController = async (req, res, next) => {
     const { id, name, role, permissions } = req.user;
 
     const { title, description, mainFeature, advantage } = req.body;
-    const [mainPhoto, secondPhoto, thirdPhoto] = req.files;
+    const mainPhoto = req.files.mainPhoto?.[0];
+    const secondPhoto = req.files.secondPhoto?.[0];
+    const thirdPhoto = req.files.thirdPhoto?.[0];
 
     if (!title) throw new PropertyError("Title is required");
     if (!description) throw new PropertyError("Description is required");
     if (!mainFeature) throw new PropertyError("Main Feature is required");
     if (!advantage) throw new PropertyError("Advantage is required");
-    if (!mainPhoto) throw new FileUploadError("Either Main Photo is required or File Mime Type is not JPG/JPEG");
+    if (!mainPhoto)
+      throw new FileUploadError(
+        "Either Main Photo is required or File Mime Type is not JPG/JPEG"
+      );
 
-    validate(productSchema, { title, description, mainFeature, advantage, mainPhoto: mainPhoto.filename });
+    validate(productSchema, {
+      title,
+      description,
+      mainFeature,
+      advantage,
+      mainPhoto: mainPhoto.filename,
+    });
 
-    const data = await createAdminProductService(role, permissions, title, description, mainFeature, advantage, mainPhoto?.filename, secondPhoto?.filename, thirdPhoto?.filename);
+    const data = await createAdminProductService(
+      role,
+      permissions,
+      title,
+      description,
+      mainFeature,
+      advantage,
+      mainPhoto?.filename,
+      secondPhoto?.filename,
+      thirdPhoto?.filename
+    );
 
     return res.status(200).json({
       message: "Successfully create admin product",
@@ -744,7 +832,11 @@ const deleteAdminProductDetailController = async (req, res, next) => {
 
     validate(productIdSchema, productId);
 
-    const data = await deleteAdminProductDetailService(role, permissions, productId);
+    const data = await deleteAdminProductDetailService(
+      role,
+      permissions,
+      productId
+    );
 
     return res.status(200).json({
       message: "Successfully delete admin product detail",
@@ -774,7 +866,14 @@ const getAdminInquiryController = async (req, res, next) => {
 
     validate(getInquirySchema, { page, search, startDate, endDate });
 
-    const { data, pagination } = await getAdminInquiryService(role, permissions, page || 1, search, startDate, endDate);
+    const { data, pagination } = await getAdminInquiryService(
+      role,
+      permissions,
+      page || 1,
+      search,
+      startDate,
+      endDate
+    );
     return res.status(200).json({
       message: "Successfully get admin inquiries",
       data,
@@ -802,7 +901,11 @@ const getAdminInquiryDetailController = async (req, res, next) => {
 
     validate(inquiryIdSchema, inquiryId);
 
-    const data = await getAdminInquiryDetailService(role, permissions, inquiryId);
+    const data = await getAdminInquiryDetailService(
+      role,
+      permissions,
+      inquiryId
+    );
 
     return res.status(200).json({
       message: "Successfully get admin inquiry detail",
@@ -828,7 +931,11 @@ const deleteAdminInquiryDetailController = async (req, res, next) => {
 
     validate(inquiryIdSchema, inquiryId);
 
-    const data = await deleteAdminInquiryDetailService(role, permissions, inquiryId);
+    const data = await deleteAdminInquiryDetailService(
+      role,
+      permissions,
+      inquiryId
+    );
 
     return res.status(200).json({
       message: "Successfully delete admin inquiry detail",

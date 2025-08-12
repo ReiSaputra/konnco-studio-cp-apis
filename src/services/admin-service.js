@@ -271,6 +271,7 @@ const getAdminBlogDetailService = async (role, permissions, blogSlug) => {
           content: true,
           photo: true,
           type: true,
+          slug: true,
           author: {
             select: {
               id: true,
@@ -318,7 +319,7 @@ const editAdminBlogDetailService = async (
     throw new Error("Blog not found");
   }
 
-  if (slug !== blogSlug) {
+  if (slug && slug !== blogSlug) {
     const isSlugExist = await prisma.blog.findUnique({
       where: { slug },
       select: { slug: true },
@@ -336,16 +337,17 @@ const editAdminBlogDetailService = async (
     }
   }
 
+  const dataToUpdate = {};
+  if (title) dataToUpdate.title = title;
+  if (content) dataToUpdate.content = content;
+  if (type) dataToUpdate.type = type;
+  if (authorId) dataToUpdate.authorId = authorId;
+  if (slug) dataToUpdate.slug = slug;
+  if (photoName) dataToUpdate.photo = photoName;
+
   const updateBlogData = await prisma.blog.update({
     where: { slug: blogSlug },
-    data: {
-      title,
-      content,
-      type,
-      authorId,
-      slug,
-      ...(photoName && { photo: photoName }),
-    },
+    data: dataToUpdate,
   });
 
   return updateBlogData;
@@ -1118,6 +1120,7 @@ const getAdminInquiryService = async (role, permissions, page, search, startDate
         select: {
           id: true,
           senderName: true,
+          email: true,
           subject: true,
           createdAt: true,
         },
