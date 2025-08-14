@@ -6,6 +6,10 @@ import "dotenv/config";
 
 import { prisma } from "../database.js";
 import { AuthError } from "../helpers/class/auth-error.js";
+import { fileURLToPath } from "url";
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 /**
  * Auth
@@ -118,7 +122,9 @@ const dashboardAdminService = async (id, role, permissions) => {
       findApplicationDatas = await prisma.application.findMany({
         select: {
           id: true,
+          careerId: true,
           applicantName: true,
+          position: true,
           career: {
             select: {
               title: true,
@@ -958,25 +964,17 @@ const editAdminProductDetailService = async (role, permissions, productId, title
 
       if (!oldProduct) throw new Error("Product not found");
 
-      if (oldProduct.mainPhoto && oldProduct.mainPhoto !== mainPhoto) {
+      if (oldProduct.mainPhoto && mainPhoto && oldProduct.mainPhoto !== mainPhoto) {
         const oldPhotoPath = path.join(__dirname, "../../public/products", oldProduct.mainPhoto);
-        if (fs.existsSync(oldPhotoPath)) {
-          fs.unlinkSync(oldPhotoPath);
-        }
+        if (fs.existsSync(oldPhotoPath)) fs.unlinkSync(oldPhotoPath);
       }
-
-      if (oldProduct.secondPhoto && oldProduct.secondPhoto !== secondPhoto) {
-        const oldPhotoPath = path.join(__dirname, "../../public/products", oldProduct.mainPhoto);
-        if (fs.existsSync(oldPhotoPath)) {
-          fs.unlinkSync(oldPhotoPath);
-        }
+      if (oldProduct.secondPhoto && secondPhoto && oldProduct.secondPhoto !== secondPhoto) {
+        const oldPhotoPath = path.join(__dirname, "../../public/products", oldProduct.secondPhoto);
+        if (fs.existsSync(oldPhotoPath)) fs.unlinkSync(oldPhotoPath);
       }
-
-      if (oldProduct.thirdPhoto && oldProduct.thirdPhoto !== thirdPhoto) {
-        const oldPhotoPath = path.join(__dirname, "../../public/products", oldProduct.mainPhoto);
-        if (fs.existsSync(oldPhotoPath)) {
-          fs.unlinkSync(oldPhotoPath);
-        }
+      if (oldProduct.thirdPhoto && thirdPhoto && oldProduct.thirdPhoto !== thirdPhoto) {
+        const oldPhotoPath = path.join(__dirname, "../../public/products", oldProduct.thirdPhoto);
+        if (fs.existsSync(oldPhotoPath)) fs.unlinkSync(oldPhotoPath);
       }
 
       editProductData = await prisma.product.update({
@@ -988,9 +986,9 @@ const editAdminProductDetailService = async (role, permissions, productId, title
           description: description,
           mainFeature: mainFeature,
           advantage: advantage,
-          mainPhoto: mainPhoto,
-          secondPhoto: secondPhoto,
-          thirdPhoto: thirdPhoto,
+          mainPhoto: mainPhoto || oldProduct.mainPhoto,
+          secondPhoto: secondPhoto || oldProduct.secondPhoto,
+          thirdPhoto: thirdPhoto || oldProduct.thirdPhoto
         },
       });
     } else {

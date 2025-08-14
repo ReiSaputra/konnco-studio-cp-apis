@@ -720,16 +720,15 @@ const editAdminProductDetailController = async (req, res, next) => {
     const { productId } = req.params;
 
     const { title, description, mainFeature, advantage } = req.body;
-    const [mainPhoto, secondPhoto, thirdPhoto] = req.files;
+    const mainPhoto = req.files?.mainPhoto?.[0] || null;
+    const secondPhoto = req.files?.secondPhoto?.[0] || null;
+    const thirdPhoto = req.files?.thirdPhoto?.[0] || null;
 
     if (!title) throw new PropertyError("Title is required");
     if (!description) throw new PropertyError("Description is required");
     if (!mainFeature) throw new PropertyError("Main Feature is required");
     if (!advantage) throw new PropertyError("Advantage is required");
-    if (!mainPhoto)
-      throw new FileUploadError(
-        "Either Main Photo is required or File Mime Type is not JPG/JPEG"
-      );
+ 
 
     validate(productIdSchema, productId);
     validate(productSchema, {
@@ -737,7 +736,7 @@ const editAdminProductDetailController = async (req, res, next) => {
       description,
       mainFeature,
       advantage,
-      mainPhoto: mainPhoto.filename,
+      mainPhoto: mainPhoto?.filename,
     });
 
     const data = await editAdminProductDetailService(
