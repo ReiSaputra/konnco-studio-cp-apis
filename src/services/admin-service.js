@@ -6,6 +6,10 @@ import "dotenv/config";
 
 import { prisma } from "../database.js";
 import { AuthError } from "../helpers/class/auth-error.js";
+import { fileURLToPath } from "url";
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 /**
  * Auth
@@ -37,7 +41,10 @@ const loginAdminService = async (email, password) => {
     time: Date.now(),
   };
 
-  const tokenEncrypt = CryptoJS.AES.encrypt(JSON.stringify(payload), process.env.SECRET_KEY).toString();
+  const tokenEncrypt = CryptoJS.AES.encrypt(
+    JSON.stringify(payload),
+    process.env.SECRET_KEY
+  ).toString();
 
   await prisma.admin.update({
     where: { id: findData.id },
@@ -176,7 +183,9 @@ const dashboardAdminService = async (id, role, permissions) => {
       findApplicationDatas = await prisma.application.findMany({
         select: {
           id: true,
+          careerId: true,
           applicantName: true,
+          position: true,
           career: {
             select: {
               title: true,
@@ -202,7 +211,15 @@ const dashboardAdminService = async (id, role, permissions) => {
   };
 };
 
-const getAdminBlogService = async (id, role, permissions, page, search, category, status) => {
+const getAdminBlogService = async (
+  id,
+  role,
+  permissions,
+  page,
+  search,
+  category,
+  status
+) => {
   let findBlogDatas = null;
   let countData = null;
 
@@ -321,6 +338,7 @@ const getAdminBlogDetailService = async (role, permissions, blogSlug) => {
           content: true,
           photo: true,
           type: true,
+          slug: true,
           author: {
             select: {
               id: true,
@@ -340,7 +358,17 @@ const getAdminBlogDetailService = async (role, permissions, blogSlug) => {
   return findBlogData;
 };
 
-const editAdminBlogDetailService = async (role, permissions, blogSlug, title, content, photoName, type, authorId, slug) => {
+const editAdminBlogDetailService = async (
+  role,
+  permissions,
+  blogSlug,
+  title,
+  content,
+  photoName,
+  type,
+  authorId,
+  slug
+) => {
   if (role !== "ADMIN" && role !== "SUPER_ADMIN") {
     throw new Error("Unauthorized role");
   }
@@ -358,7 +386,7 @@ const editAdminBlogDetailService = async (role, permissions, blogSlug, title, co
     throw new Error("Blog not found");
   }
 
-  if (slug !== blogSlug) {
+  if (slug && slug !== blogSlug) {
     const isSlugExist = await prisma.blog.findUnique({
       where: { slug },
       select: { slug: true },
@@ -376,22 +404,32 @@ const editAdminBlogDetailService = async (role, permissions, blogSlug, title, co
     }
   }
 
+  const dataToUpdate = {};
+  if (title) dataToUpdate.title = title;
+  if (content) dataToUpdate.content = content;
+  if (type) dataToUpdate.type = type;
+  if (authorId) dataToUpdate.authorId = authorId;
+  if (slug) dataToUpdate.slug = slug;
+  if (photoName) dataToUpdate.photo = photoName;
+
   const updateBlogData = await prisma.blog.update({
     where: { slug: blogSlug },
-    data: {
-      title,
-      content,
-      type,
-      authorId,
-      slug,
-      ...(photoName && { photo: photoName }),
-    },
+    data: dataToUpdate,
   });
 
   return updateBlogData;
 };
 
-const createAdminBlogService = async (role, permissions, title, content, photoName, type, authorId, slug) => {
+const createAdminBlogService = async (
+  role,
+  permissions,
+  title,
+  content,
+  photoName,
+  type,
+  authorId,
+  slug
+) => {
   let createData = null;
 
   if (role === "ADMIN" || role === "SUPER_ADMIN") {
@@ -564,17 +602,35 @@ const getAdminCareerDetailService = async (role, permissions, careerId) => {
   return findCareerData;
 };
 
-const editAdminCareerDetailService = async (id, role, permissions, careerId, title, description, salary, requirements, type, linkedInInfo, jobStreetInfo, glintsInfo, tags) => {
+const editAdminCareerDetailService = async (
+  id,
+  role,
+  permissions,
+  careerId,
+  title,
+  description,
+  salary,
+  requirements,
+  type,
+  linkedInInfo,
+  jobStreetInfo,
+  glintsInfo,
+  tags
+) => {
   let editData = null;
 
   if (role === "ADMIN" || role === "SUPER_ADMIN") {
     if (permissions.canUpdateCareer) {
-      const findData = await prisma.career.findUnique({ where: { id: parseInt(careerId) } });
+      const findData = await prisma.career.findUnique({
+        where: { id: parseInt(careerId) },
+      });
 
       if (!findData) throw new Error("Career not found");
 
       const tagEach = tags.map((tag) => tag.trim()).join(", ");
-      const requirementEach = requirements.map((requirement) => requirement.trim()).join(", ");
+      const requirementEach = requirements
+        .map((requirement) => requirement.trim())
+        .join(", ");
 
       editData = await prisma.career.update({
         where: {
@@ -603,13 +659,28 @@ const editAdminCareerDetailService = async (id, role, permissions, careerId, tit
   return editData;
 };
 
-const createAdminCareerService = async (id, role, permissions, title, description, salary, requirements, type, linkedInInfo, jobStreetInfo, glintsInfo, tags) => {
+const createAdminCareerService = async (
+  id,
+  role,
+  permissions,
+  title,
+  description,
+  salary,
+  requirements,
+  type,
+  linkedInInfo,
+  jobStreetInfo,
+  glintsInfo,
+  tags
+) => {
   let createData = null;
 
   if (role === "ADMIN" || role === "SUPER_ADMIN") {
     if (permissions.canCreateCareer) {
       const tagEach = tags.map((tag) => tag.trim()).join(", ");
-      const requirementEach = requirements.map((requirement) => requirement.trim()).join(", ");
+      const requirementEach = requirements
+        .map((requirement) => requirement.trim())
+        .join(", ");
 
       createData = await prisma.career.create({
         data: {
@@ -663,7 +734,15 @@ const deleteAdminCareerDetailService = async (role, permissions, careerId) => {
   }
 };
 
-const getAdminCareerApplicationService = async (id, role, permissions, page, search, startDate, endDate) => {
+const getAdminCareerApplicationService = async (
+  id,
+  role,
+  permissions,
+  page,
+  search,
+  startDate,
+  endDate
+) => {
   let findCareerApplicationDatas;
   let countData;
 
@@ -693,8 +772,11 @@ const getAdminCareerApplicationService = async (id, role, permissions, page, sea
         skip: offset,
         take: 10,
         select: {
+          id: true,
+          careerId: true,
           applicantName: true,
           createdAt: true,
+          position: true,
           career: {
             select: {
               title: true,
@@ -708,13 +790,17 @@ const getAdminCareerApplicationService = async (id, role, permissions, page, sea
 
       countData = await prisma.application.count({ where });
     } else {
-      throw new Error("You don't have permission to show admin career applications");
+      throw new Error(
+        "You don't have permission to show admin career applications"
+      );
     }
   } else if (role === "SUPER_ADMIN") {
     if (permissions.canShowApplication) {
       const where = {};
-      if (search) where.applicantName = { contains: search, mode: "insensitive" };
-      if (startDate && endDate) where.createdAt = { gte: startDate, lte: endDate };
+      if (search)
+        where.applicantName = { contains: search, mode: "insensitive" };
+      if (startDate && endDate)
+        where.createdAt = { gte: startDate, lte: endDate };
 
       findCareerApplicationDatas = await prisma.career.findMany({
         where,
@@ -738,10 +824,14 @@ const getAdminCareerApplicationService = async (id, role, permissions, page, sea
 
       countData = await prisma.career.count({ where });
     } else {
-      throw new Error("You don't have permission to show admin career applications");
+      throw new Error(
+        "You don't have permission to show admin career applications"
+      );
     }
   } else {
-    throw new Error("You don't have permission to show admin career applications");
+    throw new Error(
+      "You don't have permission to show admin career applications"
+    );
   }
 
   return {
@@ -755,7 +845,12 @@ const getAdminCareerApplicationService = async (id, role, permissions, page, sea
   };
 };
 
-const getAdminCareerApplicationDetailService = async (role, permissions, careerId, applicationId) => {
+const getAdminCareerApplicationDetailService = async (
+  role,
+  permissions,
+  careerId,
+  applicationId
+) => {
   let findCareerApplicationData = null;
 
   if (role === "ADMIN" || role === "SUPER_ADMIN") {
@@ -773,6 +868,8 @@ const getAdminCareerApplicationDetailService = async (role, permissions, careerI
           id: applicationId,
         },
         select: {
+          id: true,
+          careerId: true,
           applicantName: true,
           email: true,
           phoneNumber: true,
@@ -794,16 +891,25 @@ const getAdminCareerApplicationDetailService = async (role, permissions, careerI
 
       if (!findCareerApplicationData) throw new Error("Application not found");
     } else {
-      throw new Error("You don't have permission to view admin career applications");
+      throw new Error(
+        "You don't have permission to view admin career applications"
+      );
     }
   } else {
-    throw new Error("You don't have permission to view admin career applications");
+    throw new Error(
+      "You don't have permission to view admin career applications"
+    );
   }
 
   return findCareerApplicationData;
 };
 
-const deleteAdminCareerApplicationDetailService = async (role, permissions, careerId, applicationId) => {
+const deleteAdminCareerApplicationDetailService = async (
+  role,
+  permissions,
+  careerId,
+  applicationId
+) => {
   let deleteData = null;
 
   if (role === "ADMIN" || role === "SUPER_ADMIN") {
@@ -838,10 +944,14 @@ const deleteAdminCareerApplicationDetailService = async (role, permissions, care
         },
       });
     } else {
-      throw new Error("You don't have permission to delete admin career applications");
+      throw new Error(
+        "You don't have permission to delete admin career applications"
+      );
     }
   } else {
-    throw new Error("You don't have permission to delete admin career applications");
+    throw new Error(
+      "You don't have permission to delete admin career applications"
+    );
   }
 
   return deleteData;
@@ -915,25 +1025,17 @@ const editAdminProductDetailService = async (role, permissions, productId, title
 
       if (!oldProduct) throw new Error("Product not found");
 
-      if (oldProduct.mainPhoto && oldProduct.mainPhoto !== mainPhoto) {
+      if (oldProduct.mainPhoto && mainPhoto && oldProduct.mainPhoto !== mainPhoto) {
         const oldPhotoPath = path.join(__dirname, "../../public/products", oldProduct.mainPhoto);
-        if (fs.existsSync(oldPhotoPath)) {
-          fs.unlinkSync(oldPhotoPath);
-        }
+        if (fs.existsSync(oldPhotoPath)) fs.unlinkSync(oldPhotoPath);
       }
-
-      if (oldProduct.secondPhoto && oldProduct.secondPhoto !== secondPhoto) {
-        const oldPhotoPath = path.join(__dirname, "../../public/products", oldProduct.mainPhoto);
-        if (fs.existsSync(oldPhotoPath)) {
-          fs.unlinkSync(oldPhotoPath);
-        }
+      if (oldProduct.secondPhoto && secondPhoto && oldProduct.secondPhoto !== secondPhoto) {
+        const oldPhotoPath = path.join(__dirname, "../../public/products", oldProduct.secondPhoto);
+        if (fs.existsSync(oldPhotoPath)) fs.unlinkSync(oldPhotoPath);
       }
-
-      if (oldProduct.thirdPhoto && oldProduct.thirdPhoto !== thirdPhoto) {
-        const oldPhotoPath = path.join(__dirname, "../../public/products", oldProduct.mainPhoto);
-        if (fs.existsSync(oldPhotoPath)) {
-          fs.unlinkSync(oldPhotoPath);
-        }
+      if (oldProduct.thirdPhoto && thirdPhoto && oldProduct.thirdPhoto !== thirdPhoto) {
+        const oldPhotoPath = path.join(__dirname, "../../public/products", oldProduct.thirdPhoto);
+        if (fs.existsSync(oldPhotoPath)) fs.unlinkSync(oldPhotoPath);
       }
 
       editProductData = await prisma.product.update({
@@ -945,9 +1047,9 @@ const editAdminProductDetailService = async (role, permissions, productId, title
           description: description,
           mainFeature: mainFeature,
           advantage: advantage,
-          mainPhoto: mainPhoto,
-          secondPhoto: secondPhoto,
-          thirdPhoto: thirdPhoto,
+          mainPhoto: mainPhoto || oldProduct.mainPhoto,
+          secondPhoto: secondPhoto || oldProduct.secondPhoto,
+          thirdPhoto: thirdPhoto || oldProduct.thirdPhoto
         },
       });
     } else {
@@ -960,7 +1062,17 @@ const editAdminProductDetailService = async (role, permissions, productId, title
   return editProductData;
 };
 
-const createAdminProductService = async (role, permissions, title, description, mainFeature, advantage, mainPhoto, secondPhoto, thirdPhoto) => {
+const createAdminProductService = async (
+  role,
+  permissions,
+  title,
+  description,
+  mainFeature,
+  advantage,
+  mainPhoto,
+  secondPhoto,
+  thirdPhoto
+) => {
   let createProductData = null;
 
   if (role === "ADMIN" || role === "SUPER_ADMIN") {
@@ -1067,6 +1179,7 @@ const getAdminInquiryService = async (role, permissions, page, search, startDate
         select: {
           id: true,
           senderName: true,
+          email: true,
           subject: true,
           createdAt: true,
         },
