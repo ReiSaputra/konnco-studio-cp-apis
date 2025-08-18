@@ -113,6 +113,67 @@ const dashboardAdminService = async (id, role, permissions) => {
 
     if (permissions.canShowApplication) {
       findApplicationDatas = await prisma.application.findMany({
+        where: {
+          career: {
+            authorId: id,
+          },
+        },
+        select: {
+          id: true,
+          applicantName: true,
+          career: {
+            select: {
+              title: true,
+            },
+          },
+        },
+        take: 5,
+        orderBy: {
+          createdAt: "desc",
+        },
+      });
+    }
+  } else if (role === "SUPER_ADMIN") {
+    countBlogData = await prisma.blog.count();
+
+    countApplicationData = await prisma.application.count();
+
+    if (permissions.canShowBlog) {
+      findBlogDatas = await prisma.blog.findMany({
+        select: {
+          title: true,
+          slug: true,
+          type: true,
+          author: {
+            select: {
+              name: true,
+            },
+          },
+        },
+        take: 5,
+        orderBy: {
+          createdAt: "desc",
+        },
+      });
+    }
+
+    if (permissions.canShowAdmin) {
+      findAdminDatas = await prisma.admin.findMany({
+        select: {
+          id: true,
+          name: true,
+          email: true,
+          role: true,
+        },
+        take: 4,
+        orderBy: {
+          name: "asc",
+        },
+      });
+    }
+
+    if (permissions.canShowApplication) {
+      findApplicationDatas = await prisma.application.findMany({
         select: {
           id: true,
           applicantName: true,
@@ -129,7 +190,7 @@ const dashboardAdminService = async (id, role, permissions) => {
       });
     }
   } else {
-    
+    throw new Error("You don't have permission to show dashboard");
   }
 
   return {
