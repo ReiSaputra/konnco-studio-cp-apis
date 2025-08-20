@@ -9,6 +9,7 @@ import { inquiryRoute } from "./routes/inquiry-route.js";
 import { careerRoute } from "./routes/career-route.js";
 import { adminRoute } from "./routes/admin-route.js";
 import { productRoute } from "./routes/product-route.js";
+import { superAdminRoute } from "./routes/super-admin-route.js";
 
 const app = express();
 
@@ -19,6 +20,7 @@ app.use(express.static("public"));
 
 // API routes
 app.use("/api/v1", adminRoute);
+app.use("/api/v1", superAdminRoute)
 app.use("/api/v1", blogRoute);
 app.use("/api/v1", productRoute);
 app.use("/api/v1", inquiryRoute);

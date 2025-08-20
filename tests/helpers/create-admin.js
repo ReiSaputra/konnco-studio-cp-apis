@@ -26,9 +26,7 @@ const run = async () => {
         canDeleteCareer: false,
 
         canShowApplication: true,
-        canCreateApplication: false,
         canViewApplication: false,
-        canUpdateApplication: false,
         canDeleteApplication: false,
 
         canShowProduct: false,
@@ -46,7 +44,6 @@ const run = async () => {
     },
   },
 });
-
 
   console.log("Admin created");
 };

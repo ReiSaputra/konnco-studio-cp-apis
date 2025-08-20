@@ -13,8 +13,6 @@ const authSchema = joi.object({
   password: joi.string().max(255).required(),
 });
 
-const adminSchema = joi.object({});
-
 const getAdminBlogSchema = joi.object({
   page: joi.number().integer().min(1).default(1),
   search: joi.string().allow("").max(255).optional(),

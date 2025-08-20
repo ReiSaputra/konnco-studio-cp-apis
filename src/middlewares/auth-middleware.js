@@ -13,7 +13,7 @@ const authMiddleware = async (req, res, next) => {
 
     const bytes = CryptoJS.AES.decrypt(token, process.env.SECRET_KEY).toString(CryptoJS.enc.Utf8);
     const decryptedPayload = JSON.parse(bytes.toString(CryptoJS.enc.Utf8));
-
+    
     const findUser = await prisma.admin.findUnique({
       where: {
         id: decryptedPayload.id,
@@ -28,7 +28,7 @@ const authMiddleware = async (req, res, next) => {
     });
 
     if (!findUser) throw new TokenError("Unauthorized", 401);
-
+    
     req.user = findUser;
 
     next();
