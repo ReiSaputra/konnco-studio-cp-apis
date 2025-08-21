@@ -105,20 +105,20 @@ const updateAdminService = async (role, permissions, adminId, request) => {
       if (!findAdmin) throw new Error("Admin not found");
 
       const findAdminEmail = await prisma.admin.findUnique({
-        where: {
-          email: request.email,
-        },
+        where: { email: request.email },
       });
 
-      if (findAdminEmail) throw new Error("Email Admin already exist");
+      if (findAdminEmail && findAdminEmail.id !== adminId) {
+        throw new Error("Email Admin already exist");
+      }
 
       const findAdminPhoneNumber = await prisma.admin.findUnique({
-        where: {
-          phoneNumber: request.phoneNumber,
-        },
+        where: { phoneNumber: request.phoneNumber },
       });
 
-      if (findAdminPhoneNumber) throw new Error("Phone Number Admin already exist");
+      if (findAdminPhoneNumber && findAdminPhoneNumber.id !== adminId) {
+        throw new Error("Phone Number Admin already exist");
+      }
 
       updateAdmin = await prisma.admin.update({
         where: {
